@@ -1,0 +1,7 @@
+ [workspace]
+ resolver = "2"
+ members = [
+    "protocol/constellation-token",
+    "protocol/constellation-minter-burner",
+    # "protocol/constellation-token-factory"
+ ]
