@@ -1,2 +1,8 @@
 #![no_std]
-mod token_interface_helpers;
+mod component;
+mod contract;
+pub mod error;
+mod manager;
+mod test;
+mod token_interface_storage;
+mod types;
