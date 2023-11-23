@@ -1,6 +1,6 @@
 use soroban_sdk::{Address, Env};
 
-use crate::token_interface_helpers::storage_types::DataKey;
+use crate::token_interface_storage::storage_types::DataKey;
 
 pub fn has_administrator(e: &Env) -> bool {
     let key = DataKey::Admin;
