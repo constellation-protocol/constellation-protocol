@@ -7,8 +7,10 @@ use soroban_sdk::{
 
 #[contracterror]
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
-// #[repr(u32)]
-pub enum Error {}
+#[repr(u32)]
+pub enum Error {
+    InsufficientBalance = 1,
+}
 
 pub fn check_nonnegative_amount(amount: i128) {
     if amount < 0 {

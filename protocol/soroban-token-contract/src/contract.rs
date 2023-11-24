@@ -1,46 +1,35 @@
-use crate::component::read_components;
-use crate::component::write_components;
-use crate::error::check_nonnegative_amount;
-use crate::error::Error;
-use crate::manager::{read_manager, write_manager};
-use crate::token_interface_storage::admin::read_administrator;
-use crate::token_interface_storage::admin::{has_administrator, write_administrator};
-use crate::token_interface_storage::allowance::*;
-use crate::token_interface_storage::balance::*;
-use crate::token_interface_storage::metadata::*;
-use crate::token_interface_storage::metadata::{
-    read_decimal, read_name, read_symbol, write_metadata,
-};
-use crate::token_interface_storage::storage_types::{
-    INSTANCE_BUMP_AMOUNT, INSTANCE_LIFETIME_THRESHOLD,
-};
-use crate::types::Component;
-use soroban_sdk::{
-    contract, contractimpl, contracttype, log, symbol_short, token, token::Interface, Address, Env,
-    String, Symbol, Vec,
-};
-use soroban_token_sdk::{metadata::TokenMetadata, TokenUtils};
+//! This contract demonstrates a sample implementation of the Soroban token
+//! interface.
+use crate::admin::{has_administrator, read_administrator, write_administrator};
+use crate::allowance::{read_allowance, spend_allowance, write_allowance};
+use crate::balance::{read_balance, receive_balance, spend_balance};
+use crate::metadata::{read_decimal, read_name, read_symbol, write_metadata};
+use crate::storage_types::{INSTANCE_BUMP_AMOUNT, INSTANCE_LIFETIME_THRESHOLD};
+use soroban_sdk::token::{self, Interface as _};
+use soroban_sdk::{contract, contractimpl, Address, Env, String};
+use soroban_token_sdk::metadata::TokenMetadata;
+use soroban_token_sdk::TokenUtils;
+
+fn check_nonnegative_amount(amount: i128) {
+    if amount < 0 {
+        panic!("negative amount is not allowed: {}", amount)
+    }
+}
 
 #[contract]
-pub struct ConstellationToken;
+pub struct Token;
 
 #[contractimpl]
-impl ConstellationToken {
-    pub fn initialize(
-        e: Env,
-        decimal: u32,
-        components: Vec<Address>,
-        amounts: Vec<i128>,
-        name: String,
-        symbol: String,
-        admin: Address,
-        manager: Address,
-    ) {
+impl Token {
+    pub fn initialize(e: Env, admin: Address, decimal: u32, name: String, symbol: String) {
         if has_administrator(&e) {
             panic!("already initialized")
         }
         write_administrator(&e, &admin);
-        write_manager(&e, &manager);
+        if decimal > u8::MAX.into() {
+            panic!("Decimal must fit in a u8");
+        }
+
         write_metadata(
             &e,
             TokenMetadata {
@@ -48,13 +37,10 @@ impl ConstellationToken {
                 name,
                 symbol,
             },
-        );
-        write_components(&e, components, amounts);
+        )
     }
 
-    // notes - amount is amount of ctoken user wants to mint
-    // multiply each component amount by amount to get the ctoken to mint
-    pub fn mint(e: Env, to: Address, amount: i128) -> Result<(), Error> {
+    pub fn mint(e: Env, to: Address, amount: i128) {
         check_nonnegative_amount(amount);
         let admin = read_administrator(&e);
         admin.require_auth();
@@ -63,44 +49,25 @@ impl ConstellationToken {
             .instance()
             .bump(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
 
-        let components = read_components(&e);
-        for c in components.iter() {
-            let quantity = c.amount * amount; // unit * amount
-
-            let _token = token::Client::new(&e, &c.address);
-            if _token.balance(&to) < quantity {
-                return Err(Error::InsufficientBalance);
-            }
-            _token.transfer_from(
-                &e.current_contract_address(),
-                &to,
-                &&e.current_contract_address(),
-                &quantity,
-            )
-        }
         receive_balance(&e, to.clone(), amount);
         TokenUtils::new(&e).events().mint(admin, to, amount);
-        Ok(())
     }
 
-    ////////////////////////////////////////////////////////////////
-    /////// Read Only functions //////////////////////////////////
-    ////////////////////////////////////////////////////////////////
-    pub fn admin(e: Env) -> Address {
-        read_administrator(&e)
-    }
+    pub fn set_admin(e: Env, new_admin: Address) {
+        let admin = read_administrator(&e);
+        admin.require_auth();
 
-    pub fn components(e: Env) -> Vec<Component> {
-        read_components(&e)
-    }
+        e.storage()
+            .instance()
+            .bump(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
 
-    pub fn manager(e: Env) -> Address {
-        read_manager(&e)
+        write_administrator(&e, &new_admin);
+        TokenUtils::new(&e).events().set_admin(admin, new_admin);
     }
 }
 
 #[contractimpl]
-impl token::Interface for ConstellationToken {
+impl token::Interface for Token {
     fn allowance(e: Env, from: Address, spender: Address) -> i128 {
         e.storage()
             .instance()
