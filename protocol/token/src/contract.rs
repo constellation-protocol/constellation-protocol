@@ -1,3 +1,4 @@
+use crate::component;
 use crate::component::read_components;
 use crate::component::write_components;
 use crate::error::check_nonnegative_amount;
@@ -52,8 +53,6 @@ impl ConstellationToken {
         write_components(&e, components, amounts);
     }
 
-    // notes - amount is amount of ctoken user wants to mint
-    // multiply each component amount by amount to get the ctoken to mint
     pub fn mint(e: Env, to: Address, amount: i128) -> Result<(), Error> {
         check_nonnegative_amount(amount);
         let admin = read_administrator(&e);
@@ -166,16 +165,43 @@ impl token::Interface for ConstellationToken {
         TokenUtils::new(&e).events().transfer(from, to, amount)
     }
 
-    fn burn(e: Env, from: Address, amount: i128) {
-        from.require_auth();
+    // fn burn(e: Env, from: Address, amount: i128) {
+    //     from.require_auth();
 
+    //     check_nonnegative_amount(amount);
+
+    //     e.storage()
+    //         .instance()
+    //         .bump(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
+
+    //     spend_balance(&e, from.clone(), amount);
+    //     TokenUtils::new(&e).events().burn(from, amount);
+    // }
+
+    fn burn(e: Env, from: Address, amount: i128) {
         check_nonnegative_amount(amount);
+        let admin = read_administrator(&e);
+        admin.require_auth();
+
+        if read_balance(&e, from.clone()) < amount {
+            panic!("insufficient balance");
+        }
 
         e.storage()
             .instance()
             .bump(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
 
         spend_balance(&e, from.clone(), amount);
+
+        let components = read_components(&e);
+        for c in components.iter() {
+            let _token = token::Client::new(&e, &c.address);
+            _token.transfer(
+                &e.current_contract_address(),
+                &from.clone(),
+                &(c.amount * amount),
+            );
+        }
         TokenUtils::new(&e).events().burn(from, amount);
     }
 
