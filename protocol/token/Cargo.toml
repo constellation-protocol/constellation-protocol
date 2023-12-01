@@ -6,10 +6,9 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
 crate-type = ["cdylib"]
-doctest = false
 
 [dependencies]
-soroban-sdk = { version = "20.0.0-rc2", features = ["alloc"] }
+soroban-sdk = { version = "20.0.0-rc2" }
 soroban-token-sdk = { version = "20.0.0-rc2" }
 
 [dev-dependencies]

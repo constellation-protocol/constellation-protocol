@@ -2,7 +2,6 @@
  resolver = "2"
  members = [
     "protocol/token",
-     "protocol/soroban-token-contract",
     "protocol/minter-burner",
     "protocol/factory"
  ]

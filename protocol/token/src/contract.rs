@@ -37,20 +37,24 @@ impl ConstellationToken {
         admin: Address,
         manager: Address,
     ) {
-        if has_administrator(&e) {
-            panic!("already initialized")
-        }
-        write_administrator(&e, &admin);
-        write_manager(&e, &manager);
-        write_metadata(
-            &e,
-            TokenMetadata {
-                decimal,
-                name,
-                symbol,
-            },
-        );
-        write_components(&e, components, amounts);
+
+    //    if decimal > u8::MAX.into() {
+            panic!("already initialized");
+      //  }
+        //if has_administrator(&e) {
+        //  panic!("already initialized");
+       // }
+        // write_administrator(&e, &admin);
+        // write_manager(&e, &manager);
+        // write_metadata(
+        //     &e,
+        //     TokenMetadata {
+        //         decimal,
+        //         name,
+        //         symbol,
+        //     },
+        // );
+        // write_components(&e, components, amounts);
     }
 
     pub fn mint(e: Env, to: Address, amount: i128) -> Result<(), Error> {
@@ -63,28 +67,37 @@ impl ConstellationToken {
             .bump(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
 
         let components = read_components(&e);
+        // let comp =  components.get(1).unwrap();
+        // let _token = token::Client::new(&e, &comp.address);
+   //     if _token.balance(&to) < (comp.amount * amount) {
+       //     panic!("insufficient balance");
+           // return Err(Error::InsufficientBalance);
+      //  }
+        
         for c in components.iter() {
             let quantity = c.amount * amount; // unit * amount
 
             let _token = token::Client::new(&e, &c.address);
             if _token.balance(&to) < quantity {
-                return Err(Error::InsufficientBalance);
+                panic!("insufficient balance");
+               // return Err(Error::InsufficientBalance);
             }
             _token.transfer_from(
                 &e.current_contract_address(),
                 &to,
-                &&e.current_contract_address(),
+                &e.current_contract_address(),
                 &quantity,
-            )
+            );
         }
-        receive_balance(&e, to.clone(), amount);
-        TokenUtils::new(&e).events().mint(admin, to, amount);
-        Ok(())
+       receive_balance(&e, to.clone(), amount);
+       TokenUtils::new(&e).events().mint(admin, to, amount);
+       Ok(())
     }
 
     ////////////////////////////////////////////////////////////////
-    /////// Read Only functions //////////////////////////////////
+    /////// Read Only functions ////////////////////////////////////
     ////////////////////////////////////////////////////////////////
+
     pub fn admin(e: Env) -> Address {
         read_administrator(&e)
     }
@@ -164,19 +177,6 @@ impl token::Interface for ConstellationToken {
         receive_balance(&e, to.clone(), amount);
         TokenUtils::new(&e).events().transfer(from, to, amount)
     }
-
-    // fn burn(e: Env, from: Address, amount: i128) {
-    //     from.require_auth();
-
-    //     check_nonnegative_amount(amount);
-
-    //     e.storage()
-    //         .instance()
-    //         .bump(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
-
-    //     spend_balance(&e, from.clone(), amount);
-    //     TokenUtils::new(&e).events().burn(from, amount);
-    // }
 
     fn burn(e: Env, from: Address, amount: i128) {
         check_nonnegative_amount(amount);
