@@ -3,13 +3,14 @@ use soroban_sdk::{
     Vec,
 };
 
-//  pub type Result<T> = core::result::Result<T, Error>;
+// pub type Result<T> = core::result::Result<T, Error>;
 
 #[contracterror]
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
-#[repr(u32)]
+// #[repr(u32)]
 pub enum Error {
-    InsufficientBalance = 1,
+    AlreadyInitalized = 1,
+    InsufficientBalance = 2,
 }
 
 pub fn check_nonnegative_amount(amount: i128) {
