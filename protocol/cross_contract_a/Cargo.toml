@@ -1,7 +1,8 @@
 [package]
-name = "minter-burner"
+name = "cross_contract_a"
 version = "0.1.0"
 edition = "2021"
+publish = false
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
@@ -10,9 +11,12 @@ doctest = false
 
 [dependencies]
 soroban-sdk = "20.0.0-rc2"
-constellation-token = { path = "../token"}
-[dev-dependencies]
+
+[dev_dependencies]
 soroban-sdk = { version = "20.0.0-rc2", features = ["testutils"] }
+
+[features]
+testutils = ["soroban-sdk/testutils"]
 
 [profile.release]
 opt-level = "z"
