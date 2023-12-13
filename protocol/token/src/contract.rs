@@ -1,5 +1,3 @@
-#![no_std]
-// use crate::component;
 use crate::component::read_components;
 use crate::component::write_components;
 use crate::error::check_nonnegative_amount;
@@ -65,11 +63,7 @@ impl ConstellationToken {
         check_nonnegative_amount(amount);
         let admin = read_administrator(&e);
         admin.require_auth();
-
-        e.storage()
-            .instance()
-            .bump(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
-
+ 
         let components = read_components(&e);
         for c in components.iter() {
             let quantity = c.amount * amount; // unit * amount
@@ -120,7 +114,7 @@ impl token::Interface for ConstellationToken {
 
         e.storage()
             .instance()
-            .bump(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
+            .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
 
         spend_balance(&e, from.clone(), amount);
 
@@ -143,7 +137,7 @@ impl token::Interface for ConstellationToken {
 
         e.storage()
             .instance()
-            .bump(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
+            .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
 
         spend_allowance(&e, from.clone(), spender, amount);
         spend_balance(&e, from.clone(), amount);
@@ -152,7 +146,7 @@ impl token::Interface for ConstellationToken {
     fn allowance(e: Env, from: Address, spender: Address) -> i128 {
         e.storage()
             .instance()
-            .bump(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
+            .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
         read_allowance(&e, from, spender).amount
     }
 
@@ -163,7 +157,7 @@ impl token::Interface for ConstellationToken {
 
         e.storage()
             .instance()
-            .bump(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
+            .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
 
         write_allowance(&e, from.clone(), spender.clone(), amount, expiration_ledger);
         TokenUtils::new(&e)
@@ -174,14 +168,7 @@ impl token::Interface for ConstellationToken {
     fn balance(e: Env, id: Address) -> i128 {
         e.storage()
             .instance()
-            .bump(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
-        read_balance(&e, id)
-    }
-
-    fn spendable_balance(e: Env, id: Address) -> i128 {
-        e.storage()
-            .instance()
-            .bump(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
+            .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
         read_balance(&e, id)
     }
 
@@ -192,7 +179,7 @@ impl token::Interface for ConstellationToken {
 
         e.storage()
             .instance()
-            .bump(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
+            .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
 
         spend_balance(&e, from.clone(), amount);
         receive_balance(&e, to.clone(), amount);
@@ -206,7 +193,7 @@ impl token::Interface for ConstellationToken {
 
         e.storage()
             .instance()
-            .bump(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
+            .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
 
         spend_allowance(&e, from.clone(), spender, amount);
         spend_balance(&e, from.clone(), amount);

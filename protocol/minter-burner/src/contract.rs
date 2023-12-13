@@ -28,7 +28,7 @@ impl MinterBurner {
 
         let ctoken = constellation_token::Client::new(&env, &token_address);
 
-        let mint_result: Result<Result<(), soroban_sdk::ConversionError>, Result<soroban_sdk::Error, std::convert::Infallible>> = ctoken.try_mint(&to, &amount);
+        let mint_result = ctoken.try_mint(&to, &amount);
     
         match mint_result {
             Ok(ok) => {

@@ -1,5 +1,9 @@
 {
     "rust-analyzer.linkedProjects": [
+        "./protocol/token/Cargo.toml",
+        "./protocol/minter-burner/Cargo.toml",
+        "./protocol/token/Cargo.toml",
+        "./protocol/token/Cargo.toml",
         "./protocol/token/Cargo.toml"
     ]
 }
