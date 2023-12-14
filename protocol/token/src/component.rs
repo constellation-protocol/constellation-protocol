@@ -1,6 +1,6 @@
 use crate::error::{ensure_equal_lengths, ensure_none_zero};
 use crate::types::Component;
-use crate::types::{DataKey, COMPONENTS_BUMP_AMOUNT,  COMPONENTS_LIFETIME_THRESHOLD};
+use crate::types::{DataKey, COMPONENTS_BUMP_AMOUNT, COMPONENTS_LIFETIME_THRESHOLD};
 use soroban_sdk::{contracttype, Address, Env, Vec};
 extern crate alloc;
 use alloc::vec;

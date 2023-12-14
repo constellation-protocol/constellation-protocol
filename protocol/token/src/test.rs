@@ -5,15 +5,16 @@ use crate::contract::ConstellationTokenClient;
 use std::println;
 
 use super::error::Error;
-use crate::component::read_components;
-use crate::token;
-use crate::token_interface_storage::admin::read_administrator;
 use soroban_sdk::{
     symbol_short,
     testutils::{Address as _, AuthorizedFunction, AuthorizedInvocation},
     vec, BytesN, Env, IntoVal, Vec,
 };
 use soroban_sdk::{Address, String};
+
+pub mod token {
+    soroban_sdk::contractimport!(file = "../../libs/soroban_token_contract.wasm");
+}
 fn create_token_contract<'a>(e: &Env, admin: &Address) -> token::Client<'a> {
     token::Client::new(e, &e.register_stellar_asset_contract(admin.clone()))
 }
@@ -150,9 +151,9 @@ fn mint_should_fail_with_insufficient_balance_and_revert() {
     token1.approve(&user1, &ct.address, &5000i128, &1000);
     token2.approve(&user1, &ct.address, &5000i128, &1000);
     let res = ct.try_mint(&user1, &3); // mints 2 ctokens / requires 200 of the componnet
-   assert_eq!(res, Err(Ok(Error::InsufficientBalance)));
+    assert_eq!(res, Err(Ok(Error::InsufficientBalance)));
     assert_eq!(token1.balance(&user1), 5000);
-   assert_eq!(token2.balance(&user1), 5000);
+    assert_eq!(token2.balance(&user1), 5000);
 }
 
 #[test]
@@ -220,9 +221,7 @@ fn burn() {
     let symbol = "token_symbol".into_val(&e);
     let admin = Address::generate(&e);
     let manager = Address::generate(&e);
-    let ct: ConstellationTokenClient<'_> = create_constellation_token(
-        &e, 
-    );
+    let ct: ConstellationTokenClient<'_> = create_constellation_token(&e);
 
     ct.initialize(
         &decimal,
@@ -252,7 +251,7 @@ fn burn() {
                 function: AuthorizedFunction::Contract((
                     ct.address.clone(),
                     symbol_short!("burn"),
-                    (&user1,1_i128,).into_val(&e),
+                    (&user1, 1_i128,).into_val(&e),
                 )),
                 sub_invocations: std::vec![]
             }
@@ -279,11 +278,10 @@ fn burn() {
     assert_eq!(token1.balance(&user1), 1000);
     assert_eq!(token2.balance(&ct.address), 0);
     assert_eq!(token2.balance(&user1), 2000);
-
 }
 
 #[test]
-#[should_panic(expected = "insufficient balance")] 
+#[should_panic(expected = "insufficient balance")]
 fn test_burn_should_panic_with_insufficient_balance() {
     let e = Env::default();
     e.mock_all_auths();
@@ -303,9 +301,7 @@ fn test_burn_should_panic_with_insufficient_balance() {
     let symbol = "token_symbol".into_val(&e);
     let admin = Address::generate(&e);
     let manager = Address::generate(&e);
-    let ct: ConstellationTokenClient<'_> = create_constellation_token(
-        &e, 
-    );
+    let ct: ConstellationTokenClient<'_> = create_constellation_token(&e);
 
     ct.initialize(
         &decimal,
@@ -322,6 +318,5 @@ fn test_burn_should_panic_with_insufficient_balance() {
     ct.mint(&user1, &10);
 
     ct.burn(&user1, &1001);
-   assert_eq!(ct.balance(&user1), 10);
-
+    assert_eq!(ct.balance(&user1), 10);
 }

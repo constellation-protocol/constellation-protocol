@@ -27,7 +27,6 @@ pub struct ConstellationToken;
 
 #[contractimpl]
 impl ConstellationToken {
-
     //////////////////////////////////////////////////////////////////
     ///////// mutable functions //////////////////////////////////////
     //////////////////////////////////////////////////////////////////
@@ -42,7 +41,7 @@ impl ConstellationToken {
         manager: Address,
     ) -> Result<(), Error> {
         if has_administrator(&e) {
-           panic_with_error!(&e, Error::AlreadyInitalized);
+            panic_with_error!(&e, Error::AlreadyInitalized);
         }
         write_administrator(&e, &admin);
         write_manager(&e, &manager);
@@ -63,7 +62,7 @@ impl ConstellationToken {
         check_nonnegative_amount(amount);
         let admin = read_administrator(&e);
         admin.require_auth();
- 
+
         let components = read_components(&e);
         for c in components.iter() {
             let quantity = c.amount * amount; // unit * amount
@@ -102,8 +101,7 @@ impl ConstellationToken {
 
 #[contractimpl]
 impl token::Interface for ConstellationToken {
-
-    fn burn(e: Env, from: Address, amount: i128)   {
+    fn burn(e: Env, from: Address, amount: i128) {
         check_nonnegative_amount(amount);
         let admin = read_administrator(&e);
         admin.require_auth();
