@@ -43,7 +43,7 @@ fn test_mint() {
     let user1 = Address::generate(&e);
 
     token1.mint(&user1, &5000);
-    token2.mint(&user1, &50);
+    token2.mint(&user1, &5000);
     let components = vec![&e, token1.address.clone(), token2.address.clone()];
 
     let minter_burner = create_minter_burner(&e);
@@ -71,17 +71,5 @@ fn test_mint() {
     let amount = 1;
     let result = minter_burner.try_mint(&user1, &ct_id, &amount);
 
-    // assert_eq!(ct.balance(&user1), 1);
-
-    //assert_eq!(result, Err(Ok(Val::from(2))));
-
-    assert_eq!(result, Ok(Ok(2)));
-
-   // assert_eq!(result, Err(Ok(Error::MintInsufficientBalance)));
-
-    /*
-
-        let res = ct.try_mint(&user1, &3); // mints 2 ctokens / requires 200 of the componnet
-    assert_eq!(res, Err(Ok(Error::InsufficientBalance)));
-     */
+    assert_eq!(result, Ok(Ok(()))); 
 }

@@ -22,7 +22,7 @@ pub struct MinterBurner;
 
 #[contractimpl]
 impl MinterBurner {
-    pub fn mint(env: Env, to: Address, token_address: Address, amount: i128) -> Result<u64, Error> {
+    pub fn mint(env: Env, to: Address, token_address: Address, amount: i128) -> Result<(), Error> {
         // Minter account needs to authorize
         to.require_auth();
 
@@ -33,24 +33,6 @@ impl MinterBurner {
         let InsufficientBalance = constellation_token::Error::InsufficientBalance as u32;
 
         match mint_result {
-            Ok(result) => match result {
-                Ok(result) => return Ok(1),                      //return Ok(()),
-                Err(e) => return Ok(2), // return Err(Error::ConversionError),
-            },
-
-            Err(err) => {
-                match err {
-                    Ok(val) => {
-                        // let s =  val.as_val();
-                        // return Err(Error::MintError)
-                        return Ok(val.to_val().get_payload());
-                    }
-                    _ => return Ok(4), //Val(4u64)
-                }
-            }
-        }
-
-        match mint_result {
             Ok(result) => match result  {
                 Ok(result) => return Ok(()),
                 Err(e) => return Err(Error::ConversionError),
@@ -59,26 +41,12 @@ impl MinterBurner {
              Err(err) => {
                 match err {
                     Ok(val) => {
-                 
+                        // insufficient balance
                         return Err(Error::MintError)
                     },
-                    _ => Err(Error::ContractInvokeError),
-                    // Err(InvokeError::Contract(InsufficientBalance)) => {
-                    //     return Err(Error::MintInsufficientBalance);
-                    // }
-                    // Err(InvokeError::Abort) => {
-                    //    return  Err(Error::Abort);
-                    // }
+                    _ => return Err(Error::ContractInvokeError), 
                 }
-            }
-            // Err(err) => {
-            //     match err {
-            //         Err(InvokeError::Contract(InsufficientBalance)) => {
-            //             return Err(Error::MintInsufficientBalance);
-            //         }
-            //         _ => Err(Error::MintError),
-            //     }
-            // }
+            } 
         }
     }
 }
