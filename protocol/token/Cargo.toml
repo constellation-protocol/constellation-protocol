@@ -10,7 +10,6 @@ crate-type = ["cdylib"]
 [dependencies]
 soroban-sdk = { version = "20.0.0-rc2", features = ["alloc"]}
 soroban-token-sdk = { version = "20.0.0-rc2" }
-soroban-token-contract = { path = "../../libs/soroban-token-contract", default-features = false}
 
 [dev-dependencies]
 soroban-sdk = { version = "20.0.0-rc2", features = ["testutils", "alloc"] }

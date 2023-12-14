@@ -3,14 +3,16 @@
  nested = true
  members = [
     "protocol/token",
-#    "libs/soroban-token-contract"
-    # "protocol/minter-burner",
-  #  "protocol/factory",
-   #  "protocol/cross_contract_a"
+    "protocol/minter-burner",
+    # "protocol/factory",
  ]
 
 [workspace.dependencies]
 soroban-sdk = "20.0.0-rc2"
+
+[workspace.dev2-dependencies]
+soroban-sdk = { version = "20.0.0-rc2", features = ["testutils", "alloc"] }
+soroban-token-sdk = { version = "20.0.0-rc2" }
 
 [profile.release]
 opt-level = "z"

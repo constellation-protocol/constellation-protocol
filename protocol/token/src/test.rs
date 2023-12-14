@@ -31,16 +31,16 @@ fn test_initialize_should_panic() {
     e.mock_all_auths();
     let components = vec![
         &e,
-        Address::random(&e),
-        Address::random(&e),
-        Address::random(&e),
+        Address::generate(&e),
+        Address::generate(&e),
+        Address::generate(&e),
     ];
     let amounts = vec![&e, 100, 100, 100];
     let decimal: u32 = 6;
     let name = "c_token".into_val(&e);
     let symbol = "token_symbol".into_val(&e);
-    let admin = Address::random(&e);
-    let manager = Address::random(&e);
+    let admin = Address::generate(&e);
+    let manager = Address::generate(&e);
     let ct: ConstellationTokenClient<'_> = create_constellation_token(&e);
 
     ct.initialize(
@@ -55,10 +55,10 @@ fn test_initialize_should_panic() {
 
     let components = vec![
         &e,
-        Address::random(&e),
-        Address::random(&e),
-        Address::random(&e),
-        Address::random(&e),
+        Address::generate(&e),
+        Address::generate(&e),
+        Address::generate(&e),
+        Address::generate(&e),
     ];
 
     let amounts = vec![&e, 100, 100, 100];
@@ -86,16 +86,16 @@ fn test_initialize() {
     e.mock_all_auths();
     let components = vec![
         &e,
-        Address::random(&e),
-        Address::random(&e),
-        Address::random(&e),
+        Address::generate(&e),
+        Address::generate(&e),
+        Address::generate(&e),
     ];
     let amounts = vec![&e, 100, 100, 100];
     let decimal: u32 = 6;
     let name = "c_token".into_val(&e);
     let symbol = "token_symbol".into_val(&e);
-    let admin = Address::random(&e);
-    let manager = Address::random(&e);
+    let admin = Address::generate(&e);
+    let manager = Address::generate(&e);
     let ct: ConstellationTokenClient<'_> = create_constellation_token(&e);
 
     ct.initialize(
@@ -118,13 +118,13 @@ fn test_initialize() {
 fn mint_should_fail_with_insufficient_balance_and_revert() {
     let e = Env::default();
     e.mock_all_auths();
-    let mut admin1 = Address::random(&e);
-    let mut admin2 = Address::random(&e);
+    let mut admin1 = Address::generate(&e);
+    let mut admin2 = Address::generate(&e);
 
     let token1 = create_token_contract(&e, &admin1);
     let token2 = create_token_contract(&e, &admin2);
 
-    let user1 = Address::random(&e);
+    let user1 = Address::generate(&e);
     token1.mint(&user1, &5000);
     token2.mint(&user1, &5000);
     let components = vec![&e, token1.address.clone(), token2.address.clone()];
@@ -133,8 +133,8 @@ fn mint_should_fail_with_insufficient_balance_and_revert() {
     let decimal: u32 = 6;
     let name = "c_token".into_val(&e);
     let symbol = "token_symbol".into_val(&e);
-    let admin = Address::random(&e);
-    let manager = Address::random(&e);
+    let admin = Address::generate(&e);
+    let manager = Address::generate(&e);
     let ct: ConstellationTokenClient<'_> = create_constellation_token(&e);
 
     ct.initialize(
@@ -159,13 +159,13 @@ fn mint_should_fail_with_insufficient_balance_and_revert() {
 fn mint() {
     let e = Env::default();
     e.mock_all_auths();
-    let mut admin1 = Address::random(&e);
-    let mut admin2 = Address::random(&e);
+    let mut admin1 = Address::generate(&e);
+    let mut admin2 = Address::generate(&e);
 
     let token1 = create_token_contract(&e, &admin1);
     let token2 = create_token_contract(&e, &admin2);
 
-    let user1 = Address::random(&e);
+    let user1 = Address::generate(&e);
     token1.mint(&user1, &5000);
     let components = vec![
         &e,
@@ -179,8 +179,8 @@ fn mint() {
     let decimal: u32 = 6;
     let name = "c_token".into_val(&e);
     let symbol = "token_symbol".into_val(&e);
-    let admin = Address::random(&e);
-    let manager = Address::random(&e);
+    let admin = Address::generate(&e);
+    let manager = Address::generate(&e);
     let ct: ConstellationTokenClient<'_> = create_constellation_token(&e);
 
     ct.initialize(
@@ -203,13 +203,13 @@ fn mint() {
 fn burn() {
     let e = Env::default();
     e.mock_all_auths();
-    let mut admin1 = Address::random(&e);
-    let mut admin2 = Address::random(&e);
+    let mut admin1 = Address::generate(&e);
+    let mut admin2 = Address::generate(&e);
 
     let token1 = create_token_contract(&e, &admin1);
     let token2 = create_token_contract(&e, &admin2);
 
-    let user1 = Address::random(&e);
+    let user1 = Address::generate(&e);
     token1.mint(&user1, &1000);
     token2.mint(&user1, &2000);
     let components = vec![&e, token1.address.clone(), token2.address.clone()];
@@ -218,8 +218,8 @@ fn burn() {
     let decimal: u32 = 6;
     let name = "c_token".into_val(&e);
     let symbol = "token_symbol".into_val(&e);
-    let admin = Address::random(&e);
-    let manager = Address::random(&e);
+    let admin = Address::generate(&e);
+    let manager = Address::generate(&e);
     let ct: ConstellationTokenClient<'_> = create_constellation_token(
         &e, 
     );
@@ -287,13 +287,13 @@ fn burn() {
 fn test_burn_should_panic_with_insufficient_balance() {
     let e = Env::default();
     e.mock_all_auths();
-    let mut admin1 = Address::random(&e);
-    let mut admin2 = Address::random(&e);
+    let mut admin1 = Address::generate(&e);
+    let mut admin2 = Address::generate(&e);
 
     let token1 = create_token_contract(&e, &admin1);
     let token2 = create_token_contract(&e, &admin2);
 
-    let user1 = Address::random(&e);
+    let user1 = Address::generate(&e);
     token1.mint(&user1, &1000);
     token2.mint(&user1, &2000);
     let components = vec![&e, token1.address.clone(), token2.address.clone()];
@@ -301,8 +301,8 @@ fn test_burn_should_panic_with_insufficient_balance() {
     let decimal: u32 = 6;
     let name = "c_token".into_val(&e);
     let symbol = "token_symbol".into_val(&e);
-    let admin = Address::random(&e);
-    let manager = Address::random(&e);
+    let admin = Address::generate(&e);
+    let manager = Address::generate(&e);
     let ct: ConstellationTokenClient<'_> = create_constellation_token(
         &e, 
     );

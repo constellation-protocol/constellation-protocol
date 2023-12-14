@@ -1,7 +1,7 @@
 // #![allow(unused)]
 // use soroban_sdk::{xdr::ToXdr, Address, Bytes, BytesN, Env};
 
-// soroban_sdk::contractimport!(file = "../../libs/soroban_token_contract.wasm");
+soroban_sdk::contractimport!(file = "../../libs/soroban_token_contract.wasm");
 
 // pub fn create_contract(
 //     e: &Env,

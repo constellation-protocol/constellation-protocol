@@ -158,7 +158,6 @@ name = "constellation-token"
 version = "0.1.0"
 dependencies = [
  "soroban-sdk",
- "soroban-token-contract",
  "soroban-token-sdk",
 ]
 
@@ -650,6 +649,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "minter-burner"
+version = "0.1.0"
+dependencies = [
+ "constellation-token",
+ "soroban-sdk",
+]
+
+[[package]]
 name = "num-bigint"
 version = "0.4.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1107,14 +1114,6 @@ dependencies = [
  "stellar-xdr",
  "syn",
  "thiserror",
-]
-
-[[package]]
-name = "soroban-token-contract"
-version = "0.0.6"
-dependencies = [
- "soroban-sdk",
- "soroban-token-sdk",
 ]
 
 [[package]]

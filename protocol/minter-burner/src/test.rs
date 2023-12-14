@@ -7,11 +7,11 @@ use soroban_sdk::{
 };
 use crate::contract::{constellation_token, MinterBurner, MinterBurnerClient };
  
-// fn create_minter_burner<'a>(e: &Env) -> MinterBurnerClient<'a> {
-//     let contract_id = &e.register_contract(None, crate::contract::MinterBurner {});
-//     let ct: MinterBurnerClient<'_> = MinterBurnerClient::new(e, contract_id);
-//     ct
-// }
+fn create_minter_burner<'a>(e: &Env) -> MinterBurnerClient<'a> {
+    let contract_id = &e.register_contract(None, crate::contract::MinterBurner {});
+    let ct: MinterBurnerClient<'_> = MinterBurnerClient::new(e, contract_id);
+    ct
+}
 
 #[test]
 fn test_mint() {
@@ -19,5 +19,7 @@ fn test_mint() {
     // e.mock_all_auths();
 
     let c_token_id = e.register_contract_wasm(None, constellation_token::WASM);
-   // let mn = create_minter_burner(&e);
+    let mn = create_minter_burner(&e);
+    let amount = 1000;
+  //  mn.mint(from, to, &c_token_id, amount)
 } 
