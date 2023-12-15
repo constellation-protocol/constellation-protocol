@@ -58,27 +58,17 @@ impl ConstellationToken {
         Ok(())
     }
 
-    pub fn mint(e: Env, to: Address, amount: i128)  {
+    pub fn mint(e: Env, to: Address, amount: i128) {
         check_nonnegative_amount(amount);
         let admin = read_administrator(&e);
         admin.require_auth();
 
-        let components = read_components(&e);
-        for c in components.iter() {
-            let quantity = c.amount * amount; // unit * amount
-            let _token = token::Client::new(&e, &c.address);
-            if _token.balance(&to) < quantity {
-                panic_with_error!(&e, Error::InsufficientBalance);
-            }
-            _token.transfer_from(
-                &e.current_contract_address(),
-                &to,
-                &e.current_contract_address(),
-                &quantity,
-            );
-        }
+        e.storage()
+            .instance()
+            .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
+
         receive_balance(&e, to.clone(), amount);
-        TokenUtils::new(&e).events().mint(admin, to, amount)
+        TokenUtils::new(&e).events().mint(admin, to, amount);
     }
 
     //////////////////////////////////////////////////////////////////

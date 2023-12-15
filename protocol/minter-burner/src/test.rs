@@ -38,7 +38,7 @@ fn create_minter_burner<'a>(e: &Env) -> MinterBurnerClient<'a> {
 
 //     let user1 = Address::generate(&e);
 
-//     let components = vec![&e, 
+//     let components = vec![&e,
 //      Address::generate(&e),
 //      Address::generate(&e),
 //     ];
@@ -60,7 +60,7 @@ fn create_minter_burner<'a>(e: &Env) -> MinterBurnerClient<'a> {
 //         &symbol,
 //         &minter_burner.address,
 //         &manager,
-//     ); 
+//     );
 
 //     let amount = 0;
 //     let result = minter_burner.try_mint(&user1, &ct_id, &amount);
@@ -69,7 +69,6 @@ fn create_minter_burner<'a>(e: &Env) -> MinterBurnerClient<'a> {
 //       left: Err(Ok(Error(Contract, #2)))
 //        right: Ok(Ok(()))
 //      */
-
 //   // assert_eq!(result, Err(Ok(1)));
 //    // assert_eq!(result, Err(Ok(Err(Error::InvalidMintAmount))));
 //      assert_eq!(result, Ok(Ok(())));
@@ -80,27 +79,20 @@ fn create_minter_burner<'a>(e: &Env) -> MinterBurnerClient<'a> {
 fn test_mint() {
     let e = Env::default();
     e.mock_all_auths();
-
     let mut admin1 = Address::generate(&e);
-
     let token1 = create_token_contract(&e, &admin1);
     let token2 = create_token_contract(&e, &admin1);
-
     let user1 = Address::generate(&e);
-
     token1.mint(&user1, &5000);
     token2.mint(&user1, &5000);
     let components = vec![&e, token1.address.clone(), token2.address.clone()];
-
     let minter_burner = create_minter_burner(&e);
-
     let amounts = vec![&e, 100, 100];
     let decimal: u32 = 6;
     let name = "c_token".into_val(&e);
     let symbol = "token_symbol".into_val(&e);
     let manager = Address::generate(&e);
     let (ct, ct_id) = create_constellation_token(&e);
-
     ct.initialize(
         &decimal,
         &components,
@@ -110,14 +102,11 @@ fn test_mint() {
         &minter_burner.address,
         &manager,
     );
-
     token1.approve(&user1, &ct.address, &5000i128, &1000);
     token2.approve(&user1, &ct.address, &5000i128, &1000);
-
     let amount = 100;
     let result = minter_burner.try_mint(&user1, &ct_id, &amount);
-
-     assert_eq!(result, Ok(Ok(())));
-   // assert_eq!(result, Err(Ok(Error::InsufficientBalance)));
-   // assert_eq!(ct.balance(&user1), 2);
+    assert_eq!(result, Ok(Ok(())));
+    //    assert_eq!(result, Err(Ok(Error::InsufficientBalance)));
+    //    assert_eq!(ct.balance(&user1), 2);
 }

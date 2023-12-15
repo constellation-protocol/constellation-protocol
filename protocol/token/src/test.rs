@@ -43,7 +43,6 @@ fn test_initialize_should_panic() {
     let admin = Address::generate(&e);
     let manager = Address::generate(&e);
     let ct: ConstellationTokenClient<'_> = create_constellation_token(&e);
-
     ct.initialize(
         &decimal,
         &components,
@@ -53,7 +52,6 @@ fn test_initialize_should_panic() {
         &admin,
         &manager,
     );
-
     let components = vec![
         &e,
         Address::generate(&e),
@@ -61,9 +59,7 @@ fn test_initialize_should_panic() {
         Address::generate(&e),
         Address::generate(&e),
     ];
-
     let amounts = vec![&e, 100, 100, 100];
-
     let res = ct.try_initialize(
         &decimal,
         &components,
@@ -73,9 +69,7 @@ fn test_initialize_should_panic() {
         &admin,
         &manager,
     );
-
     assert_eq!(res, Err(Ok(Error::AlreadyInitalized)));
-
     assert_eq!(ct.admin(), admin);
     assert_eq!(ct.manager(), manager);
     assert_eq!(ct.components().len(), 3);

@@ -9,6 +9,7 @@ use soroban_sdk::{
 pub enum Error {
     InsufficientBalance = 1,
     InvalidMintAmount = 2,
-    ConversionError = 3,
-    InvokeError = 4,
+    ZeroComponents = 3,
+    ConversionError = 4,
+    InvokeError = 5,
 }
