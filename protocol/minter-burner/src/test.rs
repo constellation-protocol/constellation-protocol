@@ -30,6 +30,52 @@ fn create_minter_burner<'a>(e: &Env) -> MinterBurnerClient<'a> {
     ct
 }
 
+// #[test]
+// fn test_insufficient_mint_amount() {
+//     let e = Env::default();
+//     e.mock_all_auths();
+//     let mut admin1 = Address::generate(&e);
+
+//     let user1 = Address::generate(&e);
+
+//     let components = vec![&e, 
+//      Address::generate(&e),
+//      Address::generate(&e),
+//     ];
+
+//     let minter_burner = create_minter_burner(&e);
+
+//     let amounts = vec![&e, 100, 100];
+//     let decimal: u32 = 6;
+//     let name = "c_token".into_val(&e);
+//     let symbol = "token_symbol".into_val(&e);
+//     let manager = Address::generate(&e);
+//     let (ct, ct_id) = create_constellation_token(&e);
+
+//     ct.initialize(
+//         &decimal,
+//         &components,
+//         &amounts,
+//         &name,
+//         &symbol,
+//         &minter_burner.address,
+//         &manager,
+//     ); 
+
+//     let amount = 0;
+//     let result = minter_burner.try_mint(&user1, &ct_id, &amount);
+
+//     /*
+//       left: Err(Ok(Error(Contract, #2)))
+//        right: Ok(Ok(()))
+//      */
+
+//   // assert_eq!(result, Err(Ok(1)));
+//    // assert_eq!(result, Err(Ok(Err(Error::InvalidMintAmount))));
+//      assert_eq!(result, Ok(Ok(())));
+
+// }
+
 #[test]
 fn test_mint() {
     let e = Env::default();
@@ -68,8 +114,10 @@ fn test_mint() {
     token1.approve(&user1, &ct.address, &5000i128, &1000);
     token2.approve(&user1, &ct.address, &5000i128, &1000);
 
-    let amount = 1;
+    let amount = 100;
     let result = minter_burner.try_mint(&user1, &ct_id, &amount);
 
-    assert_eq!(result, Ok(Ok(()))); 
+     assert_eq!(result, Ok(Ok(())));
+   // assert_eq!(result, Err(Ok(Error::InsufficientBalance)));
+   // assert_eq!(ct.balance(&user1), 2);
 }

@@ -3,15 +3,12 @@ use soroban_sdk::{
     Val, Vec,
 };
 
-// pub type Result<T> = core::result::Result<T, Error>;
-
 #[contracterror]
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
 #[repr(u32)]
 pub enum Error {
-    MintInsufficientBalance = 1,
-    MintError = 2,
-
+    InsufficientBalance = 1,
+    InvalidMintAmount = 2,
     ConversionError = 3,
-    ContractInvokeError = 4,
+    InvokeError = 4,
 }
