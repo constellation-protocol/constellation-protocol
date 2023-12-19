@@ -1,5 +1,5 @@
 [package]
-name = "constellation-minter-burner"
+name = "minter-burner"
 version = "0.1.0"
 edition = "2021"
 
@@ -9,11 +9,10 @@ crate-type = ["cdylib"]
 doctest = false
 
 [dependencies]
-soroban-sdk = "20.0.0-rc2"
-
+soroban-sdk.workspace = true
+constellation-token = { path = "../token"}
 [dev-dependencies]
 soroban-sdk = { version = "20.0.0-rc2", features = ["testutils"] }
-
 
 [profile.release]
 opt-level = "z"

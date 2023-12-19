@@ -1,5 +1,6 @@
-use crate::token_interface_storage::storage_types::{AllowanceDataKey, AllowanceValue, DataKey};
-use soroban_sdk::{Address, Env};
+use crate::{storage_types::{AllowanceDataKey, AllowanceValue, DataKey}, error};
+use soroban_sdk::{Address, Env, panic_with_error};
+use crate::error::Error;
 
 pub fn read_allowance(e: &Env, from: Address, spender: Address) -> AllowanceValue {
     let key = DataKey::Allowance(AllowanceDataKey { from, spender });
@@ -33,7 +34,7 @@ pub fn write_allowance(
     };
 
     if amount > 0 && expiration_ledger < e.ledger().sequence() {
-        panic!("expiration_ledger is less than ledger seq when amount > 0")
+        panic_with_error!(&e, Error::ExpirationLedgerLessThanLedgerSequence); 
     }
 
     let key = DataKey::Allowance(AllowanceDataKey { from, spender });
@@ -44,20 +45,22 @@ pub fn write_allowance(
             .checked_sub(e.ledger().sequence())
             .unwrap();
 
-        e.storage().temporary().bump(&key, live_for, live_for)
+        e.storage().temporary().extend_ttl(&key, live_for, live_for)
     }
 }
 
 pub fn spend_allowance(e: &Env, from: Address, spender: Address, amount: i128) {
     let allowance = read_allowance(e, from.clone(), spender.clone());
     if allowance.amount < amount {
-        panic!("insufficient allowance");
+        panic_with_error!(&e, Error::InsufficientAllowance);
     }
-    write_allowance(
-        e,
-        from,
-        spender,
-        allowance.amount - amount,
-        allowance.expiration_ledger,
-    );
+    if amount > 0 {
+        write_allowance(
+            e,
+            from,
+            spender,
+            allowance.amount - amount,
+            allowance.expiration_ledger,
+        );
+    }
 }

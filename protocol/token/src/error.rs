@@ -1,32 +1,30 @@
 use soroban_sdk::{
     contract, contracterror, contractimpl, log, symbol_short, token, Address, Env, String, Symbol,
-    Vec,
+    Vec, panic_with_error,
 };
 
 // pub type Result<T> = core::result::Result<T, Error>;
 
 #[contracterror]
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
-// #[repr(u32)]
+#[repr(u32)]
 pub enum Error {
-    AlreadyInitalized = 1,
-    InsufficientBalance = 2,
+    AlreadyInitalized = 400,
+    // expiration_ledger is less than ledger seq when amount
+    ExpirationLedgerLessThanLedgerSequence = 401,
+    ZeroOrNegativeAmountNotAllowed = 402,
+    ComponentsAmountsLengthMismatch = 403,
+    ZeroAmount = 404,
+    ZeroComponents = 405,
+    ZeroLength = 406,
+    AddressIndex = 407,
+    AmountIndex = 408,
+    InsufficientAllowance = 500,
+    InsufficientBalance = 501,
 }
 
-pub fn check_nonnegative_amount(amount: i128) {
-    if amount < 0 {
-        panic!("negative amount is not allowed: {}", amount)
-    }
-}
-
-pub fn ensure_equal_lengths(a: u32, b: u32, a_str: &'static str, b_str: &'static str) {
-    if a != b {
-        panic!("{} / {} lengths mismatch", a_str, b_str);
-    }
-}
-
-pub fn ensure_none_zero(a: u32, a_str: &'static str) {
-    if a == 0 {
-        panic!("{} cannot be 0", a_str);
+pub fn check_zero_or_negative_amount(e: &Env ,amount: i128) {
+    if amount <= 0 {
+        panic_with_error!(&e, Error::ZeroOrNegativeAmountNotAllowed);
     }
 }
