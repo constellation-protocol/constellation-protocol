@@ -19,8 +19,6 @@ impl MinterBurner {
         to.require_auth();
 
         if amount <= 0 {
-            //panic!("hello i am panicking");
-          //  panic_with_error!(&e, Error::InvalidMintAmount);
             return Err(Error::InvalidMintAmount);
         }
 

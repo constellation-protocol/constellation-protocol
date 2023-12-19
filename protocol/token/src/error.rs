@@ -12,18 +12,19 @@ pub enum Error {
     AlreadyInitalized = 400,
     // expiration_ledger is less than ledger seq when amount
     ExpirationLedgerLessThanLedgerSequence = 401,
-    NegativeValueNotAllowed  = 402, 
+    ZeroOrNegativeAmountNotAllowed = 402,
     ComponentsAmountsLengthMismatch = 403,
     ZeroAmount = 404,
-    ZeroLength = 405,
+    ZeroComponents = 405,
+    ZeroLength = 406,
     AddressIndex = 407,
     AmountIndex = 408,
     InsufficientAllowance = 500,
     InsufficientBalance = 501,
 }
 
-pub fn check_nonnegative_amount(e: &Env ,amount: i128) {
-    if amount < 0 {
-        panic_with_error!(&e, Error::NegativeValueNotAllowed);
+pub fn check_zero_or_negative_amount(e: &Env ,amount: i128) {
+    if amount <= 0 {
+        panic_with_error!(&e, Error::ZeroOrNegativeAmountNotAllowed);
     }
 }
