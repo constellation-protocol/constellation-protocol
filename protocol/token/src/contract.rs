@@ -3,15 +3,15 @@ use crate::component::write_components;
 use crate::error::check_nonnegative_amount;
 use crate::error::Error;
 use crate::manager::{read_manager, write_manager};
-use crate::token_interface_storage::admin::read_administrator;
-use crate::token_interface_storage::admin::{has_administrator, write_administrator};
-use crate::token_interface_storage::allowance::*;
-use crate::token_interface_storage::balance::*;
-use crate::token_interface_storage::metadata::*;
-use crate::token_interface_storage::metadata::{
+use crate::admin::read_administrator;
+use crate::admin::{has_administrator, write_administrator};
+use crate::allowance::*;
+use crate::balance::*;
+use crate::metadata::*;
+use crate::metadata::{
     read_decimal, read_name, read_symbol, write_metadata,
 };
-use crate::token_interface_storage::storage_types::{
+use crate::storage_types::{
     INSTANCE_BUMP_AMOUNT, INSTANCE_LIFETIME_THRESHOLD,
 };
 use crate::types::Component;
@@ -59,7 +59,7 @@ impl ConstellationToken {
     }
 
     pub fn mint(e: Env, to: Address, amount: i128) {
-        check_nonnegative_amount(amount);
+        check_nonnegative_amount(&e, amount);
         let admin = read_administrator(&e);
         admin.require_auth();
 
@@ -90,37 +90,50 @@ impl ConstellationToken {
 
 #[contractimpl]
 impl token::Interface for ConstellationToken {
-    fn burn(e: Env, from: Address, amount: i128) {
-        check_nonnegative_amount(amount);
-        let admin = read_administrator(&e);
-        admin.require_auth();
+    // fn burn(e: Env, from: Address, amount: i128) {
+    //     check_nonnegative_amount(&e, amount);
+    //     let admin = read_administrator(&e);
+    //     admin.require_auth();
 
-        if read_balance(&e, from.clone()) < amount {
-            panic!("insufficient balance");
-        }
+    //     if read_balance(&e, from.clone()) < amount {
+    //        panic_with_error!(&e, Error::InsufficientBalance);
+    //     }
+
+    //     e.storage()
+    //         .instance()
+    //         .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
+
+    //     spend_balance(&e, from.clone(), amount);
+
+    //     let components = read_components(&e);
+    //     for c in components.iter() {
+    //         let _token = token::Client::new(&e, &c.address);
+    //         _token.transfer(
+    //             &e.current_contract_address(),
+    //             &from.clone(),
+    //             &(c.amount * amount),
+    //         );
+    //     }
+    //     TokenUtils::new(&e).events().burn(from, amount);
+    // }
+
+    fn burn(e: Env, from: Address, amount: i128) {
+        from.require_auth();
+
+        check_nonnegative_amount(&e, amount);
 
         e.storage()
             .instance()
             .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
 
         spend_balance(&e, from.clone(), amount);
-
-        let components = read_components(&e);
-        for c in components.iter() {
-            let _token = token::Client::new(&e, &c.address);
-            _token.transfer(
-                &e.current_contract_address(),
-                &from.clone(),
-                &(c.amount * amount),
-            );
-        }
         TokenUtils::new(&e).events().burn(from, amount);
     }
 
     fn burn_from(e: Env, spender: Address, from: Address, amount: i128) {
         spender.require_auth();
 
-        check_nonnegative_amount(amount);
+        check_nonnegative_amount(&e, amount);
 
         e.storage()
             .instance()
@@ -140,7 +153,7 @@ impl token::Interface for ConstellationToken {
     fn approve(e: Env, from: Address, spender: Address, amount: i128, expiration_ledger: u32) {
         from.require_auth();
 
-        check_nonnegative_amount(amount);
+        check_nonnegative_amount(&e, amount);
 
         e.storage()
             .instance()
@@ -162,7 +175,7 @@ impl token::Interface for ConstellationToken {
     fn transfer(e: Env, from: Address, to: Address, amount: i128) {
         from.require_auth();
 
-        check_nonnegative_amount(amount);
+        check_nonnegative_amount(&e, amount);
 
         e.storage()
             .instance()
@@ -176,7 +189,7 @@ impl token::Interface for ConstellationToken {
     fn transfer_from(e: Env, spender: Address, from: Address, to: Address, amount: i128) {
         spender.require_auth();
 
-        check_nonnegative_amount(amount);
+        check_nonnegative_amount(&e, amount);
 
         e.storage()
             .instance()

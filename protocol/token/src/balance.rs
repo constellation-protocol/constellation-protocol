@@ -1,7 +1,8 @@
-use crate::token_interface_storage::storage_types::{
+use crate::storage_types::{
     DataKey, BALANCE_BUMP_AMOUNT, BALANCE_LIFETIME_THRESHOLD,
 };
-use soroban_sdk::{Address, Env};
+use soroban_sdk::{Address, Env, panic_with_error};
+use crate::error::Error;
 
 pub fn read_balance(e: &Env, addr: Address) -> i128 {
     let key = DataKey::Balance(addr);
@@ -31,7 +32,7 @@ pub fn receive_balance(e: &Env, addr: Address, amount: i128) {
 pub fn spend_balance(e: &Env, addr: Address, amount: i128) {
     let balance = read_balance(e, addr.clone());
     if balance < amount {
-        panic!("insufficient balance");
+       panic_with_error!(e, Error::InsufficientBalance);
     }
     write_balance(e, addr, balance - amount);
 }

@@ -15,11 +15,13 @@ pub struct MinterBurner;
 
 #[contractimpl]
 impl MinterBurner {
-    pub fn mint(e: Env, to: Address, token_address: Address, amount: i128) {
+    pub fn mint(e: Env, to: Address, token_address: Address, amount: i128) -> Result<(), Error> {
         to.require_auth();
 
         if amount <= 0 {
-            panic_with_error!(&e, Error::InvalidMintAmount);
+            //panic!("hello i am panicking");
+          //  panic_with_error!(&e, Error::InvalidMintAmount);
+            return Err(Error::InvalidMintAmount);
         }
 
         let ctoken = constellation_token::Client::new(&e, &token_address);
@@ -33,9 +35,9 @@ impl MinterBurner {
         for c in components.iter() {
             let quantity = c.amount * amount; // unit * amount
             let _token = token::Client::new(&e, &c.address);
-            if _token.balance(&to) < quantity {
-                panic_with_error!(&e, Error::InsufficientBalance);
-            }
+            // if _token.balance(&to) < quantity {
+            //     panic_with_error!(&e, Error::InsufficientBalance);
+            // }
             _token.transfer_from(
                 &e.current_contract_address(),
                 &to,
@@ -49,14 +51,16 @@ impl MinterBurner {
 
         match mint_result {
             Ok(result) => match result {
-                Ok(()) => (),
-                _ => panic_with_error!(&e, Error::ConversionError),
+                Ok(()) => return Ok(()),
+                _ => return Err( Error::ConversionError), 
             },
             Err(error_reslt) => match error_reslt {
-                insufficient_balance => panic_with_error!(&e, Error::InsufficientBalance),
-                _ => panic_with_error!(&e, Error::InvokeError),
+                insufficient_balance => return Err(Error::InsufficientBalance), 
+                _ => return Err(Error::InvokeError),
             },
         }
+
+        Ok(())
     }
 
     fn burn(e: Env, spender: Address, from: Address, amount: i128) {}
