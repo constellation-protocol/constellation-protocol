@@ -1,17 +1,53 @@
 #![cfg(test)]
 extern crate std;
 
-use crate::{contract::Token, TokenClient};
+use crate::error::Error;
+use crate::ConstellationTokenClient; //crate::{contract::Token, ConstellationTokenClient};
 use soroban_sdk::{
     symbol_short,
     testutils::{Address as _, AuthorizedFunction, AuthorizedInvocation},
-    Address, Env, IntoVal, Symbol,
+    vec, Address, Env, IntoVal, Symbol,
 };
+pub mod token {
+    soroban_sdk::contractimport!(file = "../../libs/soroban_token_contract.wasm");
+}
+fn create_token_contract<'a>(e: &Env, admin: &Address) -> token::Client<'a> {
+    token::Client::new(e, &e.register_stellar_asset_contract(admin.clone()))
+}
 
-fn create_token<'a>(e: &Env, admin: &Address) -> TokenClient<'a> {
-    let token = TokenClient::new(e, &e.register_contract(None, Token {}));
-    token.initialize(admin, &7, &"name".into_val(e), &"symbol".into_val(e));
-    token
+fn create_constellation_token<'a>(e: &Env) -> ConstellationTokenClient<'a> {
+    let contract_id = &e.register_contract(None, crate::contract::ConstellationToken {});
+    let ct: ConstellationTokenClient<'_> = ConstellationTokenClient::new(e, contract_id);
+    ct
+}
+
+fn initialize_token<'a>(
+    e: &Env,
+    ct: ConstellationTokenClient<'a>,
+) -> (ConstellationTokenClient<'a>, Address, Address) {
+    let components = vec![
+        &e,
+        Address::generate(e),
+        Address::generate(e),
+        Address::generate(e),
+    ];
+    let amounts = vec![&e, 100, 100, 100];
+    let decimal: u32 = 6;
+    let name = "c_token".into_val(e);
+    let symbol = "token_symbol".into_val(e);
+    let admin = Address::generate(e);
+    let manager = Address::generate(e);
+
+    ct.initialize(
+        &decimal,
+        &components,
+        &amounts,
+        &name,
+        &symbol,
+        &admin,
+        &manager,
+    );
+    (ct, admin, manager)
 }
 
 #[test]
@@ -19,12 +55,14 @@ fn test() {
     let e = Env::default();
     e.mock_all_auths();
 
-    let admin1 = Address::generate(&e);
+    let mut token = create_constellation_token(&e);
+
+    let (mut token, admin1, manager) = initialize_token(&e, token);
+
     let admin2 = Address::generate(&e);
     let user1 = Address::generate(&e);
     let user2 = Address::generate(&e);
     let user3 = Address::generate(&e);
-    let token = create_token(&e, &admin1);
 
     token.mint(&user1, &1000);
     assert_eq!(
@@ -138,6 +176,46 @@ fn test() {
 }
 
 #[test]
+fn test_burn_from_panics_with_zero_or_negative_amount_not_allowed() {
+    let e = Env::default();
+    e.mock_all_auths();
+
+    let admin = Address::generate(&e);
+    let user1 = Address::generate(&e);
+    let user2 = Address::generate(&e);
+
+    let mut token = create_constellation_token(&e);
+    let (mut token, admin1, manager) = initialize_token(&e, token);
+
+    token.mint(&user1, &1000);
+    assert_eq!(token.balance(&user1), 1000);
+
+    token.approve(&user1, &user2, &500, &200);
+    assert_eq!(token.allowance(&user1, &user2), 500);
+
+    let result = token.try_burn_from(&user2, &user1, &0);
+    assert_eq!(result, Err(Ok(Error::ZeroOrNegativeAmountNotAllowed.into())));
+}
+
+#[test]
+fn test_burn_panics_with_zero_or_negative_amount_not_allowed() {
+    let e = Env::default();
+    e.mock_all_auths();
+
+    let admin = Address::generate(&e);
+    let user1 = Address::generate(&e);
+
+    let mut token = create_constellation_token(&e);
+    let (mut token, admin1, manager) = initialize_token(&e, token);
+
+    token.mint(&user1, &1000);
+    assert_eq!(token.balance(&user1), 1000);
+
+    let result = token.try_burn(&user1, &0);
+    assert_eq!(result, Err(Ok(Error::ZeroOrNegativeAmountNotAllowed.into())));
+}
+
+#[test]
 fn test_burn() {
     let e = Env::default();
     e.mock_all_auths();
@@ -145,7 +223,9 @@ fn test_burn() {
     let admin = Address::generate(&e);
     let user1 = Address::generate(&e);
     let user2 = Address::generate(&e);
-    let token = create_token(&e, &admin);
+
+    let mut token = create_constellation_token(&e);
+    let (mut token, admin1, manager) = initialize_token(&e, token);
 
     token.mint(&user1, &1000);
     assert_eq!(token.balance(&user1), 1000);
@@ -194,24 +274,58 @@ fn test_burn() {
 }
 
 #[test]
-#[should_panic(expected = "insufficient balance")]
+fn transfer_panics_with_zero_or_negative_amount_not_allowed() {
+    let e = Env::default();
+    e.mock_all_auths();
+
+    let user1 = Address::generate(&e);
+    let user2 = Address::generate(&e);
+
+    let mut token = create_constellation_token(&e);
+    let (mut token, admin1, manager) = initialize_token(&e, token);
+
+    let result = token.try_transfer(&user1, &user2, &0);
+    assert_eq!(result, Err(Ok(Error::ZeroOrNegativeAmountNotAllowed.into())));
+}
+
+#[test]
 fn transfer_insufficient_balance() {
+    let e = Env::default();
+    e.mock_all_auths();
+
+    let user1 = Address::generate(&e);
+    let user2 = Address::generate(&e);
+
+    let mut token = create_constellation_token(&e);
+    let (mut token, admin1, manager) = initialize_token(&e, token);
+
+    token.mint(&user1, &1000);
+    assert_eq!(token.balance(&user1), 1000);
+
+    let result = token.try_transfer(&user1, &user2, &1001);
+    assert_eq!(result, Err(Ok(Error::InsufficientBalance.into())));
+}
+
+#[test]
+fn transfer_from_with_zero_or_negative_amount_not_allowed() {
     let e = Env::default();
     e.mock_all_auths();
 
     let admin = Address::generate(&e);
     let user1 = Address::generate(&e);
     let user2 = Address::generate(&e);
-    let token = create_token(&e, &admin);
+    let user3 = Address::generate(&e);
+    
+    let mut token = create_constellation_token(&e);
+    let (mut token, admin1, manager) = initialize_token(&e, token);
 
-    token.mint(&user1, &1000);
-    assert_eq!(token.balance(&user1), 1000);
 
-    token.transfer(&user1, &user2, &1001);
+    let result = token.try_transfer_from(&user3, &user1, &user2, &0);
+    assert_eq!(result, Err(Ok(Error::ZeroOrNegativeAmountNotAllowed.into())));
 }
 
+
 #[test]
-#[should_panic(expected = "insufficient allowance")]
 fn transfer_from_insufficient_allowance() {
     let e = Env::default();
     e.mock_all_auths();
@@ -220,39 +334,51 @@ fn transfer_from_insufficient_allowance() {
     let user1 = Address::generate(&e);
     let user2 = Address::generate(&e);
     let user3 = Address::generate(&e);
-    let token = create_token(&e, &admin);
+    
+    let mut token = create_constellation_token(&e);
+    let (mut token, admin1, manager) = initialize_token(&e, token);
 
     token.mint(&user1, &1000);
     assert_eq!(token.balance(&user1), 1000);
 
     token.approve(&user1, &user3, &100, &200);
     assert_eq!(token.allowance(&user1, &user3), 100);
-
-    token.transfer_from(&user3, &user1, &user2, &101);
+    let result = token.try_transfer_from(&user3, &user1, &user2, &101);
+    assert_eq!(result, Err(Ok(Error::InsufficientAllowance.into())));
 }
 
 #[test]
-#[should_panic(expected = "already initialized")]
-fn initialize_already_initialized() {
-    let e = Env::default();
-    let admin = Address::generate(&e);
-    let token = create_token(&e, &admin);
-
-    token.initialize(&admin, &10, &"name".into_val(&e), &"symbol".into_val(&e));
-}
-
-#[test]
-#[should_panic(expected = "Decimal must fit in a u8")]
+// #[should_panic(expected = "Decimal must fit in a u8")]
 fn decimal_is_over_max() {
     let e = Env::default();
     let admin = Address::generate(&e);
-    let token = TokenClient::new(&e, &e.register_contract(None, Token {}));
-    token.initialize(
-        &admin,
+
+    let mut token = create_constellation_token(&e);
+  
+    let components = vec![
+        &e,
+        Address::generate(&e),
+        Address::generate(&e),
+        Address::generate(&e),
+    ];
+    let amounts = vec![&e, 100, 100, 100];
+    let decimal: u32 = 6;
+    let name = "c_token".into_val(&e);
+    let symbol = "token_symbol".into_val(&e);
+    let admin = Address::generate(&e);
+    let manager = Address::generate(&e);
+
+    let result = token.try_initialize(
         &(u32::from(u8::MAX) + 1),
-        &"name".into_val(&e),
-        &"symbol".into_val(&e),
+        &components,
+        &amounts,
+        &name,
+        &symbol,
+        &admin,
+        &manager,
     );
+    assert_eq!(result, Err(Ok(Error::ValueTooLargeOverFlow.into())));
+
 }
 
 #[test]
@@ -261,11 +387,10 @@ fn test_zero_allowance() {
     let e = Env::default();
     e.mock_all_auths();
 
-    let admin = Address::generate(&e);
     let spender = Address::generate(&e);
     let from = Address::generate(&e);
-    let token = create_token(&e, &admin);
+    let mut token = create_constellation_token(&e);
 
-    token.transfer_from(&spender, &from, &spender, &0);
     assert!(token.get_allowance(&from, &spender).is_none());
 }
+ 

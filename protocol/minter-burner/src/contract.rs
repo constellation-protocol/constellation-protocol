@@ -50,10 +50,10 @@ impl MinterBurner {
         match mint_result {
             Ok(result) => match result {
                 Ok(()) => return Ok(()),
-                _ => return Err( Error::ConversionError), 
+                _ => return Err(Error::ConversionError),
             },
             Err(error_reslt) => match error_reslt {
-                insufficient_balance => return Err(Error::InsufficientBalance), 
+                insufficient_balance => return Err(Error::InsufficientBalance),
                 _ => return Err(Error::InvokeError),
             },
         }

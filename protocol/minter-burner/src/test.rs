@@ -105,9 +105,9 @@ fn test_mint() {
     token1.approve(&user1, &minter_burner.address, &5000i128, &1000);
     token2.approve(&user1, &minter_burner.address, &5000i128, &1000);
     let amount = 0;
-    let result = minter_burner.try_mint(&user1, &ct_id, &amount);//.err().unwrap();
-   // assert_eq!(result, Ok(Ok(Error::InsufficientBalance)));
- // let insufficient_balance = constellation_token::Error::AlreadyInitalized as u32;
+    let result = minter_burner.try_mint(&user1, &ct_id, &amount); //.err().unwrap();
+                                                                  // assert_eq!(result, Ok(Ok(Error::InsufficientBalance)));
+                                                                  // let insufficient_balance = constellation_token::Error::AlreadyInitalized as u32;
     assert_eq!(result, Err(Ok(Error::InvalidMintAmount)));
 
     // match result {
@@ -120,7 +120,6 @@ fn test_mint() {
     //         _ => (),
     //     },
     // }
-
 
     //    assert_eq!(result, Err(Ok(Error::InsufficientBalance)));
     //    assert_eq!(ct.balance(&user1), 2);
@@ -163,11 +162,10 @@ fn mint_should_fail_with_insufficient_balance_and_revert() {
     token1.approve(&user1, &minter_burner.address, &5000i128, &1000);
     token2.approve(&user1, &minter_burner.address, &5000i128, &1000);
     let res = ct.try_mint(&user1, &3); // mints 2 ctokens / requires 200 of the componnet
-    // assert_eq!(res, Err(Ok(Error::InsufficientBalance)));
+                                       // assert_eq!(res, Err(Ok(Error::InsufficientBalance)));
     assert_eq!(token1.balance(&user1), 5000);
     assert_eq!(token2.balance(&user1), 5000);
 }
-
 
 #[test]
 fn mint() {
@@ -209,13 +207,10 @@ fn mint() {
     );
 
     token1.approve(&user1, &minter_burner.address, &1000i128, &200);
-    minter_burner.mint(&user1, &ct.address,&2); // mints 2 ctokens / requires 200 of the componnet
+    minter_burner.mint(&user1, &ct.address, &2); // mints 2 ctokens / requires 200 of the componnet
     assert_eq!(ct.balance(&user1), 2);
     assert_eq!(token1.balance(&ct.address), 200);
 }
-
-
-
 
 // #[test]
 // fn burn() {

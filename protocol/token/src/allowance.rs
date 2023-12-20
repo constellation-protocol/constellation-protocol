@@ -1,6 +1,9 @@
-use crate::{storage_types::{AllowanceDataKey, AllowanceValue, DataKey}, error};
-use soroban_sdk::{Address, Env, panic_with_error};
 use crate::error::Error;
+use crate::{
+    error,
+    storage_types::{AllowanceDataKey, AllowanceValue, DataKey},
+};
+use soroban_sdk::{panic_with_error, Address, Env};
 
 pub fn read_allowance(e: &Env, from: Address, spender: Address) -> AllowanceValue {
     let key = DataKey::Allowance(AllowanceDataKey { from, spender });
@@ -34,7 +37,7 @@ pub fn write_allowance(
     };
 
     if amount > 0 && expiration_ledger < e.ledger().sequence() {
-        panic_with_error!(&e, Error::ExpirationLedgerLessThanLedgerSequence); 
+        panic_with_error!(&e, Error::ExpirationLedgerLessThanLedgerSequence);
     }
 
     let key = DataKey::Allowance(AllowanceDataKey { from, spender });
