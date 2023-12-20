@@ -1,19 +1,15 @@
-use crate::component::read_components;
-use crate::component::write_components;
-use crate::error::check_zero_or_negative_amount;
-use crate::error::Error;
-use crate::manager::{read_manager, write_manager};
 use crate::admin::read_administrator;
 use crate::admin::{has_administrator, write_administrator};
 use crate::allowance::*;
 use crate::balance::*;
+use crate::component::read_components;
+use crate::component::write_components;
+use crate::error::Error;
+use crate::error::{check_nonnegative_amount, check_zero_or_negative_amount};
+use crate::manager::{read_manager, write_manager};
 use crate::metadata::*;
-use crate::metadata::{
-    read_decimal, read_name, read_symbol, write_metadata,
-};
-use crate::storage_types::{
-    INSTANCE_BUMP_AMOUNT, INSTANCE_LIFETIME_THRESHOLD,
-};
+use crate::metadata::{read_decimal, read_name, read_symbol, write_metadata};
+use crate::storage_types::{AllowanceValue, DataKey, AllowanceDataKey, INSTANCE_BUMP_AMOUNT, INSTANCE_LIFETIME_THRESHOLD};
 use crate::types::Component;
 use soroban_sdk::panic_with_error;
 use soroban_sdk::{
@@ -41,8 +37,13 @@ impl ConstellationToken {
         manager: Address,
     ) -> Result<(), Error> {
         if has_administrator(&e) {
-          panic_with_error!(&e, Error::AlreadyInitalized);
+            panic_with_error!(&e, Error::AlreadyInitalized);
         }
+
+        if decimal > u8::MAX.into() {
+            panic_with_error!(&e, Error::ValueTooLargeOverFlow);
+        }
+
         write_administrator(&e, &admin);
         write_manager(&e, &manager);
         write_metadata(
@@ -71,9 +72,28 @@ impl ConstellationToken {
         TokenUtils::new(&e).events().mint(admin, to, amount);
     }
 
+    pub fn set_admin(e: Env, new_admin: Address) {
+        let admin = read_administrator(&e);
+        admin.require_auth();
+
+        e.storage()
+            .instance()
+            .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
+
+        write_administrator(&e, &new_admin);
+        TokenUtils::new(&e).events().set_admin(admin, new_admin);
+    }
+
     //////////////////////////////////////////////////////////////////
     ///////// Read Only functions ////////////////////////////////////
     //////////////////////////////////////////////////////////////////
+    /// 
+    
+    pub fn get_allowance(e: Env, from: Address, spender: Address) -> Option<AllowanceValue> {
+        let key = DataKey::Allowance(AllowanceDataKey { from, spender });
+        let allowance = e.storage().temporary().get::<_, AllowanceValue>(&key);
+        allowance
+    }
 
     pub fn admin(e: Env) -> Address {
         read_administrator(&e)
@@ -143,17 +163,12 @@ impl token::Interface for ConstellationToken {
         spend_balance(&e, from.clone(), amount);
         TokenUtils::new(&e).events().burn(from, amount)
     }
-    fn allowance(e: Env, from: Address, spender: Address) -> i128 {
-        e.storage()
-            .instance()
-            .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
-        read_allowance(&e, from, spender).amount
-    }
+
 
     fn approve(e: Env, from: Address, spender: Address, amount: i128, expiration_ledger: u32) {
         from.require_auth();
 
-        check_zero_or_negative_amount(&e, amount);
+        check_nonnegative_amount(&e, amount);
 
         e.storage()
             .instance()
@@ -163,13 +178,6 @@ impl token::Interface for ConstellationToken {
         TokenUtils::new(&e)
             .events()
             .approve(from, spender, amount, expiration_ledger);
-    }
-
-    fn balance(e: Env, id: Address) -> i128 {
-        e.storage()
-            .instance()
-            .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
-        read_balance(&e, id)
     }
 
     fn transfer(e: Env, from: Address, to: Address, amount: i128) {
@@ -190,7 +198,6 @@ impl token::Interface for ConstellationToken {
         spender.require_auth();
 
         check_zero_or_negative_amount(&e, amount);
-
         e.storage()
             .instance()
             .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
@@ -199,6 +206,20 @@ impl token::Interface for ConstellationToken {
         spend_balance(&e, from.clone(), amount);
         receive_balance(&e, to.clone(), amount);
         TokenUtils::new(&e).events().transfer(from, to, amount)
+    }
+
+    fn allowance(e: Env, from: Address, spender: Address) -> i128 {
+        e.storage()
+            .instance()
+            .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
+        read_allowance(&e, from, spender).amount
+    }
+
+    fn balance(e: Env, id: Address) -> i128 {
+        e.storage()
+            .instance()
+            .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
+        read_balance(&e, id)
     }
 
     fn decimals(e: Env) -> u32 {

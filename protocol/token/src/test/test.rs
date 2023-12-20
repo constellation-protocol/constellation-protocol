@@ -4,7 +4,8 @@ extern crate std;
 use crate::contract::ConstellationTokenClient;
 use std::println;
 
-use super::error::Error;
+use crate::error::Error;
+
 use soroban_sdk::{
     symbol_short,
     testutils::{Address as _, AuthorizedFunction, AuthorizedInvocation},
@@ -25,7 +26,7 @@ fn create_constellation_token<'a>(e: &Env) -> ConstellationTokenClient<'a> {
     ct
 }
 
-#[test] 
+#[test]
 fn test_initialize_should_panic_with_already_initalized() {
     let e = Env::default();
     e.mock_all_auths();
@@ -154,7 +155,7 @@ fn test_initialize_should_panic_with_zero_or_negative_amount_not_allowed_1() {
         &manager,
     );
 
-    assert_eq!(res, Err(Ok(Error::ZeroOrNegativeAmountNotAllowed))); 
+    assert_eq!(res, Err(Ok(Error::ZeroOrNegativeAmountNotAllowed)));
 }
 
 #[test]
@@ -185,7 +186,7 @@ fn test_initialize_should_panic_with_zero_or_negative_amount_not_allowed_2() {
         &manager,
     );
 
-    assert_eq!(res, Err(Ok(Error::ZeroOrNegativeAmountNotAllowed))); 
+    assert_eq!(res, Err(Ok(Error::ZeroOrNegativeAmountNotAllowed)));
 }
 
 #[test]
@@ -221,5 +222,4 @@ fn test_initialize_successful() {
     assert_eq!(ct.components().len(), 3);
 }
 
-
-// todo! Test mint 
+// todo! Test mint
