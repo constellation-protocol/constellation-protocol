@@ -3,8 +3,6 @@ use soroban_sdk::{
     Env, String, Symbol, Vec,
 };
 
-// pub type Result<T> = core::result::Result<T, Error>;
-
 #[contracterror]
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
 #[repr(u32)]
