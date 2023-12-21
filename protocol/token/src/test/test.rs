@@ -245,4 +245,16 @@ fn test_set_manager_panics_with_authorization_failed() {
     );
     assert_eq!(ct.manager(), new_manager);
 }
+
+#[test]
+fn mint_reverts_with_zero_or_negative_amount_not_allowed() {
+    let e = Env::default();
+    e.mock_all_auths();
+    let mint_to = Address::generate(&e);
+    let new_manager =    Address::generate(&e);
+    let (ct,_,_ ) = initialize_token(&e, create_constellation_token(&e));
+
+    let restult = ct.try_mint(&mint_to, &i128::from(0));
+    assert_eq!(restult, Err(Ok(Error::ZeroOrNegativeAmountNotAllowed.into())));
+}
 // todo! Test mint
