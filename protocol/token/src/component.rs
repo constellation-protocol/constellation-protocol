@@ -17,10 +17,10 @@ pub fn write_components(e: &Env, components_address: Vec<Address>, amounts: Vec<
     for i in 0..components_address.len() {
         let address = components_address
             .get(i)
-            .unwrap_or_else(|| panic_with_error!(&e, Error::AddressIndex));
+            .unwrap_or_else(|| panic_with_error!(&e, Error::IndexUnwrapError));
         let amount = amounts
             .get(i)
-            .unwrap_or_else(|| panic_with_error!(e, Error::AmountIndex));
+            .unwrap_or_else(|| panic_with_error!(e, Error::IndexUnwrapError));
 
         check_zero_or_negative_amount(e, amount);
 

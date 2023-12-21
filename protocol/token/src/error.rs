@@ -1,6 +1,6 @@
 use soroban_sdk::{
     contract, contracterror, contractimpl, log, panic_with_error, symbol_short, token, Address,
-    Env, String, Symbol, Vec,
+    Env, String, Symbol, Vec, Val,
 };
 
 #[contracterror]
@@ -16,16 +16,16 @@ pub enum Error {
     ZeroAmount = 403,
     ZeroComponents = 404,
     ZeroLength = 405,
-    AddressIndex = 406,
-    AmountIndex = 407,
-    ComponentsAmountsLengthMismatch = 408,
-    ValueTooLargeOverFlow = 409,
+    IndexUnwrapError = 406, 
+    ComponentsAmountsLengthMismatch = 407,
+    ValueTooLargeOverFlow = 408,
 
     /// Errors caused by smart contract state or logic 
     InsufficientAllowance = 500,
     InsufficientBalance = 501,
     AlreadyInitalized = 502,
 }
+
 
 pub fn check_zero_or_negative_amount(e: &Env, amount: i128) {
     if amount <= 0 {

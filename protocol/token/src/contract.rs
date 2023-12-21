@@ -1,6 +1,6 @@
 use crate::admin::read_administrator;
 use crate::admin::{has_administrator, write_administrator};
-use crate::allowance::*;
+use crate::{allowance::*, error};
 use crate::balance::*;
 use crate::component::read_components;
 use crate::component::write_components;
@@ -11,7 +11,7 @@ use crate::metadata::*;
 use crate::metadata::{read_decimal, read_name, read_symbol, write_metadata};
 use crate::storage_types::{AllowanceValue, DataKey, AllowanceDataKey, INSTANCE_BUMP_AMOUNT, INSTANCE_LIFETIME_THRESHOLD};
 use crate::types::Component;
-use soroban_sdk::panic_with_error;
+use soroban_sdk::{panic_with_error, IntoVal, Val};
 use soroban_sdk::{
     contract, contractimpl, contracttype, log, symbol_short, token, token::Interface, Address, Env,
     String, Symbol, Vec,
@@ -84,6 +84,19 @@ impl ConstellationToken {
         TokenUtils::new(&e).events().set_admin(admin, new_admin);
     }
 
+    pub fn set_manager(e: Env, new_manager: Address) {
+        let manager = read_manager(&e);
+        manager.require_auth();
+
+        e.storage()
+        .instance()
+        .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
+
+       write_manager(&e, &new_manager);
+       let topics:(String, Address) = ( "set_manager".into_val(&e), manager);
+       e.events().publish(topics, new_manager);
+    }
+
     //////////////////////////////////////////////////////////////////
     ///////// Read Only functions ////////////////////////////////////
     //////////////////////////////////////////////////////////////////
@@ -108,8 +121,10 @@ impl ConstellationToken {
     }
 }
 
+
 #[contractimpl]
 impl token::Interface for ConstellationToken {
+
     // fn burn(e: Env, from: Address, amount: i128) {
     //     check_zero_or_negative_amount(&e, amount);
     //     let admin = read_administrator(&e);

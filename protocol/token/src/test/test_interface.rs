@@ -21,7 +21,7 @@ fn create_constellation_token<'a>(e: &Env) -> ConstellationTokenClient<'a> {
     ct
 }
 
-fn initialize_token<'a>(
+pub(super) fn initialize_token<'a>(
     e: &Env,
     ct: ConstellationTokenClient<'a>,
 ) -> (ConstellationTokenClient<'a>, Address, Address) {
