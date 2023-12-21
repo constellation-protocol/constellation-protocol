@@ -12,7 +12,7 @@ use soroban_sdk::{
     vec, BytesN, Env, IntoVal, Vec,
 };
 use soroban_sdk::{Address, String};
-
+use super::test_interface::initialize_token;
 pub mod token {
     soroban_sdk::contractimport!(file = "../../libs/soroban_token_contract.wasm");
 }
@@ -222,4 +222,39 @@ fn test_initialize_successful() {
     assert_eq!(ct.components().len(), 3);
 }
 
+#[test]
+fn test_set_manager_panics_with_authorization_failed() {
+    let e = Env::default();
+    e.mock_all_auths();
+    let new_manager =    Address::generate(&e);
+    let (ct, admin, manager) = initialize_token(&e, create_constellation_token(&e));
+    ct.set_manager(&new_manager);    
+    assert_eq!(
+        e.auths(),
+        std::vec![(
+            manager.clone(),
+            AuthorizedInvocation {
+                function: AuthorizedFunction::Contract((
+                    ct.address.clone(),
+                    "set_manager".into_val(&e),
+                    (&new_manager,).into_val(&e),
+                )),
+                sub_invocations: std::vec![]
+            }
+        )]
+    );
+    assert_eq!(ct.manager(), new_manager);
+}
+
+#[test]
+fn mint_reverts_with_zero_or_negative_amount_not_allowed() {
+    let e = Env::default();
+    e.mock_all_auths();
+    let mint_to = Address::generate(&e);
+    let new_manager =    Address::generate(&e);
+    let (ct,_,_ ) = initialize_token(&e, create_constellation_token(&e));
+
+    let restult = ct.try_mint(&mint_to, &i128::from(0));
+    assert_eq!(restult, Err(Ok(Error::ZeroOrNegativeAmountNotAllowed.into())));
+}
 // todo! Test mint
