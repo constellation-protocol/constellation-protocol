@@ -54,24 +54,8 @@ impl MinterBurner {
 
         let ctoken = constellation_token::Client::new(&e, &constellation_token_address);
         ctoken.burn_from(&&e.current_contract_address(), &from, &amount);
-
-        // let burn_result = ctoken.try_burn_from(&&e.current_contract_address(), &from, &amount);
-        // let insufficient_balance = constellation_token::Error::InsufficientBalance as u32;
-
-        // match burn_result {
-        //     Ok(result) => match result {
-        //         Ok(()) => return Ok(()),
-        //         Err(conversion_error) => panic_with_error!(&e, conversion_error),
-        //     },
-
-        //     Err(error_result) => match error_result {
-        //         insufficient_balance => return Err(Error::InsufficientBalance),
-        //         _ => panic_with_error!(&e, Error::ContractInvocationError),
-        //     },
-        // }
-
         ctoken.redeem(&from, &amount);
-
+        
         Ok(())
     }
 }
