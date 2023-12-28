@@ -8,10 +8,10 @@ use crate::error::{check_nonnegative_amount, check_zero_or_negative_amount};
 use crate::manager::{read_manager, write_manager};
 use crate::metadata::*;
 use crate::metadata::{read_decimal, read_name, read_symbol, write_metadata};
+use crate::storage_types::Component;
 use crate::storage_types::{
     AllowanceDataKey, AllowanceValue, DataKey, INSTANCE_BUMP_AMOUNT, INSTANCE_LIFETIME_THRESHOLD,
 };
-use crate::storage_types::Component;
 use crate::{allowance::*, error};
 use soroban_sdk::{
     contract, contractimpl, contracttype, log, symbol_short, token, token::Interface, Address, Env,
@@ -79,6 +79,10 @@ impl ConstellationToken {
         let admin = read_administrator(&e);
         admin.require_auth();
 
+        e.storage()
+            .instance()
+            .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
+
         let components = Self::components(e.clone());
         for c in components.iter() {
             let quantity = c.unit * amount;
@@ -92,8 +96,11 @@ impl ConstellationToken {
         let admin = read_administrator(&e);
         admin.require_auth();
 
-        let components = Self::components(e.clone());
+        e.storage()
+            .instance()
+            .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
 
+        let components = Self::components(e.clone());
         for c in components.iter() {
             let quantity = c.unit * amount; // unit * amount
             let _token = token::Client::new(&e, &c.address);
@@ -157,7 +164,6 @@ impl ConstellationToken {
 
 #[contractimpl]
 impl token::Interface for ConstellationToken {
- 
     fn burn(e: Env, from: Address, amount: i128) {
         from.require_auth();
 
