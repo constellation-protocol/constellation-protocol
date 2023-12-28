@@ -25,7 +25,7 @@ pub struct AllowanceValue {
 pub struct Component {
     pub address: Address,
     pub unit: i128,
-} 
+}
 
 #[derive(Clone)]
 #[contracttype]
