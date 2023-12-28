@@ -12,14 +12,19 @@ pub struct MinterBurner;
 
 #[contractimpl]
 impl MinterBurner {
-    pub fn mint(e: Env, to: Address, token_address: Address, amount: i128) -> Result<(), Error> {
+    pub fn mint(
+        e: Env,
+        to: Address,
+        constellation_token_address: Address,
+        amount: i128,
+    ) -> Result<(), Error> {
         to.require_auth();
 
         if amount <= 0 {
             return Err(Error::ZeroOrNegativeAmount);
         }
 
-        let ctoken = constellation_token::Client::new(&e, &token_address);
+        let ctoken = constellation_token::Client::new(&e, &constellation_token_address);
 
         let components = ctoken.components();
 
@@ -29,7 +34,7 @@ impl MinterBurner {
             _token.transfer_from(
                 &e.current_contract_address(),
                 &to,
-                &token_address,
+                &constellation_token_address,
                 &quantity,
             );
         }
@@ -40,15 +45,46 @@ impl MinterBurner {
         match mint_result {
             Ok(result) => match result {
                 Ok(()) => return Ok(()),
-                Err(conversion_err) => panic_with_error!(&e, conversion_err),
+                Err(conversion_error) => panic_with_error!(&e, conversion_error),
             },
-            Err(error_reslt) => match error_reslt {
+            Err(error_result) => match error_result {
+                insufficient_balance => return Err(Error::InsufficientBalance),
+                _ => panic_with_error!(&e, Error::ContractInvocationError),
+            },
+        }
+    }
+
+    pub fn burn(
+        e: Env,
+        from: Address,
+        constellation_token_address: Address,
+        amount: i128,
+    ) -> Result<(), Error> {
+        from.require_auth();
+
+        if amount <= 0 {
+            return Err(Error::ZeroOrNegativeAmount);
+        }
+
+        let ctoken = constellation_token::Client::new(&e, &constellation_token_address);
+
+        let burn_result = ctoken.try_burn_from(&&e.current_contract_address(), &from, &amount);
+        let insufficient_balance = constellation_token::Error::InsufficientBalance as u32;
+
+        match burn_result {
+            Ok(result) => match result {
+                Ok(()) => return Ok(()),
+                Err(conversion_error) => panic_with_error!(&e, conversion_error),
+            },
+
+            Err(error_result) => match error_result {
                 insufficient_balance => return Err(Error::InsufficientBalance),
                 _ => panic_with_error!(&e, Error::ContractInvocationError),
             },
         }
 
-    }
+        ctoken.redeem(&from, &amount);
 
-    fn burn(e: Env, spender: Address, from: Address, amount: i128) {}
+        Ok(())
+    }
 }

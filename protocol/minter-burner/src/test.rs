@@ -59,20 +59,18 @@ pub(crate) fn initialize_token<'a>(
     (ct, admin, manager)
 }
 
-
 #[test]
 fn mint_test_should_fail_with_zero_or_negative_amount() {
     let e = Env::default();
     e.mock_all_auths();
     let mut user = Address::generate(&e);
-   
-   let (ct, _,_) = initialize_token(&e, create_constellation_token(&e).0);
-   let minter_burner = create_minter_burner(&e);
-   let result = minter_burner.try_mint(&user, &ct.address, &0i128);
 
-   assert_eq!(result, Err(Ok(Error::ZeroOrNegativeAmount)));
+    let (ct, _, _) = initialize_token(&e, create_constellation_token(&e).0);
+    let minter_burner = create_minter_burner(&e);
+    let result = minter_burner.try_mint(&user, &ct.address, &0i128);
+
+    assert_eq!(result, Err(Ok(Error::ZeroOrNegativeAmount)));
 }
-
 
 #[test]
 fn mint_should_fail_with_token_contract_insufficient_allowance_and_revert() {

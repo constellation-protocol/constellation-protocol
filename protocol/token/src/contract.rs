@@ -74,6 +74,19 @@ impl ConstellationToken {
         TokenUtils::new(&e).events().mint(admin, to, amount);
     }
 
+    pub fn redeem(e: Env, to: Address, amount: i128) {
+        check_zero_or_negative_amount(&e, amount);
+        let admin = read_administrator(&e);
+        admin.require_auth();
+
+        let components = Self::components(e.clone());
+        for c in components.iter() {
+            let quantity = c.amount * amount;
+            let _token = token::Client::new(&e, &c.address);
+            _token.transfer(&e.current_contract_address(), &to, &quantity);
+        }
+    }
+
     pub fn set_admin(e: Env, new_admin: Address) {
         let admin = read_administrator(&e);
         admin.require_auth();

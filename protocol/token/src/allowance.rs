@@ -23,7 +23,6 @@ pub fn read_allowance(e: &Env, from: Address, spender: Address) -> AllowanceValu
         }
     }
 }
-
 pub fn write_allowance(
     e: &Env,
     from: Address,

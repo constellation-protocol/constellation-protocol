@@ -194,10 +194,7 @@ fn test_burn_from_panics_with_zero_or_negative_amount_not_allowed() {
     assert_eq!(token.allowance(&user1, &user2), 500);
 
     let result = token.try_burn_from(&user2, &user1, &0);
-    assert_eq!(
-        result,
-        Err(Ok(Error::ZeroOrNegativeAmount.into()))
-    );
+    assert_eq!(result, Err(Ok(Error::ZeroOrNegativeAmount.into())));
 }
 
 #[test]
@@ -237,10 +234,7 @@ fn test_burn_panics_with_zero_or_negative_amount_not_allowed() {
     assert_eq!(token.balance(&user1), 1000);
 
     let result = token.try_burn(&user1, &0);
-    assert_eq!(
-        result,
-        Err(Ok(Error::ZeroOrNegativeAmount.into()))
-    );
+    assert_eq!(result, Err(Ok(Error::ZeroOrNegativeAmount.into())));
 }
 
 #[test]
@@ -313,10 +307,7 @@ fn transfer_panics_with_zero_or_negative_amount_not_allowed() {
     let (mut token, admin1, manager) = initialize_token(&e, token);
 
     let result = token.try_transfer(&user1, &user2, &0);
-    assert_eq!(
-        result,
-        Err(Ok(Error::ZeroOrNegativeAmount.into()))
-    );
+    assert_eq!(result, Err(Ok(Error::ZeroOrNegativeAmount.into())));
 }
 
 #[test]
@@ -351,10 +342,7 @@ fn transfer_from_with_zero_or_negative_amount_not_allowed() {
     let (mut token, admin1, manager) = initialize_token(&e, token);
 
     let result = token.try_transfer_from(&user3, &user1, &user2, &0);
-    assert_eq!(
-        result,
-        Err(Ok(Error::ZeroOrNegativeAmount.into()))
-    );
+    assert_eq!(result, Err(Ok(Error::ZeroOrNegativeAmount.into())));
 }
 
 #[test]
