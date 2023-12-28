@@ -20,6 +20,13 @@ pub struct AllowanceValue {
     pub expiration_ledger: u32,
 }
 
+#[derive(Clone, Debug)]
+#[contracttype]
+pub struct Component {
+    pub address: Address,
+    pub unit: i128,
+} 
+
 #[derive(Clone)]
 #[contracttype]
 pub enum DataKey {
@@ -28,4 +35,6 @@ pub enum DataKey {
     Nonce(Address),
     State(Address),
     Admin,
+    Components,
+    Manager,
 }

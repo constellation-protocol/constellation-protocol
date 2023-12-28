@@ -25,11 +25,9 @@ impl MinterBurner {
         }
 
         let ctoken = constellation_token::Client::new(&e, &constellation_token_address);
-
         let components = ctoken.components();
-
         for c in components.iter() {
-            let quantity = c.amount * amount; // unit * amount
+            let quantity = c.unit * amount; // unit * amount
             let _token = token::Client::new(&e, &c.address);
             _token.transfer_from(
                 &e.current_contract_address(),
@@ -38,20 +36,8 @@ impl MinterBurner {
                 &quantity,
             );
         }
-
-        let mint_result = ctoken.try_mint(&to, &amount);
-        let insufficient_balance = constellation_token::Error::InsufficientBalance as u32;
-
-        match mint_result {
-            Ok(result) => match result {
-                Ok(()) => return Ok(()),
-                Err(conversion_error) => panic_with_error!(&e, conversion_error),
-            },
-            Err(error_result) => match error_result {
-                insufficient_balance => return Err(Error::InsufficientBalance),
-                _ => panic_with_error!(&e, Error::ContractInvocationError),
-            },
-        }
+        ctoken.mint(&to, &amount);
+        Ok(())
     }
 
     pub fn burn(
@@ -67,21 +53,22 @@ impl MinterBurner {
         }
 
         let ctoken = constellation_token::Client::new(&e, &constellation_token_address);
+        ctoken.burn_from(&&e.current_contract_address(), &from, &amount);
 
-        let burn_result = ctoken.try_burn_from(&&e.current_contract_address(), &from, &amount);
-        let insufficient_balance = constellation_token::Error::InsufficientBalance as u32;
+        // let burn_result = ctoken.try_burn_from(&&e.current_contract_address(), &from, &amount);
+        // let insufficient_balance = constellation_token::Error::InsufficientBalance as u32;
 
-        match burn_result {
-            Ok(result) => match result {
-                Ok(()) => return Ok(()),
-                Err(conversion_error) => panic_with_error!(&e, conversion_error),
-            },
+        // match burn_result {
+        //     Ok(result) => match result {
+        //         Ok(()) => return Ok(()),
+        //         Err(conversion_error) => panic_with_error!(&e, conversion_error),
+        //     },
 
-            Err(error_result) => match error_result {
-                insufficient_balance => return Err(Error::InsufficientBalance),
-                _ => panic_with_error!(&e, Error::ContractInvocationError),
-            },
-        }
+        //     Err(error_result) => match error_result {
+        //         insufficient_balance => return Err(Error::InsufficientBalance),
+        //         _ => panic_with_error!(&e, Error::ContractInvocationError),
+        //     },
+        // }
 
         ctoken.redeem(&from, &amount);
 

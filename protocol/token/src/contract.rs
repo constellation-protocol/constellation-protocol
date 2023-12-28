@@ -11,7 +11,7 @@ use crate::metadata::{read_decimal, read_name, read_symbol, write_metadata};
 use crate::storage_types::{
     AllowanceDataKey, AllowanceValue, DataKey, INSTANCE_BUMP_AMOUNT, INSTANCE_LIFETIME_THRESHOLD,
 };
-use crate::types::Component;
+use crate::storage_types::Component;
 use crate::{allowance::*, error};
 use soroban_sdk::{
     contract, contractimpl, contracttype, log, symbol_short, token, token::Interface, Address, Env,
@@ -81,7 +81,7 @@ impl ConstellationToken {
 
         let components = Self::components(e.clone());
         for c in components.iter() {
-            let quantity = c.amount * amount;
+            let quantity = c.unit * amount;
             let _token = token::Client::new(&e, &c.address);
             _token.transfer(&e.current_contract_address(), &to, &quantity);
         }
