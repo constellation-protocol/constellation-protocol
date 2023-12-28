@@ -149,8 +149,8 @@ fn mint_should_fail_with_token_contract_insufficient_balance_and_revert() {
         &manager,
     );
 
-    token1.approve(&user1, &minter_burner.address, &10000i128, &1000);
-    token2.approve(&user1, &minter_burner.address, &10000i128, &1000);
+    token1.approve(&user1, &ct.address, &10000i128, &1000);
+    token2.approve(&user1, &ct.address, &10000i128, &1000);
     let res = minter_burner.try_mint(&user1, &ct.address, &2); // mints 2 ctokens / requires 200 of the componnet
     assert_eq!(
         res,

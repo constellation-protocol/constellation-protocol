@@ -87,6 +87,25 @@ impl ConstellationToken {
         }
     }
 
+    pub fn lock(e: Env, from: Address, amount: i128) {
+        check_zero_or_negative_amount(&e, amount);
+        let admin = read_administrator(&e);
+        admin.require_auth();
+
+        let components = Self::components(e.clone());
+
+        for c in components.iter() {
+            let quantity = c.unit * amount; // unit * amount
+            let _token = token::Client::new(&e, &c.address);
+            _token.transfer_from(
+                &e.current_contract_address(),
+                &from,
+                &e.current_contract_address(),
+                &quantity,
+            );
+        }
+    }
+
     pub fn set_admin(e: Env, new_admin: Address) {
         let admin = read_administrator(&e);
         admin.require_auth();
@@ -138,33 +157,7 @@ impl ConstellationToken {
 
 #[contractimpl]
 impl token::Interface for ConstellationToken {
-    // fn burn(e: Env, from: Address, amount: i128) {
-    //     check_zero_or_negative_amount(&e, amount);
-    //     let admin = read_administrator(&e);
-    //     admin.require_auth();
-
-    //     if read_balance(&e, from.clone()) < amount {
-    //        panic_with_error!(&e, Error::InsufficientBalance);
-    //     }
-
-    //     e.storage()
-    //         .instance()
-    //         .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
-
-    //     spend_balance(&e, from.clone(), amount);
-
-    //     let components = read_components(&e);
-    //     for c in components.iter() {
-    //         let _token = token::Client::new(&e, &c.address);
-    //         _token.transfer(
-    //             &e.current_contract_address(),
-    //             &from.clone(),
-    //             &(c.amount * amount),
-    //         );
-    //     }
-    //     TokenUtils::new(&e).events().burn(from, amount);
-    // }
-
+ 
     fn burn(e: Env, from: Address, amount: i128) {
         from.require_auth();
 

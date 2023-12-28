@@ -134,7 +134,7 @@
                         },
                         {
                           "key": {
-                            "symbol": "amount"
+                            "symbol": "unit"
                           },
                           "val": {
                             "i128": {
@@ -157,7 +157,7 @@
                         },
                         {
                           "key": {
-                            "symbol": "amount"
+                            "symbol": "unit"
                           },
                           "val": {
                             "i128": {
@@ -180,7 +180,7 @@
                         },
                         {
                           "key": {
-                            "symbol": "amount"
+                            "symbol": "unit"
                           },
                           "val": {
                             "i128": {
@@ -197,7 +197,7 @@
             },
             "ext": "v0"
           },
-          518400
+          120960
         ]
       ],
       [

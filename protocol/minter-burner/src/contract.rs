@@ -25,17 +25,7 @@ impl MinterBurner {
         }
 
         let ctoken = constellation_token::Client::new(&e, &constellation_token_address);
-        let components = ctoken.components();
-        for c in components.iter() {
-            let quantity = c.unit * amount; // unit * amount
-            let _token = token::Client::new(&e, &c.address);
-            _token.transfer_from(
-                &e.current_contract_address(),
-                &to,
-                &constellation_token_address,
-                &quantity,
-            );
-        }
+        ctoken.lock(&to, &amount);
         ctoken.mint(&to, &amount);
         Ok(())
     }
@@ -53,9 +43,9 @@ impl MinterBurner {
         }
 
         let ctoken = constellation_token::Client::new(&e, &constellation_token_address);
-        ctoken.burn_from(&&e.current_contract_address(), &from, &amount);
+        ctoken.burn_from(&e.current_contract_address(), &from, &amount);
         ctoken.redeem(&from, &amount);
-        
+
         Ok(())
     }
 }
