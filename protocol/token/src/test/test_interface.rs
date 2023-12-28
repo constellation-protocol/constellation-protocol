@@ -194,7 +194,10 @@ fn test_burn_from_panics_with_zero_or_negative_amount_not_allowed() {
     assert_eq!(token.allowance(&user1, &user2), 500);
 
     let result = token.try_burn_from(&user2, &user1, &0);
-    assert_eq!(result, Err(Ok(Error::ZeroOrNegativeAmountNotAllowed.into())));
+    assert_eq!(
+        result,
+        Err(Ok(Error::ZeroOrNegativeAmount.into()))
+    );
 }
 
 #[test]
@@ -219,7 +222,6 @@ fn test_burn_from_panics_with_insufficient_allowance() {
     assert_eq!(result, Err(Ok(Error::InsufficientAllowance.into())));
 }
 
-
 #[test]
 fn test_burn_panics_with_zero_or_negative_amount_not_allowed() {
     let e = Env::default();
@@ -235,7 +237,10 @@ fn test_burn_panics_with_zero_or_negative_amount_not_allowed() {
     assert_eq!(token.balance(&user1), 1000);
 
     let result = token.try_burn(&user1, &0);
-    assert_eq!(result, Err(Ok(Error::ZeroOrNegativeAmountNotAllowed.into())));
+    assert_eq!(
+        result,
+        Err(Ok(Error::ZeroOrNegativeAmount.into()))
+    );
 }
 
 #[test]
@@ -308,7 +313,10 @@ fn transfer_panics_with_zero_or_negative_amount_not_allowed() {
     let (mut token, admin1, manager) = initialize_token(&e, token);
 
     let result = token.try_transfer(&user1, &user2, &0);
-    assert_eq!(result, Err(Ok(Error::ZeroOrNegativeAmountNotAllowed.into())));
+    assert_eq!(
+        result,
+        Err(Ok(Error::ZeroOrNegativeAmount.into()))
+    );
 }
 
 #[test]
@@ -338,15 +346,16 @@ fn transfer_from_with_zero_or_negative_amount_not_allowed() {
     let user1 = Address::generate(&e);
     let user2 = Address::generate(&e);
     let user3 = Address::generate(&e);
-    
+
     let mut token = create_constellation_token(&e);
     let (mut token, admin1, manager) = initialize_token(&e, token);
 
-
     let result = token.try_transfer_from(&user3, &user1, &user2, &0);
-    assert_eq!(result, Err(Ok(Error::ZeroOrNegativeAmountNotAllowed.into())));
+    assert_eq!(
+        result,
+        Err(Ok(Error::ZeroOrNegativeAmount.into()))
+    );
 }
-
 
 #[test]
 fn transfer_from_insufficient_allowance() {
@@ -357,7 +366,7 @@ fn transfer_from_insufficient_allowance() {
     let user1 = Address::generate(&e);
     let user2 = Address::generate(&e);
     let user3 = Address::generate(&e);
-    
+
     let mut token = create_constellation_token(&e);
     let (mut token, admin1, manager) = initialize_token(&e, token);
 
@@ -379,12 +388,12 @@ fn transfer_from_insufficient_balance() {
     let user1 = Address::generate(&e);
     let user2 = Address::generate(&e);
     let user3 = Address::generate(&e);
-    
+
     let mut token = create_constellation_token(&e);
     let (mut token, admin1, manager) = initialize_token(&e, token);
 
-     token.mint(&user1, &1000);
-     assert_eq!(token.balance(&user1), 1000);
+    token.mint(&user1, &1000);
+    assert_eq!(token.balance(&user1), 1000);
 
     token.approve(&user1, &user3, &1001, &200);
     assert_eq!(token.allowance(&user1, &user3), 1001);
@@ -399,7 +408,7 @@ fn decimal_is_over_max() {
     let admin = Address::generate(&e);
 
     let mut token = create_constellation_token(&e);
-  
+
     let components = vec![
         &e,
         Address::generate(&e),
@@ -423,7 +432,6 @@ fn decimal_is_over_max() {
         &manager,
     );
     assert_eq!(result, Err(Ok(Error::ValueTooLargeOverFlow.into())));
-
 }
 
 #[test]
@@ -438,4 +446,3 @@ fn test_zero_allowance() {
 
     assert!(token.get_allowance(&from, &spender).is_none());
 }
- 

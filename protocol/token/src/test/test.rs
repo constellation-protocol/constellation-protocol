@@ -155,7 +155,7 @@ fn test_initialize_should_panic_with_zero_or_negative_amount_not_allowed_1() {
         &manager,
     );
 
-    assert_eq!(res, Err(Ok(Error::ZeroOrNegativeAmountNotAllowed)));
+    assert_eq!(res, Err(Ok(Error::ZeroOrNegativeAmount)));
 }
 
 #[test]
@@ -186,7 +186,7 @@ fn test_initialize_should_panic_with_zero_or_negative_amount_not_allowed_2() {
         &manager,
     );
 
-    assert_eq!(res, Err(Ok(Error::ZeroOrNegativeAmountNotAllowed)));
+    assert_eq!(res, Err(Ok(Error::ZeroOrNegativeAmount)));
 }
 
 #[test]
@@ -255,6 +255,6 @@ fn mint_reverts_with_zero_or_negative_amount_not_allowed() {
     let (ct,_,_ ) = initialize_token(&e, create_constellation_token(&e));
 
     let restult = ct.try_mint(&mint_to, &i128::from(0));
-    assert_eq!(restult, Err(Ok(Error::ZeroOrNegativeAmountNotAllowed.into())));
+    assert_eq!(restult, Err(Ok(Error::ZeroOrNegativeAmount.into())));
 }
-// todo! Test mint
+

@@ -13,6 +13,7 @@ soroban-sdk.workspace = true
 constellation-token = { path = "../token"}
 [dev-dependencies]
 soroban-sdk = { version = "20.0.0-rc2", features = ["testutils"] }
+soroban-env-common = { version = "20.0.2", faetures = ["testutils"]}
 
 [profile.release]
 opt-level = "z"
