@@ -1,8 +1,10 @@
+use super::event::emit_redeem;
+use super::helpers::{lock, redeem};
 use crate::admin::read_administrator;
 use crate::admin::{has_administrator, write_administrator};
+use crate::allowance::*;
 use crate::balance::*;
-use crate::component::read_components;
-use crate::component::write_components;
+use crate::component::{read_components, write_components};
 use crate::error::Error;
 use crate::error::{check_nonnegative_amount, check_zero_or_negative_amount};
 use crate::manager::{read_manager, write_manager};
@@ -12,14 +14,12 @@ use crate::storage_types::Component;
 use crate::storage_types::{
     AllowanceDataKey, AllowanceValue, DataKey, INSTANCE_BUMP_AMOUNT, INSTANCE_LIFETIME_THRESHOLD,
 };
-use crate::{allowance::*, error};
+use crate::traits::ConstellationTokenInterface;
 use soroban_sdk::{
-    contract, contractimpl, contracttype, log, symbol_short, token, token::Interface, Address, Env,
-    String, Symbol, Vec,
+    contract, contractimpl, contracttype, log, panic_with_error, symbol_short, token,
+    token::Interface, Address, Env, IntoVal, String, Symbol, Val, Vec,
 };
-use soroban_sdk::{panic_with_error, IntoVal, Val};
 use soroban_token_sdk::{metadata::TokenMetadata, TokenUtils};
-
 #[contract]
 pub struct ConstellationToken;
 
@@ -28,7 +28,39 @@ impl ConstellationToken {
     //////////////////////////////////////////////////////////////////
     ///////// mutable functions //////////////////////////////////////
     //////////////////////////////////////////////////////////////////
-    pub fn initialize(
+    fn set_admin(e: Env, new_admin: Address) {
+        let admin = read_administrator(&e);
+        admin.require_auth();
+
+        e.storage()
+            .instance()
+            .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
+
+        write_administrator(&e, &new_admin);
+        TokenUtils::new(&e).events().set_admin(admin, new_admin);
+    }
+
+    //////////////////////////////////////////////////////////////////
+    ///////// Read Only functions ////////////////////////////////////
+    //////////////////////////////////////////////////////////////////
+
+    fn get_allowance(e: Env, from: Address, spender: Address) -> Option<AllowanceValue> {
+        let key = DataKey::Allowance(AllowanceDataKey { from, spender });
+        let allowance = e.storage().temporary().get::<_, AllowanceValue>(&key);
+        allowance
+    }
+
+    fn get_admin(e: Env) -> Address {
+        read_administrator(&e)
+    }
+}
+
+#[contractimpl]
+impl ConstellationTokenInterface for ConstellationToken {
+    //////////////////////////////////////////////////////////////////
+    ///////// mutable functions //////////////////////////////////////
+    //////////////////////////////////////////////////////////////////
+    fn initialize(
         e: Env,
         decimal: u32,
         components: Vec<Address>,
@@ -61,7 +93,7 @@ impl ConstellationToken {
         Ok(())
     }
 
-    pub fn mint(e: Env, to: Address, amount: i128) {
+    fn mint(e: Env, to: Address, amount: i128) {
         check_zero_or_negative_amount(&e, amount);
         let admin = read_administrator(&e);
         admin.require_auth();
@@ -69,63 +101,20 @@ impl ConstellationToken {
         e.storage()
             .instance()
             .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
+
+        lock(&e, &to, amount);
 
         receive_balance(&e, to.clone(), amount);
         TokenUtils::new(&e).events().mint(admin, to, amount);
     }
-
-    pub fn redeem(e: Env, to: Address, amount: i128) {
+    fn redeem(e: Env, spender: Address, from: Address, amount: i128) {
         check_zero_or_negative_amount(&e, amount);
-        let admin = read_administrator(&e);
-        admin.require_auth();
-
-        e.storage()
-            .instance()
-            .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
-
-        let components = Self::components(e.clone());
-        for c in components.iter() {
-            let quantity = c.unit * amount;
-            let _token = token::Client::new(&e, &c.address);
-            _token.transfer(&e.current_contract_address(), &to, &quantity);
-        }
+        read_administrator(&e).require_auth();
+        redeem(&e, &from, amount);
+        emit_redeem(&e, spender, from, amount);
     }
 
-    pub fn lock(e: Env, from: Address, amount: i128) {
-        check_zero_or_negative_amount(&e, amount);
-        let admin = read_administrator(&e);
-        admin.require_auth();
-
-        e.storage()
-            .instance()
-            .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
-
-        let components = Self::components(e.clone());
-        for c in components.iter() {
-            let quantity = c.unit * amount; // unit * amount
-            let _token = token::Client::new(&e, &c.address);
-            _token.transfer_from(
-                &e.current_contract_address(),
-                &from,
-                &e.current_contract_address(),
-                &quantity,
-            );
-        }
-    }
-
-    pub fn set_admin(e: Env, new_admin: Address) {
-        let admin = read_administrator(&e);
-        admin.require_auth();
-
-        e.storage()
-            .instance()
-            .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
-
-        write_administrator(&e, &new_admin);
-        TokenUtils::new(&e).events().set_admin(admin, new_admin);
-    }
-
-    pub fn set_manager(e: Env, new_manager: Address) {
+    fn set_manager(e: Env, new_manager: Address) {
         let manager = read_manager(&e);
         manager.require_auth();
 
@@ -141,23 +130,12 @@ impl ConstellationToken {
     //////////////////////////////////////////////////////////////////
     ///////// Read Only functions ////////////////////////////////////
     //////////////////////////////////////////////////////////////////
-    ///
 
-    pub fn get_allowance(e: Env, from: Address, spender: Address) -> Option<AllowanceValue> {
-        let key = DataKey::Allowance(AllowanceDataKey { from, spender });
-        let allowance = e.storage().temporary().get::<_, AllowanceValue>(&key);
-        allowance
-    }
-
-    pub fn admin(e: Env) -> Address {
-        read_administrator(&e)
-    }
-
-    pub fn components(e: Env) -> Vec<Component> {
+    fn get_components(e: Env) -> Vec<Component> {
         read_components(&e)
     }
 
-    pub fn manager(e: Env) -> Address {
+    fn get_manager(e: Env) -> Address {
         read_manager(&e)
     }
 }
@@ -174,6 +152,7 @@ impl token::Interface for ConstellationToken {
             .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
 
         spend_balance(&e, from.clone(), amount);
+
         TokenUtils::new(&e).events().burn(from, amount);
     }
 
@@ -188,6 +167,7 @@ impl token::Interface for ConstellationToken {
 
         spend_allowance(&e, from.clone(), spender, amount);
         spend_balance(&e, from.clone(), amount);
+
         TokenUtils::new(&e).events().burn(from, amount)
     }
 
