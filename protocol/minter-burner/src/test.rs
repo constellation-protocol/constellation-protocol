@@ -109,7 +109,7 @@ fn mint_should_fail_with_token_contract_insufficient_allowance_and_revert() {
     assert_eq!(
         res,
         Err(Err(InvokeError::Contract(
-            9 /*BalanceError - stellat asset contract errro code*/
+            9 /*AllowanceError - stellat asset contract errro code*/
         )
         .into()))
     );

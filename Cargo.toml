@@ -4,7 +4,7 @@
  members = [
     "protocol/token",
     "protocol/minter-burner",
-    # "protocol/factory",
+    "protocol/factory",
  ]
 
 [workspace.dependencies]
