@@ -4,7 +4,7 @@ use soroban_sdk::{contracttype, panic_with_error, Address, Env, Vec};
 extern crate alloc;
 use alloc::vec;
 
-pub fn write_components(e: &Env, components_address: Vec<Address>, units: Vec<i128>) {
+pub fn write_components(e: &Env, components_address: &Vec<Address>, units: &Vec<i128>) {
     if components_address.len() != units.len() {
         panic_with_error!(e, Error::ComponentsAmountsLengthMismatch);
     }

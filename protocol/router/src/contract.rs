@@ -7,6 +7,7 @@ use soroban_sdk::{
 use crate::factory;
 use crate::storage::{has_factory, read_factory, write_factory};
 use crate::token as ctoken;
+use crate::event;
 
 #[contract]
 pub struct Router;
@@ -17,7 +18,8 @@ impl Router {
         if has_factory(&e) {
             return Err(Error::AlreadyInitalized);
         }
-        write_factory(&e, factory);
+        write_factory(&e, &factory);
+        event::initialize(&e, factory);
         Ok(())
     }
     pub fn mint(

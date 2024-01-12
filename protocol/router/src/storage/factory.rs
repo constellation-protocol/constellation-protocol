@@ -7,8 +7,8 @@ pub(crate) fn extend_ttl(e: &Env) {
     e.storage().instance().extend_ttl(INSTANCE_LEDGER_TTL_THRESHOLD, INSTANCE_LEDGER_LIFE);
  }
 
-pub(crate) fn write_factory(e: &Env, factory: Address) {
-    e.storage().instance().set(&DataKey::Factory, &factory);
+pub(crate) fn write_factory(e: &Env, factory: &Address) {
+    e.storage().instance().set(&DataKey::Factory, factory);
     extend_ttl(e);
 }
 

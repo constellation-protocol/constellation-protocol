@@ -1,4 +1,4 @@
-use soroban_sdk::{contracttype, symbol_short, Address, Env, Symbol,String, IntoVal};
+use soroban_sdk::{contracttype, symbol_short, Address, Env, Symbol,String, Vec, IntoVal};
 use soroban_token_sdk::{metadata::TokenMetadata, TokenUtils};
 
 #[contracttype]
@@ -12,7 +12,8 @@ pub struct Redeem {
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Initialize {
-    contract_address: Address,
+    components: Vec<Address>,
+    amounts: Vec<i128>
 }
 
 #[contracttype]
@@ -44,12 +45,13 @@ pub(crate) fn set_manager(e: &Env, old_manager: Address, new_manager: Address) {
     );
 }
 
-pub(crate) fn initialize(e: &Env, contract_address: Address) {
-    let topics = (Symbol::new(e,"intialize"),contract_address.clone());
+pub(crate) fn initialize(e: &Env,   components: Vec<Address>, amounts: Vec<i128>) {
+    let topics = (Symbol::new(e,"intialize"),e.current_contract_address());
     e.events().publish(
         topics, 
         Initialize{
-            contract_address
+            components,
+            amounts
         },
     );
 }

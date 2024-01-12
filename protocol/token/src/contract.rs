@@ -88,8 +88,8 @@ impl ConstellationTokenInterface for ConstellationToken {
                 symbol,
             },
         );
-        write_components(&e, components, amounts);
-        event::initialize(&e, e.current_contract_address().clone());
+        write_components(&e, &components, &amounts);
+        event::initialize(&e, components, amounts);
         Ok(())
     }
 
