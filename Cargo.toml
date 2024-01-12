@@ -3,7 +3,7 @@
  nested = true
  members = [
     "protocol/token",
-    "protocol/minter-burner",
+    "protocol/router",
     "protocol/factory",
  ]
 

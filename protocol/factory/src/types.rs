@@ -14,10 +14,3 @@ pub struct CreateConstellationTokenArgs {
     pub components: Vec<Address>,
     pub amounts: Vec<i128>,
 }
-
-#[derive(Clone)]
-#[contracttype]
-pub struct SimpleArgs {
-    deployer: Address,
-    name: String,
-}

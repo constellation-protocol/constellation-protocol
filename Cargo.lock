@@ -82,9 +82,9 @@ checksum = "9e1b586273c5702936fe7b7d6896644d8be71e6314cfe09d3167c95f712589e8"
 
 [[package]]
 name = "base64"
-version = "0.21.6"
+version = "0.21.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c79fed4cdb43e993fcdadc7e58a09fd0e3e649c4436fa11da71c9f1f3ee7feb9"
+checksum = "9d297deb1925b89f2ccc13d7635fa0714f12c87adce1c75356b39ca9b7178567"
 
 [[package]]
 name = "base64ct"
@@ -154,20 +154,29 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2459377285ad874054d797f3ccebf984978aa39129f6eafde5cdc8315b612f8"
 
 [[package]]
-name = "constellation-token"
-version = "0.1.0"
-dependencies = [
- "soroban-sdk",
- "soroban-token-sdk",
-]
-
-[[package]]
-name = "constellation-token-factory"
+name = "constellation-factory"
 version = "0.1.0"
 dependencies = [
  "constellation-token",
  "soroban-env-common",
  "soroban-sdk",
+]
+
+[[package]]
+name = "constellation-router"
+version = "0.1.0"
+dependencies = [
+ "constellation-token",
+ "soroban-env-common",
+ "soroban-sdk",
+]
+
+[[package]]
+name = "constellation-token"
+version = "0.1.0"
+dependencies = [
+ "soroban-sdk",
+ "soroban-token-sdk",
 ]
 
 [[package]]
@@ -658,15 +667,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "minter-burner"
-version = "0.1.0"
-dependencies = [
- "constellation-token",
- "soroban-env-common",
- "soroban-sdk",
-]
-
-[[package]]
 name = "num-bigint"
 version = "0.4.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -902,7 +902,7 @@ version = "3.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "64cd236ccc1b7a29e7e2739f27c0b2dd199804abc4290e32f59f3b68d6405c23"
 dependencies = [
- "base64 0.21.6",
+ "base64 0.21.7",
  "chrono",
  "hex",
  "indexmap 1.9.3",
