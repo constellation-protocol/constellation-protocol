@@ -1,12 +1,13 @@
-use soroban_sdk::{Address, Env};
 use super::{INSTANCE_LEDGER_LIFE, INSTANCE_LEDGER_TTL_THRESHOLD};
+use soroban_sdk::{Address, Env};
 
 use super::DataKey;
 
 pub(crate) fn extend_ttl(e: &Env) {
-   e.storage().instance().extend_ttl(INSTANCE_LEDGER_TTL_THRESHOLD, INSTANCE_LEDGER_LIFE);
+    e.storage()
+        .instance()
+        .extend_ttl(INSTANCE_LEDGER_TTL_THRESHOLD, INSTANCE_LEDGER_LIFE);
 }
-
 pub(crate) fn read_max_components(e: &Env) -> Option<u32> {
     extend_ttl(e);
     let key = DataKey::MaxComponents;

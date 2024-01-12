@@ -1,11 +1,12 @@
 use super::DataKey;
-use soroban_sdk::{Address, Env, Vec};
 use super::{INSTANCE_LEDGER_LIFE, INSTANCE_LEDGER_TTL_THRESHOLD};
+use soroban_sdk::{Address, Env, Vec};
 
 pub(crate) fn extend_ttl(e: &Env) {
-    e.storage().instance().extend_ttl(INSTANCE_LEDGER_TTL_THRESHOLD, INSTANCE_LEDGER_LIFE);
- }
- 
+    e.storage()
+        .instance()
+        .extend_ttl(INSTANCE_LEDGER_TTL_THRESHOLD, INSTANCE_LEDGER_LIFE);
+}
 pub fn read_token_list(e: &Env) -> Vec<Address> {
     extend_ttl(e);
     let key = DataKey::TokenList;
@@ -15,7 +16,6 @@ pub fn read_token_list(e: &Env) -> Vec<Address> {
         Vec::new(e)
     }
 }
-
 pub fn write_token_list(e: &Env, token_address: Address) {
     extend_ttl(e);
     let key = DataKey::TokenList;

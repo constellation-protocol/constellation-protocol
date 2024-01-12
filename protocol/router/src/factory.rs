@@ -20,10 +20,10 @@ pub(crate) fn create(
     deployer: Address,
     wasm_hash: BytesN<32>,
     salt: BytesN<32>,
-) -> Address  {
+) -> Address {
     let address = read_factory(&e);
     let factory = constellation_factory::Client::new(e, &address);
-    let adddress: Address =factory.create(
+    let adddress: Address = factory.create(
         &decimal,
         &name,
         &symbol,

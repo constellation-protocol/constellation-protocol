@@ -1,13 +1,13 @@
 #![no_std]
 use crate::error::{self, Error};
+use crate::event;
+use crate::factory;
+use crate::storage::{has_factory, read_factory, write_factory};
+use crate::token as ctoken;
 use soroban_sdk::{
     contract, contracterror, contractimpl, contracttype, log, panic_with_error, symbol_short,
     token, Address, BytesN, ConversionError, Env, InvokeError, String, Symbol, Vec,
 };
-use crate::factory;
-use crate::storage::{has_factory, read_factory, write_factory};
-use crate::token as ctoken;
-use crate::event;
 
 #[contract]
 pub struct Router;
@@ -33,8 +33,8 @@ impl Router {
         if amount <= 0 {
             return Err(Error::ZeroOrNegativeAmount);
         }
-        
-        ctoken::mint(&e,to, amount, constellation_token_address);
+
+        ctoken::mint(&e, to, amount, constellation_token_address);
         Ok(())
     }
 
@@ -50,7 +50,7 @@ impl Router {
             return Err(Error::ZeroOrNegativeAmount);
         }
 
-        ctoken::redeem(&e, from, amount, constellation_token_address); 
+        ctoken::redeem(&e, from, amount, constellation_token_address);
         Ok(())
     }
 

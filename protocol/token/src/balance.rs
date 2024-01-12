@@ -5,9 +5,11 @@ use soroban_sdk::{panic_with_error, Address, Env};
 pub fn read_balance(e: &Env, addr: Address) -> i128 {
     let key = DataKey::Balance(addr);
     if let Some(balance) = e.storage().persistent().get::<DataKey, i128>(&key) {
-        e.storage()
-            .persistent()
-            .extend_ttl(&key, INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
+        e.storage().persistent().extend_ttl(
+            &key,
+            INSTANCE_LIFETIME_THRESHOLD,
+            INSTANCE_BUMP_AMOUNT,
+        );
         balance
     } else {
         0
