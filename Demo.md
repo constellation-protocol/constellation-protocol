@@ -27,6 +27,10 @@
    `
   2. Copy the revealed private key
   3. Add the private key to Freigher wallet. Open Freighter wallet extension which is installed on your chrome, click on the account icon which is at the top left of the wallet app. At the bottom, click 'Import a stellar secret key' and paste your local account secret key
+   
+## NOTE 
+  When providing amounts, add the token decimal to the amount 
+  eg. if you are sending 200 and the decimal for the token is 6 , then you send 200000000
 
 ## Run The Following commands in the root of the project
 
