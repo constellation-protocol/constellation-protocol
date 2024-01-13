@@ -30,6 +30,12 @@
 
 ## Run The Following commands in the root of the project
 
+### Build the project 
+
+`
+ soroban contract build
+`
+
 ## Install & Deploy Component Tokens
 
 ### 1. Install Component Token
