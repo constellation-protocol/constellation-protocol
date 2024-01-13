@@ -1,7 +1,7 @@
 
 # Demo CLI Walkthrough
 
-## In this Demo we will demosnte the following
+## In this Demo we will demonstrate the following
 
 - Mint Constellation Tokens to Account A
 - Transfer Constellation token to account B
@@ -27,7 +27,9 @@
    `
   2. Copy the revealed private key
   3. Add the private key to Freigher wallet. Open Freighter wallet extension which is installed on your chrome, click on the account icon which is at the top left of the wallet app. At the bottom, click 'Import a stellar secret key' and paste your local account secret key
-  
+
+## Run The Following commands in the root of the project
+
 ## Install & Deploy Component Tokens
 
 ### 1. Install Component Token
@@ -56,7 +58,7 @@ soroban contract deploy --source REPLACE_WITH_YOUR_ACCOUNT_NAME --network testne
 soroban contract deploy --source REPLACE_WITH_YOUR_ACCOUNT_NAME --network testnet --wasm-hash REPLACE_WITH_INSTALLED_TOKEN_CONTRACT_HASH
 `
 
-### 3. Initialze Comonent Tokens
+### 3. Initialze Component Tokens
 
 #### i. Initialize USDC
 
@@ -119,21 +121,21 @@ soroban contract deploy --source REPLACE_WITH_YOUR_ACCOUNT_NAME --network testne
 soroban contract invoke --id REPLACE_WITH_DEPLOYED_ROUTER_ADDRESS --source-account REPLACE_WITH_YOUR_ACCOUNT_NAME --network testnet -- initialize --factory REPLACE_WITH_FACTORY_CONTRACT_ADDRESS
 `
 
-### 6. Install & Deploy Cobnstellation Token
+### 6. Install & Deploy Constellation Token
 
-#### i. Install Cobnstellation Token
+#### i. Install Constellation Token
 
 `
 soroban contract install --source REPLACE_WITH_YOUR_ACCOUNT_NAME --network testnet --wasm target/wasm32-unknown-unknown/release/constellation_token.wasm
 `
 
-#### ii. Deploy Cobnstellation Token
+#### ii. Deploy Constellation Token
 
 `
 soroban contract deploy --source REPLACE_WITH_YOUR_ACCOUNT_NAME --network testnet --wasm-hash REPLACE_WITH_CONSTELLATION_TOKEN_CONTRACT_ADDRESS
 `
 
-#### iii. Initialize Cobnstellation Token
+#### iii. Initialize Constellation Token
 
 `
 soroban contract invoke --id REPLACE_WITH_CONSTELLATION_TOKEN_CONTRACT_ADDRESS --source-account REPLACE_WITH_YOUR_ACCOUNT_NAME --network testnet -- initialize --decimal 6 --components '["REPLACE_WITH_USDC_TOKEN_ADDRESS", "REPLACE_WITH_UNI_TOKEN_ADDRESS", "REPLACE_WITH_AAVE_TOKEN_ADDRESS"]' --amounts '["1000", "500", "300"]' --name "USDC-UNI-AAVE" --symbol "UUA" --admin REPLACE_WITH_ROUTER_ADDRESS --manager REPLACE_WITH_YOUR_ACCOUNT_ADDRESS
