@@ -23,7 +23,7 @@
 - Add your local soroban account to Freighter wallet
   1. Obtain the account private key by:
    ```
-    soroban config identity show
+    soroban config identity show <account name>
    ```
   2. Copy the revealed private key
   3. Add the private key to Freigher wallet. Open Freighter wallet extension which is installed on your chrome, click on the account icon which is at the top left of the wallet app. At the bottom, click 'Import a stellar secret key' and paste your local account secret key
