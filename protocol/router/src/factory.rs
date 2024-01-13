@@ -23,7 +23,7 @@ pub(crate) fn create(
 ) -> Address {
     let address = read_factory(&e);
     let factory = constellation_factory::Client::new(e, &address);
-    let adddress: Address = factory.create(
+    let constellation_token_address: Address = factory.create(
         &decimal,
         &name,
         &symbol,
@@ -36,5 +36,5 @@ pub(crate) fn create(
         &salt,
     );
 
-    adddress
+    constellation_token_address
 }

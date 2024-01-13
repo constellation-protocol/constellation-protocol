@@ -81,4 +81,8 @@ impl Router {
             salt,
         )
     }
+
+    pub fn get_factory_address(e: Env) -> Address { 
+        read_factory(&e)
+    }
 }
