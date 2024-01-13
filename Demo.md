@@ -173,13 +173,13 @@ soroban contract invoke --id REPLACE_WITH_ROUTER_ADDRESS --source-account REPLAC
 
 ### 10. Burn Constellation Token to redeem Assets from Account B
 
-#### i Approve Router
+#### i. Approve Router
 
 ```
 soroban contract invoke --id REPLACE_WITH_CONSTELLATION_TOKEN_ADDRESS  --source-account REPLACE_WITH_SENDER_ACCOUNT_NAME --network testnet -- approve --from REPLACE_WITH_SENDER_ACCOUNT_ADDRESS  --spender REPLACE_WITH_ROUTER_ADDRESS --amount 10000000000 --expiration_ledger 100000
 ```
 
-#### i Redeem
+#### ii. Redeem
 
 ```
 soroban contract invoke --id REPLACE_WITH_ROUTER_ADDRESS --source-account REPLACE_WITH_YOUR_ACCOUNT_NAME --network testnet -- burn --from REPLACE_WITH_YOUR_ACCOUNT_ADDRESS  --constellation_token_address REPLACE_WITH_CONSTELLATION_TOKEN_ADDRESS --amount AMOUNT_TO_BURN
