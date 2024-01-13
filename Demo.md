@@ -1,6 +1,20 @@
 
 # Demo CLI Walkthrough
 
+## In this Demo we will demosnte the following
+
+- Mint Constellation Tokens to Account A
+- Transfer Constellation token to account B
+- Burn Constellation Tokens from Account B so that Account B receives the component tokens
+
+## To achieve the above , we will
+
+- Deploy 3 component tokens namely USDC, UNI, AAVE
+- Install soroban Freighter wallet chrome extension so that we can view balances
+- Create 2 accounts from Soroban Cli
+- Add both accounts to Freight Wallet so we can view their balances
+- Add Constellation token and component token address to Freight wallet so we can view users balance
+
 ## Initial Preparation
 
 - Install Soroban CLI
@@ -145,8 +159,11 @@ soroban contract invoke --id REPLACE_WITH_ROUTER_ADDRESS --source-account REPLAC
 
 ### 9. Burn Constellation Token to redeem Assets from Account B
 
-### i Approve Router
+#### i Approve Router
+
 soroban contract invoke --id REPLACE_WITH_CONSTELLATION_TOKEN_ADDRESS  --source-account REPLACE_WITH_SENDER_ACCOUNT_NAME --network testnet -- approve --from REPLACE_WITH_SENDER_ACCOUNT_ADDRESS  --spender REPLACE_WITH_ROUTER_ADDRESS --amount 10000000000 --expiration_ledger 100000
+
+#### i Redeem
 
 `
 soroban contract invoke --id REPLACE_WITH_ROUTER_ADDRESS --source-account REPLACE_WITH_YOUR_ACCOUNT_NAME --network testnet -- burn --from REPLACE_WITH_YOUR_ACCOUNT_ADDRESS  --constellation_token_address REPLACE_WITH_CONSTELLATION_TOKEN_ADDRESS --amount AMOUNT_TO_BURN
