@@ -3,6 +3,12 @@
         "./protocol/minter-burner/Cargo.toml",
         "./protocol/token/Cargo.toml",
         "./protocol/token/Cargo.toml",
+        "./protocol/token/Cargo.toml",
+        "./protocol/factory/Cargo.toml",
+        "./protocol/factory/Cargo.toml",
+        "./protocol/minter-burner/Cargo.toml",
+        "./protocol/router/Cargo.toml",
+        "./protocol/token/Cargo.toml",
         "./protocol/token/Cargo.toml"
     ]
 }

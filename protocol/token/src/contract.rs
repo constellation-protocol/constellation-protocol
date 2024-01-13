@@ -1,4 +1,4 @@
-use super::event::emit_redeem;
+use super::event;
 use super::helpers::{lock, redeem};
 use crate::admin::read_administrator;
 use crate::admin::{has_administrator, write_administrator};
@@ -88,8 +88,8 @@ impl ConstellationTokenInterface for ConstellationToken {
                 symbol,
             },
         );
-        write_components(&e, components, amounts);
-
+        let components = write_components(&e, &components, &amounts);
+        event::initialize(&e, components);
         Ok(())
     }
 
@@ -111,7 +111,7 @@ impl ConstellationTokenInterface for ConstellationToken {
         check_zero_or_negative_amount(&e, amount);
         read_administrator(&e).require_auth();
         redeem(&e, &from, amount);
-        emit_redeem(&e, spender, from, amount);
+        event::redeem(&e, spender, from, amount);
     }
 
     fn set_manager(e: Env, new_manager: Address) {
@@ -123,8 +123,7 @@ impl ConstellationTokenInterface for ConstellationToken {
             .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
 
         write_manager(&e, &new_manager);
-        let topics: (String, Address) = ("set_manager".into_val(&e), manager);
-        e.events().publish(topics, new_manager);
+        event::set_manager(&e, manager, new_manager);
     }
 
     //////////////////////////////////////////////////////////////////

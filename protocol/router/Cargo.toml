@@ -1,5 +1,5 @@
 [package]
-name = "minter-burner"
+name = "constellation-router"
 version = "0.1.0"
 edition = "2021"
 
@@ -11,6 +11,7 @@ doctest = false
 [dependencies]
 soroban-sdk.workspace = true
 constellation-token = { path = "../token"}
+
 [dev-dependencies]
 soroban-sdk = { version = "20.0.0-rc2", features = ["testutils"] }
 soroban-env-common = { version = "20.0.2", faetures = ["testutils"]}

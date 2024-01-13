@@ -3,8 +3,8 @@
  nested = true
  members = [
     "protocol/token",
-    "protocol/minter-burner",
-    # "protocol/factory",
+    "protocol/router",
+    "protocol/factory",
  ]
 
 [workspace.dependencies]

@@ -1,10 +1,12 @@
 use crate::error::{check_zero_or_negative_amount, Error};
-use crate::storage_types::{Component, DataKey, INSTANCE_BUMP_AMOUNT, INSTANCE_LIFETIME_THRESHOLD};
+use crate::storage_types::{
+    Component, DataKey, PERSISTENT_LEDGER_LIFE, PERSISTENT_LEDGER_TTL_THRESHOLD,
+};
 use soroban_sdk::{contracttype, panic_with_error, Address, Env, Vec};
 extern crate alloc;
 use alloc::vec;
 
-pub fn write_components(e: &Env, components_address: Vec<Address>, units: Vec<i128>) {
+pub fn write_components(e: &Env, components_address: &Vec<Address>, units: &Vec<i128>) -> Vec<Component> {
     if components_address.len() != units.len() {
         panic_with_error!(e, Error::ComponentsAmountsLengthMismatch);
     }
@@ -29,9 +31,12 @@ pub fn write_components(e: &Env, components_address: Vec<Address>, units: Vec<i1
     let key = DataKey::Components;
     e.storage().persistent().set(&key, &components);
 
-    e.storage()
-        .persistent()
-        .extend_ttl(&key, INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
+    e.storage().persistent().extend_ttl(
+        &key,
+        PERSISTENT_LEDGER_TTL_THRESHOLD,
+        PERSISTENT_LEDGER_LIFE,
+    );
+    components
 }
 
 pub fn read_components(e: &Env) -> Vec<Component> {
@@ -43,8 +48,8 @@ pub fn read_components(e: &Env) -> Vec<Component> {
     {
         e.storage().persistent().extend_ttl(
             &key,
-            INSTANCE_LIFETIME_THRESHOLD,
-            INSTANCE_BUMP_AMOUNT,
+            PERSISTENT_LEDGER_TTL_THRESHOLD,
+            PERSISTENT_LEDGER_LIFE,
         );
         components
     } else {

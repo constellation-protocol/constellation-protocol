@@ -10,4 +10,5 @@ pub enum Error {
     ZeroOrNegativeAmount = 401,
     InsufficientBalance = 500,
     ContractInvocationError = 501,
+    AlreadyInitalized = 502,
 }
