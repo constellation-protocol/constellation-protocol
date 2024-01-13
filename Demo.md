@@ -127,7 +127,7 @@ soroban contract deploy --source REPLACE_WITH_YOUR_ACCOUNT_NAME --network testne
 soroban contract invoke --id REPLACE_WITH_DEPLOYED_ROUTER_ADDRESS --source-account REPLACE_WITH_YOUR_ACCOUNT_NAME --network testnet -- initialize --factory REPLACE_WITH_FACTORY_CONTRACT_ADDRESS
 `
 
-### 6. Install & Deploy Constellation Token
+### 7. Install & Deploy Constellation Token
 
 #### i. Install Constellation Token
 
@@ -147,7 +147,7 @@ soroban contract deploy --source REPLACE_WITH_YOUR_ACCOUNT_NAME --network testne
 soroban contract invoke --id REPLACE_WITH_CONSTELLATION_TOKEN_CONTRACT_ADDRESS --source-account REPLACE_WITH_YOUR_ACCOUNT_NAME --network testnet -- initialize --decimal 6 --components '["REPLACE_WITH_USDC_TOKEN_ADDRESS", "REPLACE_WITH_UNI_TOKEN_ADDRESS", "REPLACE_WITH_AAVE_TOKEN_ADDRESS"]' --amounts '["1000", "500", "300"]' --name "USDC-UNI-AAVE" --symbol "UUA" --admin REPLACE_WITH_ROUTER_ADDRESS --manager REPLACE_WITH_YOUR_ACCOUNT_ADDRESS
 `
 
-### 7. Mint Constellation Token
+### 8. Mint Constellation Token
 
 #### i. Approve (repeat for all component tokens)
 
@@ -161,11 +161,11 @@ soroban contract invoke --id REPLACE_WITH_COMPONENT_TOKEN_ADDRESS --source-accou
 soroban contract invoke --id REPLACE_WITH_ROUTER_ADDRESS --source-account REPLACE_WITH_YOUR_ACCOUNT_NAME --network testnet -- mint --to REPLACE_WITH_RECEIVING_ADDRESS  --constellation_token_address REPLACE_WITH_CONSTELLATION_TOKEN_ADDRESS --amount 10000000
 `
 
-### 8. Transfer Constellation Token to Another Account B
+### 9. Transfer Constellation Token to Another Account B
 
   soroban contract invoke --id REPLACE_WITH_CONSTELLATION_TOKEN_ADDRESS --source-account REPLACE_WITH_YOUR_ACCOUNT_NAME --network testnet -- transfer --from REPLACE_WITH_YOUR_ACCOUNT_ADDRESS --to REPLACE_WITH_RECEIVING_ACCOUNT_ADDRESS --amount 2000000
 
-### 9. Burn Constellation Token to redeem Assets from Account B
+### 10. Burn Constellation Token to redeem Assets from Account B
 
 #### i Approve Router
 
