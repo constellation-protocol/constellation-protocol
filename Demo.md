@@ -32,7 +32,7 @@
   When providing amounts, add the token decimal to the amount 
   eg. if you are sending 200 and the decimal for the token is 6 , then you send 200000000
 
-## After cloning the Project, run The Following commands in the root of the project
+### After cloning the project, run the following commands in the root of the project
 
 ### Build the project 
 
