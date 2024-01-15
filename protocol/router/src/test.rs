@@ -12,10 +12,12 @@ use crate::{
 };
 use soroban_sdk::IntoVal;
 use crate::token::constellation_token;
+use crate::factory;
 
 pub mod token {
     soroban_sdk::contractimport!(file = "../../libs/soroban_token_contract.wasm");
 }
+
 
 fn create_token_contract<'a>(e: &Env, admin: &Address) -> token::Client<'a> {
     token::Client::new(e, &e.register_stellar_asset_contract(admin.clone()))
@@ -30,6 +32,14 @@ fn create_minter_burner<'a>(e: &Env) -> RouterClient<'a> {
     let ct: RouterClient<'_> = RouterClient::new(e, contract_id);
     ct
 }
+
+fn create_factory<'a>(e: &Env) -> (factory::constellation_factory::Client<'a>, Address) {
+    let contract_id = &e.register_contract_wasm(None, factory::constellation_factory::WASM);
+    let factory: factory::constellation_factory::Client<'_> = factory::constellation_factory::Client::new(e, contract_id);
+    (factory, contract_id.clone())
+}
+
+
 
 pub(crate) fn initialize_token<'a>(
     e: &Env,
@@ -122,6 +132,53 @@ fn mint_should_fail_with_token_contract_insufficient_allowance_and_revert() {
     assert_eq!(token1.balance(&user1), 50000000000);
     assert_eq!(token2.balance(&user1), 20000000000);
 }
+
+#[test]
+fn create_token() {
+    let e = Env::default();
+    e.mock_all_auths();
+    let mut admin = Address::generate(&e);
+
+    let token1 = create_token_contract(&e, &admin);
+    let token2 = create_token_contract(&e, &admin);
+
+    // let d = token1.decimals();
+    // assert_eq!(d, 6);
+
+    let user1 = Address::generate(&e);
+    token1.mint(&user1, &50000000000);
+    token2.mint(&user1, &20000000000);
+    let components = vec![&e, token1.address.clone(), token2.address.clone()];
+
+    let amounts = vec![&e, 10000000000, 20000000000];
+    let decimal: u32 = 7;
+    let name = "c_token".into_val(&e);
+    let symbol = "token_symbol".into_val(&e);
+    let manager = Address::generate(&e);
+    let (ct, ct_id) = create_constellation_token(&e);
+    let wasm_hash = e.deployer().upload_contract_wasm(constellation_token::WASM);
+    let minter_burner = create_minter_burner(&e);
+   
+
+    let (f_client, factory_address) = create_factory(&e);
+    minter_burner.initialize(&factory_address);
+
+    minter_burner.create_token(
+        &decimal,
+        &name,
+        &symbol,
+        &manager,
+        &components,
+        &amounts,
+        &minter_burner.address,
+        &wasm_hash,
+        &wasm_hash
+    );
+
+
+  
+}
+
 
 // #[test]
 // fn mint_should_fail_with_token_contract_insufficient_allowance_and_revert() {

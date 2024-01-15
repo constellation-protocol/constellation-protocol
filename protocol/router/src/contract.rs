@@ -63,7 +63,6 @@ impl Router {
         manager: Address,
         components: Vec<Address>,
         amounts: Vec<i128>,
-        deployer: Address,
         wasm_hash: BytesN<32>,
         salt: BytesN<32>,
     ) -> Address {
@@ -76,7 +75,7 @@ impl Router {
             manager,
             components,
             amounts,
-            deployer,
+            read_factory(&e),
             wasm_hash,
             salt,
         )
