@@ -131,24 +131,22 @@ soroban contract deploy --source REPLACE_WITH_YOUR_ACCOUNT_NAME --network testne
 soroban contract invoke --id REPLACE_WITH_DEPLOYED_ROUTER_ADDRESS --source-account REPLACE_WITH_YOUR_ACCOUNT_NAME --network testnet -- initialize --factory REPLACE_WITH_FACTORY_CONTRACT_ADDRESS
 ```
 
-### 7. Install & Deploy Constellation Token
+### 7. Create Constellation Token
 
-#### i. Install Constellation Token
-
-```
-soroban contract install --source REPLACE_WITH_YOUR_ACCOUNT_NAME --network testnet --wasm target/wasm32-unknown-unknown/release/constellation_token.wasm
-```
-
-#### ii. Deploy Constellation Token
+#### Send `create_token` Transaction to Router To create constellation token
 
 ```
-soroban contract deploy --source REPLACE_WITH_YOUR_ACCOUNT_NAME --network testnet --wasm-hash REPLACE_WITH_CONSTELLATION_TOKEN_CONTRACT_ADDRESS
+ soroban contract invoke --id REPLACE_WITH_ROUTER_ADDRESS --source-account REPLACE_WITH_YOUR_ACCOUNT_NAME --network testnet -- create_token --decimal 6 --name REPLACE_WITH_TOKEN_NAME --symbol REPLACE_WITH_TOKEN_SYMBOM --manager REPLACE_WITH_TOKEN_MANAGER_ADDRESS  --components '["REPLACE_WITH_USDC_TOKEN_ADDRESS", "REPLACE_WITH_UNI_TOKEN_ADDRESS", "REPLACE_WITH_AAVE_TOKEN_ADDRESS"]' --amounts '["50", "100", "80"]' --wasm_hash REPLACE_WITH_CONSTELLATION_TOKEM_WASM_HASH --salt REPLACE_WITH_SALT
 ```
 
-#### iii. Initialize Constellation Token
+##### (copy constellation token address printed in the output)
+
+##### Or
+
+##### Retrieve created Constellation token Address by
 
 ```
-soroban contract invoke --id REPLACE_WITH_CONSTELLATION_TOKEN_CONTRACT_ADDRESS --source-account REPLACE_WITH_YOUR_ACCOUNT_NAME --network testnet -- initialize --decimal 6 --components '["REPLACE_WITH_USDC_TOKEN_ADDRESS", "REPLACE_WITH_UNI_TOKEN_ADDRESS", "REPLACE_WITH_AAVE_TOKEN_ADDRESS"]' --amounts '["1000", "500", "300"]' --name "USDC-UNI-AAVE" --symbol "UUA" --admin REPLACE_WITH_ROUTER_ADDRESS --manager REPLACE_WITH_YOUR_ACCOUNT_ADDRESS
+soroban contract invoke --id REPLACE_WITH_FACTORY_ADDRESS --network testnet -- get_token_list 
 ```
 
 ### 8. Mint Constellation Token
