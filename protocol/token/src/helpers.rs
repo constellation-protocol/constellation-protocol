@@ -20,9 +20,8 @@ pub fn lock(e: &Env, from: &Address, amount: i128) {
 pub fn redeem(e: &Env, to: &Address, amount: i128) {
     let components = read_components(e);
     for c in components.iter() {
-        let quantity =  amount * c.unit;  // c.unit * amount;
+        let quantity = amount * c.unit; // c.unit * amount;
         let _token = token::Client::new(&e, &c.address);
         _token.transfer(&e.current_contract_address(), &to, &quantity);
     }
 }
- 

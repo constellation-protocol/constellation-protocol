@@ -65,23 +65,27 @@ impl Router {
         amounts: Vec<i128>,
         wasm_hash: BytesN<32>,
         salt: BytesN<32>,
-    ) -> Address {
-        factory::create(
-            &e,
-            decimal,
-            name,
-            symbol,
-            &e.current_contract_address(),
-            manager,
-            components,
-            amounts,
-            read_factory(&e),
-            wasm_hash,
-            salt,
-        )
+    ) -> Result<Address, Error> {
+        let constellation_token_adddress = match read_factory(&e) {
+            Some(factory) => factory::create(
+                &e,
+                decimal,
+                name,
+                symbol,
+                &e.current_contract_address(),
+                manager,
+                components,
+                amounts,
+                factory,
+                wasm_hash,
+                salt,
+            ),
+            None => return Err(Error::RequiresFactory),
+        };
+        Ok(constellation_token_adddress)
     }
 
-    pub fn get_factory_address(e: Env) -> Address { 
+    pub fn get_factory_address(e: Env) -> Option<Address> {
         read_factory(&e)
     }
 }

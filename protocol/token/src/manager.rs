@@ -7,9 +7,9 @@ pub fn has_manager(e: &Env) -> bool {
     e.storage().instance().has(&key)
 }
 
-pub fn read_manager(e: &Env) -> Address {
+pub fn read_manager(e: &Env) -> Option<Address> {
     let key = DataKey::Manager;
-    e.storage().instance().get(&key).unwrap()
+    e.storage().instance().get(&key)
 }
 
 pub fn write_manager(e: &Env, id: &Address) {

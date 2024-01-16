@@ -15,12 +15,12 @@ pub trait ConstellationTokenInterface {
         manager: Address,
     ) -> Result<(), Error>;
 
-    fn mint(e: Env, to: Address, amount: i128);
+    fn mint(e: Env, to: Address, amount: i128) -> Result<(), Error>;
 
-    fn redeem(e: Env, spender: Address, from: Address, amount: i128);
-    fn set_manager(e: Env, new_manager: Address);
+    fn redeem(e: Env, spender: Address, from: Address, amount: i128) -> Result<(), Error>;
+    fn set_manager(e: Env, new_manager: Address) -> Result<(), Error>;
 
     fn get_components(e: Env) -> Vec<Component>;
 
-    fn get_manager(e: Env) -> Address;
+    fn get_manager(e: Env) -> Option<Address>;
 }

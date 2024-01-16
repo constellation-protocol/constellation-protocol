@@ -17,12 +17,11 @@ pub(crate) fn create(
     manager: Address,
     components: Vec<Address>,
     amounts: Vec<i128>,
-    deployer: Address,
+    factory_address: Address,
     wasm_hash: BytesN<32>,
     salt: BytesN<32>,
 ) -> Address {
-    let address = read_factory(&e);
-    let factory = constellation_factory::Client::new(e, &address);
+    let factory = constellation_factory::Client::new(e, &factory_address);
     let constellation_token_address: Address = factory.create(
         &decimal,
         &name,
@@ -31,7 +30,7 @@ pub(crate) fn create(
         &manager,
         &components,
         &amounts,
-        &deployer,
+        &factory_address,
         &wasm_hash,
         &salt,
     );

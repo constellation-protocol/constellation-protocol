@@ -8,7 +8,9 @@ use soroban_sdk::{
 #[repr(u32)]
 pub enum Error {
     ZeroOrNegativeAmount = 401,
-    InsufficientBalance = 500,
-    ContractInvocationError = 501,
-    AlreadyInitalized = 502,
+    InsufficientAllowance = 500,
+    InsufficientBalance = 501,
+    ContractInvocationError = 502,
+    AlreadyInitalized = 503,
+    RequiresFactory = 504,
 }
