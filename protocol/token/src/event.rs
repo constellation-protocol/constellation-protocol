@@ -49,10 +49,5 @@ pub(crate) fn set_manager(e: &Env, old_manager: Address, new_manager: Address) {
 
 pub(crate) fn initialize(e: &Env, components: Vec<Component>) {
     let topics = (Symbol::new(e, "intialize"), e.current_contract_address());
-    e.events().publish(
-        topics,
-        Initialize {
-            components,
-        },
-    );
+    e.events().publish(topics, Initialize { components });
 }

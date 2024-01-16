@@ -24,6 +24,8 @@ pub enum Error {
     InsufficientAllowance = 500,
     InsufficientBalance = 501,
     AlreadyInitalized = 502,
+    RequiresAdministrator = 503,
+    RequiresManager = 504,
 }
 
 pub fn check_zero_or_negative_amount(e: &Env, amount: i128) {

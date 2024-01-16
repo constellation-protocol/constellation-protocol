@@ -28,9 +28,14 @@ impl ConstellationToken {
     //////////////////////////////////////////////////////////////////
     ///////// mutable functions //////////////////////////////////////
     //////////////////////////////////////////////////////////////////
-    fn set_admin(e: Env, new_admin: Address) {
-        let admin = read_administrator(&e);
-        admin.require_auth();
+    fn set_admin(e: Env, new_admin: Address) -> Result<(), Error> {
+        let admin = match read_administrator(&e) {
+            Some(admin) => {
+                admin.require_auth();
+                admin
+            }
+            None => return Err(Error::RequiresAdministrator),
+        };
 
         e.storage()
             .instance()
@@ -38,6 +43,8 @@ impl ConstellationToken {
 
         write_administrator(&e, &new_admin);
         TokenUtils::new(&e).events().set_admin(admin, new_admin);
+
+        Ok(())
     }
 
     //////////////////////////////////////////////////////////////////
@@ -50,7 +57,7 @@ impl ConstellationToken {
         allowance
     }
 
-    fn get_admin(e: Env) -> Address {
+    fn get_admin(e: Env) -> Option<Address> {
         read_administrator(&e)
     }
 }
@@ -93,10 +100,15 @@ impl ConstellationTokenInterface for ConstellationToken {
         Ok(())
     }
 
-    fn mint(e: Env, to: Address, amount: i128) {
+    fn mint(e: Env, to: Address, amount: i128) -> Result<(), Error> {
         check_zero_or_negative_amount(&e, amount);
-        let admin = read_administrator(&e);
-        admin.require_auth();
+        let admin = match read_administrator(&e) {
+            Some(admin) => {
+                admin.require_auth();
+                admin
+            }
+            None => return Err(Error::RequiresAdministrator),
+        };
 
         e.storage()
             .instance()
@@ -106,17 +118,28 @@ impl ConstellationTokenInterface for ConstellationToken {
 
         receive_balance(&e, to.clone(), amount);
         TokenUtils::new(&e).events().mint(admin, to, amount);
+
+        Ok(())
     }
-    fn redeem(e: Env, spender: Address, from: Address, amount: i128) {
+    fn redeem(e: Env, spender: Address, from: Address, amount: i128) -> Result<(), Error> {
         check_zero_or_negative_amount(&e, amount);
-        read_administrator(&e).require_auth();
+        match read_administrator(&e) {
+            Some(admin) => admin.require_auth(),
+            None => return Err(Error::RequiresAdministrator),
+        };
         redeem(&e, &from, amount);
         event::redeem(&e, spender, from, amount);
+        Ok(())
     }
 
-    fn set_manager(e: Env, new_manager: Address) {
-        let manager = read_manager(&e);
-        manager.require_auth();
+    fn set_manager(e: Env, new_manager: Address) -> Result<(), Error> {
+        let manager = match read_manager(&e) {
+            Some(manager) => {
+                manager.require_auth();
+                manager
+            }
+            None => return Err(Error::RequiresManager),
+        };
 
         e.storage()
             .instance()
@@ -124,6 +147,7 @@ impl ConstellationTokenInterface for ConstellationToken {
 
         write_manager(&e, &new_manager);
         event::set_manager(&e, manager, new_manager);
+        Ok(())
     }
 
     //////////////////////////////////////////////////////////////////
@@ -134,7 +158,7 @@ impl ConstellationTokenInterface for ConstellationToken {
         read_components(&e)
     }
 
-    fn get_manager(e: Env) -> Address {
+    fn get_manager(e: Env) -> Option<Address> {
         read_manager(&e)
     }
 }
