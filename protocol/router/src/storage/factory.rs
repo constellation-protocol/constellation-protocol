@@ -14,9 +14,9 @@ pub(crate) fn write_factory(e: &Env, factory: &Address) {
     extend_ttl(e);
 }
 
-pub(crate) fn read_factory(e: &Env) -> Address {
+pub(crate) fn read_factory(e: &Env) -> Option<Address> {
     extend_ttl(e);
-    e.storage().instance().get(&DataKey::Factory).unwrap()
+    e.storage().instance().get(&DataKey::Factory)
 }
 
 pub(crate) fn has_factory(e: &Env) -> bool {

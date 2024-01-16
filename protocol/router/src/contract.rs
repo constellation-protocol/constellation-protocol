@@ -65,20 +65,24 @@ impl Router {
         amounts: Vec<i128>,
         wasm_hash: BytesN<32>,
         salt: BytesN<32>,
-    ) -> Address {
-        factory::create(
-            &e,
-            decimal,
-            name,
-            symbol,
-            &e.current_contract_address(),
-            manager,
-            components,
-            amounts,
-            read_factory(&e),
-            wasm_hash,
-            salt,
-        )
+    ) -> Result<(), Error> {
+        match read_factory(&e) {
+            Some(factory) => factory::create(
+                &e,
+                decimal,
+                name,
+                symbol,
+                &e.current_contract_address(),
+                manager,
+                components,
+                amounts,
+                factory,
+                wasm_hash,
+                salt,
+            ),
+            None => return Error::FactoryAddressNotSet
+        }
+        Ok(())
     }
 
     pub fn get_factory_address(e: Env) -> Address { 
