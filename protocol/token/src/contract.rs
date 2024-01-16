@@ -29,13 +29,12 @@ impl ConstellationToken {
     ///////// mutable functions //////////////////////////////////////
     //////////////////////////////////////////////////////////////////
     fn set_admin(e: Env, new_admin: Address) -> Result<(), Error> {
-
-        let admin = match  read_administrator(&e) {
+        let admin = match read_administrator(&e) {
             Some(admin) => {
                 admin.require_auth();
                 admin
-            },
-            None => return Err(Error::RequiresAdministrator)
+            }
+            None => return Err(Error::RequiresAdministrator),
         };
 
         e.storage()
@@ -104,10 +103,10 @@ impl ConstellationTokenInterface for ConstellationToken {
     fn mint(e: Env, to: Address, amount: i128) -> Result<(), Error> {
         check_zero_or_negative_amount(&e, amount);
         let admin = match read_administrator(&e) {
-            Some(admin) =>  {
+            Some(admin) => {
                 admin.require_auth();
                 admin
-            },
+            }
             None => return Err(Error::RequiresAdministrator),
         };
 
@@ -135,11 +134,11 @@ impl ConstellationTokenInterface for ConstellationToken {
 
     fn set_manager(e: Env, new_manager: Address) -> Result<(), Error> {
         let manager = match read_manager(&e) {
-            Some(manager) =>  {
+            Some(manager) => {
                 manager.require_auth();
                 manager
-            },
-            None => return Err(Error::RequiresManager)
+            }
+            None => return Err(Error::RequiresManager),
         };
 
         e.storage()
@@ -160,7 +159,7 @@ impl ConstellationTokenInterface for ConstellationToken {
     }
 
     fn get_manager(e: Env) -> Option<Address> {
-       read_manager(&e)
+        read_manager(&e)
     }
 }
 

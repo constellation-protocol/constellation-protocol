@@ -10,5 +10,5 @@ pub enum Error {
     ZeroValue = 400,
     ExceedsMaxComponents = 401,
     AlreadyInitialized = 500,
-    RequiresAdministrator = 501
+    RequiresAdministrator = 501,
 }

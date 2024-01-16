@@ -80,12 +80,12 @@ impl Router {
                 wasm_hash,
                 salt,
             ),
-            None => return Err(Error::RequiresFactory)
+            None => return Err(Error::RequiresFactory),
         };
         Ok(constellation_token_adddress)
     }
 
-    pub fn get_factory_address(e: Env) -> Option<Address> { 
+    pub fn get_factory_address(e: Env) -> Option<Address> {
         read_factory(&e)
     }
 }

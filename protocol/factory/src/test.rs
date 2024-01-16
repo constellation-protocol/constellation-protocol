@@ -6,17 +6,16 @@ use soroban_sdk::{
     vec, Address, BytesN, Env, InvokeError, Val,
 };
 // use soroban_env_common
+use crate::token::constellation_token;
 use crate::{
-    contract::{ Factory, FactoryClient},
+    contract::{Factory, FactoryClient},
     error::Error,
 };
 use soroban_sdk::IntoVal;
-use crate::token::constellation_token;
 
 pub mod token {
     soroban_sdk::contractimport!(file = "../../libs/soroban_token_contract.wasm");
 }
-
 
 fn create_token_contract<'a>(e: &Env, admin: &Address) -> token::Client<'a> {
     token::Client::new(e, &e.register_stellar_asset_contract(admin.clone()))
@@ -34,7 +33,6 @@ fn create_constellation_token<'a>(e: &Env) -> (constellation_token::Client<'a>, 
     (ct, contract_id.clone())
 }
 
-
 #[test]
 pub fn create_constellation_token_fails_with_exceeds_max_components() {
     let e = Env::default();
@@ -49,11 +47,15 @@ pub fn create_constellation_token_fails_with_exceeds_max_components() {
     token1.mint(&user1, &50000000000);
     token2.mint(&user1, &20000000000);
     token3.mint(&user1, &20000000000);
-    let components = vec![&e, token1.address.clone(), token2.address.clone(), token3.address.clone()];
+    let components = vec![
+        &e,
+        token1.address.clone(),
+        token2.address.clone(),
+        token3.address.clone(),
+    ];
 
-    let amounts = vec![&e, 10000000000, 20000000000,20000000000];
+    let amounts = vec![&e, 10000000000, 20000000000, 20000000000];
     let wasm_hash = e.deployer().upload_contract_wasm(constellation_token::WASM);
-    
 
     let factory = create_factory(&e);
     factory.initialize(&user);
@@ -71,7 +73,7 @@ pub fn create_constellation_token_fails_with_exceeds_max_components() {
         &wasm_hash,
     );
 
-     assert_eq!(result, Err(Ok(Error::ExceedsMaxComponents)));
+    assert_eq!(result, Err(Ok(Error::ExceedsMaxComponents)));
 }
 
 #[test]
@@ -113,10 +115,10 @@ pub fn create_constellation_token_succeeds() {
 pub fn set_max_components_fails_with_requires_administrator() {
     let e = Env::default();
     e.mock_all_auths();
-  
+
     let factory = create_factory(&e);
     let result = factory.try_set_max_components(&2u32);
- 
+
     assert_eq!(result, Err(Ok(Error::RequiresAdministrator)));
 }
 
@@ -125,11 +127,11 @@ pub fn set_max_components_succeeds() {
     let e = Env::default();
     e.mock_all_auths();
     let user = Address::generate(&e);
-  
+
     let factory = create_factory(&e);
-     factory.initialize(&user);
+    factory.initialize(&user);
     let result = factory.try_set_max_components(&2u32);
- 
+
     assert_eq!(result, Ok(Ok(())));
 }
 
@@ -139,7 +141,7 @@ pub fn initialize_fails_with_already_initialized() {
     e.mock_all_auths();
     let user = Address::generate(&e);
     let factory = create_factory(&e);
-     factory.initialize(&user);
+    factory.initialize(&user);
     let result = factory.try_initialize(&user);
     assert_eq!(result, Err(Ok(Error::AlreadyInitialized)));
 }

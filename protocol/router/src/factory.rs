@@ -21,7 +21,6 @@ pub(crate) fn create(
     wasm_hash: BytesN<32>,
     salt: BytesN<32>,
 ) -> Address {
- 
     let factory = constellation_factory::Client::new(e, &factory_address);
     let constellation_token_address: Address = factory.create(
         &decimal,
