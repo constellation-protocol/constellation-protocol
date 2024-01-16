@@ -7,6 +7,8 @@ use soroban_sdk::{
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
 #[repr(u32)]
 pub enum Error {
-    ZeroValue = 100,
-    ExceedsMaxComponents = 101,
+    ZeroValue = 400,
+    ExceedsMaxComponents = 401,
+    AlreadyInitialized = 500,
+    RequiresAdministrator = 501
 }

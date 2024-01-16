@@ -27,7 +27,7 @@ fn create_constellation_token<'a>(e: &Env) -> (constellation_token::Client<'a>, 
     let ct: constellation_token::Client<'_> = constellation_token::Client::new(e, contract_id);
     (ct, contract_id.clone())
 }
-fn create_minter_burner<'a>(e: &Env) -> RouterClient<'a> {
+fn create_router<'a>(e: &Env) -> RouterClient<'a> {
     let contract_id = &e.register_contract(None, crate::contract::Router {});
     let ct: RouterClient<'_> = RouterClient::new(e, contract_id);
     ct
@@ -38,8 +38,6 @@ fn create_factory<'a>(e: &Env) -> (factory::constellation_factory::Client<'a>, A
     let factory: factory::constellation_factory::Client<'_> = factory::constellation_factory::Client::new(e, contract_id);
     (factory, contract_id.clone())
 }
-
-
 
 pub(crate) fn initialize_token<'a>(
     e: &Env,
@@ -77,7 +75,7 @@ fn mint_test_should_fail_with_zero_or_negative_amount() {
     let mut user = Address::generate(&e);
 
     let (ct, _, _) = initialize_token(&e, create_constellation_token(&e).0);
-    let minter_burner = create_minter_burner(&e);
+    let minter_burner = create_router(&e);
     let result = 
     minter_burner.try_mint(&user, &ct.address, &0i128);
 
@@ -107,7 +105,7 @@ fn mint_should_fail_with_token_contract_insufficient_allowance_and_revert() {
     let symbol = "token_symbol".into_val(&e);
     let manager = Address::generate(&e);
     let (ct, ct_id) = create_constellation_token(&e);
-    let minter_burner = create_minter_burner(&e);
+    let minter_burner = create_router(&e);
     ct.initialize(
         &decimal,
         &components,
@@ -157,7 +155,7 @@ fn create_token() {
     let manager = Address::generate(&e);
     let (ct, ct_id) = create_constellation_token(&e);
     let wasm_hash = e.deployer().upload_contract_wasm(constellation_token::WASM);
-    let minter_burner = create_minter_burner(&e);
+    let minter_burner = create_router(&e);
    
 
     let (f_client, factory_address) = create_factory(&e);
@@ -200,7 +198,7 @@ fn create_token() {
 //     let symbol = "token_symbol".into_val(&e);
 //     let manager = Address::generate(&e);
 //     let (ct, ct_id) = create_constellation_token(&e);
-//     let minter_burner = create_minter_burner(&e);
+//     let minter_burner = create_router(&e);
 //     ct.initialize(
 //         &decimal,
 //         &components,
@@ -246,7 +244,7 @@ fn create_token() {
 //     let symbol = "token_symbol".into_val(&e);
 //     let manager = Address::generate(&e);
 //     let (ct, ct_id) = create_constellation_token(&e);
-//     let minter_burner = create_minter_burner(&e);
+//     let minter_burner = create_router(&e);
 //     ct.initialize(
 //         &decimal,
 //         &components,
@@ -295,7 +293,7 @@ fn create_token() {
 //     let admin = Address::generate(&e);
 //     let manager = Address::generate(&e);
 //     let (ct, ct_id) = create_constellation_token(&e);
-//     let minter_burner = create_minter_burner(&e);
+//     let minter_burner = create_router(&e);
 //     ct.initialize(
 //         &decimal,
 //         &components,
@@ -341,7 +339,7 @@ fn create_token() {
 //     let admin = Address::generate(&e);
 //     let manager = Address::generate(&e);
 //     let (ct, ct_id) = create_constellation_token(&e);
-//     let minter_burner = create_minter_burner(&e);
+//     let minter_burner = create_router(&e);
 
 //     ct.initialize(
 //         &decimal,
@@ -387,7 +385,7 @@ fn burn() {
     let admin = Address::generate(&e);
     let manager = Address::generate(&e);
     let (ct, ct_id) = create_constellation_token(&e);
-    let minter_burner = create_minter_burner(&e);
+    let minter_burner = create_router(&e);
 
     ct.initialize(
         &decimal,
@@ -415,7 +413,7 @@ fn burn() {
     // assert_eq!(ct.balance(&user1), 1);
     // assert_eq!(token1.balance(&ct.address), 1000);
 
-    // let minter_burner = create_minter_burner(&e);
+    // let minter_burner = create_router(&e);
     // minter_burner.mint(&user1, &ct.address, &10);
     // assert_eq!(ct.balance(&user1), 10);
     // assert_eq!(token1.balance(&ct.address), 1000);

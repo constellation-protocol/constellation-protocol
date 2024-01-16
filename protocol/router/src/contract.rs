@@ -80,12 +80,12 @@ impl Router {
                 wasm_hash,
                 salt,
             ),
-            None => return Error::FactoryAddressNotSet
-        }
+            None => return Err(Error::FactoryAddressNotSet)
+        };
         Ok(())
     }
 
-    pub fn get_factory_address(e: Env) -> Address { 
+    pub fn get_factory_address(e: Env) -> Option<Address> { 
         read_factory(&e)
     }
 }

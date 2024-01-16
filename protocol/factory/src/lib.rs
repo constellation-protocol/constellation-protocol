@@ -5,3 +5,5 @@ mod event;
 mod helpers;
 mod storage;
 mod token;
+#[cfg(test)]
+mod test;
