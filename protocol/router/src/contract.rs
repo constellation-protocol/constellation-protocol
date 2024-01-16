@@ -65,8 +65,8 @@ impl Router {
         amounts: Vec<i128>,
         wasm_hash: BytesN<32>,
         salt: BytesN<32>,
-    ) -> Result<(), Error> {
-        match read_factory(&e) {
+    ) -> Result<Address, Error> {
+        let constellation_token_adddress = match read_factory(&e) {
             Some(factory) => factory::create(
                 &e,
                 decimal,
@@ -80,9 +80,9 @@ impl Router {
                 wasm_hash,
                 salt,
             ),
-            None => return Err(Error::FactoryAddressNotSet)
+            None => return Err(Error::RequiresFactory)
         };
-        Ok(())
+        Ok(constellation_token_adddress)
     }
 
     pub fn get_factory_address(e: Env) -> Option<Address> { 

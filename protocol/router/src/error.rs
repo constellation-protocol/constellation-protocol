@@ -11,6 +11,6 @@ pub enum Error {
     InsufficientBalance = 500,
     ContractInvocationError = 501,
     AlreadyInitalized = 502,
-    FactoryAddressNotSet = 503,
+    RequiresFactory = 503,
     
 }

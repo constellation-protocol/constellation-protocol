@@ -122,7 +122,7 @@ fn mint_should_fail_with_token_contract_insufficient_allowance_and_revert() {
     assert_eq!(
         res,
         Err(Err(InvokeError::Contract(
-            9 /*AllowanceError - stellat asset contract errro code*/
+            9 /*AllowanceError - stellat asset contract error code*/
         )
         .into()))
     );
@@ -132,16 +132,13 @@ fn mint_should_fail_with_token_contract_insufficient_allowance_and_revert() {
 }
 
 #[test]
-fn create_token() {
+fn create_token_fails_with_requires_factory() {
     let e = Env::default();
     e.mock_all_auths();
     let mut admin = Address::generate(&e);
 
     let token1 = create_token_contract(&e, &admin);
     let token2 = create_token_contract(&e, &admin);
-
-    // let d = token1.decimals();
-    // assert_eq!(d, 6);
 
     let user1 = Address::generate(&e);
     token1.mint(&user1, &50000000000);
@@ -155,74 +152,62 @@ fn create_token() {
     let manager = Address::generate(&e);
     let (ct, ct_id) = create_constellation_token(&e);
     let wasm_hash = e.deployer().upload_contract_wasm(constellation_token::WASM);
-    let minter_burner = create_router(&e);
-   
-
-    let (f_client, factory_address) = create_factory(&e);
-    minter_burner.initialize(&factory_address);
-
-    minter_burner.create_token(
+    let router = create_router(&e);
+    let (factory, factory_address) = create_factory(&e);
+    let result = router.try_create_token(
         &decimal,
         &name,
         &symbol,
         &manager,
         &components,
         &amounts,
-        &minter_burner.address,
         &wasm_hash,
         &wasm_hash
     );
 
-
-  
+    assert_eq!(result, Err(Ok(Error::FactoryNotSet)));
 }
 
+#[test]
+fn create_token_succeeds() {
+    let e = Env::default();
+    e.mock_all_auths();
+    let mut admin = Address::generate(&e);
 
-// #[test]
-// fn mint_should_fail_with_token_contract_insufficient_allowance_and_revert() {
-//     let e = Env::default();
-//     e.mock_all_auths();
-//     let mut admin = Address::generate(&e);
+    let token1 = create_token_contract(&e, &admin);
+    let token2 = create_token_contract(&e, &admin);
 
-//     let token1 = create_token_contract(&e, &admin);
-//     let token2 = create_token_contract(&e, &admin);
+    let user1 = Address::generate(&e);
+    token1.mint(&user1, &50000000000);
+    token2.mint(&user1, &20000000000);
+    let components = vec![&e, token1.address.clone(), token2.address.clone()];
 
-//     let user1 = Address::generate(&e);
-//     token1.mint(&user1, &5000);
-//     token2.mint(&user1, &2000);
-//     let components = vec![&e, token1.address.clone(), token2.address.clone()];
+    let amounts = vec![&e, 10000000000, 20000000000];
+    let decimal: u32 = 7;
+    let name = "c_token".into_val(&e);
+    let symbol = "token_symbol".into_val(&e);
+    let manager = Address::generate(&e);
+    let (ct, ct_id) = create_constellation_token(&e);
+    let wasm_hash = e.deployer().upload_contract_wasm(constellation_token::WASM);
+    let router = create_router(&e);
+   
 
-//     let amounts = vec![&e, 1000, 2000];
-//     let decimal: u32 = 6;
-//     let name = "c_token".into_val(&e);
-//     let symbol = "token_symbol".into_val(&e);
-//     let manager = Address::generate(&e);
-//     let (ct, ct_id) = create_constellation_token(&e);
-//     let minter_burner = create_router(&e);
-//     ct.initialize(
-//         &decimal,
-//         &components,
-//         &amounts,
-//         &name,
-//         &symbol,
-//         &minter_burner.address,
-//         &manager,
-//     );
+    let (factory, factory_address) = create_factory(&e);
+    router.initialize(&factory_address);
 
-//     token1.approve(&user1, &ct.address, &100i128, &1000);
-//     token2.approve(&user1, &ct.address, &100i128, &1000);
-//     let res = minter_burner.try_mint(&user1, &ct.address, &100); // mints 2 ctokens / requires 200 of the componnet
-//     assert_eq!(
-//         res,
-//         Err(Err(InvokeError::Contract(
-//             9 /*AllowanceError - stellat asset contract errro code*/
-//         )
-//         .into()))
-//     );
-//     assert_eq!(ct.balance(&user1), 0);
-//     assert_eq!(token1.balance(&user1), 5000);
-//     assert_eq!(token2.balance(&user1), 2000);
-// }
+    let result = router.create_token(
+        &decimal,
+        &name,
+        &symbol,
+        &manager,
+        &components,
+        &amounts,
+        &wasm_hash,
+        &wasm_hash
+    );
+    let tokens = factory.get_token_list();
+    assert_eq!(result, tokens.get(0).unwrap());
+}
 
 // #[test]
 // fn mint_should_fail_with_token_contract_insufficient_balance_and_revert() {
