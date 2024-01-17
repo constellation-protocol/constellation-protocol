@@ -1,5 +1,6 @@
 use soroban_sdk::{contracttype, xdr::ToXdr, Address, Bytes, BytesN, Env};
 
+/// Deploys new cosntellation token contract
 pub(crate) fn deploy(
     e: &Env,
     deployer: Address,

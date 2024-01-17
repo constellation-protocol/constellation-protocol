@@ -14,6 +14,11 @@ pub struct Router;
 
 #[contractimpl]
 impl Router {
+    /// Returns error if already initialized
+    ///
+    /// # Arguments
+    /// - `e` - The runtime environment.
+    /// - `factory` - Factory contract address
     pub fn initialize(e: Env, factory: Address) -> Result<(), Error> {
         if has_factory(&e) {
             return Err(Error::AlreadyInitalized);
@@ -22,6 +27,20 @@ impl Router {
         event::initialize(&e, factory);
         Ok(())
     }
+
+    /// Mints constellation token amount to specified address
+    /// Returns error if already amount is 0 or negative
+    ///
+    /// # Arguments
+    /// - `e` - The runtime environment.
+    /// - `constellation_token_address` - Address of constellation token to mint
+    /// - `amount` - Amount to mint
+    ///
+    /// Caller must possess balances of component tokens of the specified constellation token
+    /// equal to or greater than the unit amount of the component token (of the constellation token) multiplied by
+    /// the amount of constellation token to mint - see the lock function called in the mint function of the constellatio token
+    ///
+    /// Caller must also approve constellation token to spend each of the component tokens of the constellation token
     pub fn mint(
         e: Env,
         to: Address,
@@ -38,6 +57,16 @@ impl Router {
         Ok(())
     }
 
+    /// Burns constellation token amount and releases component tokens to the specified `from` address
+    /// Returns error if already amount is 0 or negative
+    ///
+    /// # Arguments
+    /// - `e` - The runtime environment.
+    /// - `from` - Address to burn from
+    /// - `constellation_token_address` - Address of constellation token to mint
+    /// - `amount` - Amount to mint
+    ///
+    /// Caller must also approve router contract token to spend the constellation token
     pub fn burn(
         e: Env,
         from: Address,
@@ -54,6 +83,20 @@ impl Router {
         Ok(())
     }
 
+    /// creates new constellation token by calling factory
+    /// Returns contellation token address. Returns error if number of components exceeds max if set
+    ///
+    /// # Arguments
+    ///
+    /// - `e` The runtime environment.
+    /// - `decimal` Token decimal
+    /// - `name` Name of token
+    /// - `symbol` Symbol of token
+    /// - `manager` Manages constellation token components and rebalancing
+    /// - `components` Component tokens of this token
+    /// - `amounts` Amounts of each componet token required to mint constellation token
+    /// - `wasm_hash` Constellation token wasm hash
+    /// - `salt` Unique salt
     #[allow(clippy::too_many_arguments)]
     pub fn create_token(
         e: Env,
@@ -85,6 +128,7 @@ impl Router {
         Ok(constellation_token_adddress)
     }
 
+    /// Returns the address of factory contract
     pub fn get_factory_address(e: Env) -> Option<Address> {
         read_factory(&e)
     }
