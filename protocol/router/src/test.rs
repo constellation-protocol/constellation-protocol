@@ -1,10 +1,5 @@
 #![cfg(test)]
 
-use soroban_sdk::{
-    symbol_short,
-    testutils::{Address as _, AuthorizedFunction, AuthorizedInvocation},
-    vec, Address, BytesN, Env, InvokeError, Val,
-};
 use crate::factory;
 use crate::token::constellation_token;
 use crate::{
@@ -12,6 +7,11 @@ use crate::{
     error::Error,
 };
 use soroban_sdk::IntoVal;
+use soroban_sdk::{
+    symbol_short,
+    testutils::{Address as _, AuthorizedFunction, AuthorizedInvocation},
+    vec, Address, BytesN, Env, InvokeError, Val,
+};
 
 pub mod token {
     soroban_sdk::contractimport!(file = "../../libs/soroban_token_contract.wasm");
