@@ -15,8 +15,8 @@ impl Factory {
     /// Returns error if already initialized
     ///
     /// # Arguments
-    /// * `e` - The runtime environment.
-    /// * `admin` - Address of contract administrator
+    /// - `e` - The runtime environment.
+    /// - `admin` - Address of contract administrator
     pub fn initialize(e: Env, admin: Address) -> Result<(), Error> {
         if has_administrator(&e) {
             return Err(Error::AlreadyInitialized);
@@ -27,6 +27,22 @@ impl Factory {
         Ok(())
     }
 
+    /// creates new constellation token
+    /// Returns contellation token address. Returns error if number of components exceeds max if set
+    ///
+    /// # Arguments
+    ///
+    /// - `e` The runtime environment.
+    /// - `decimal` Token decimal
+    /// - `name` Name of token
+    /// - `symbol` Symbol of token
+    /// - `admin` Token administrator
+    /// - `manager` Manages constellation token components and rebalancing
+    /// - `components` Component tokens of this token
+    /// - `amounts` Amounts of each componet token required to mint constellation token
+    /// - `deployer` Address which deploys the new constellation token
+    /// - `wasm_hash` Constellation token wasm hash
+    /// - `salt` Unique salt
     #[allow(clippy::too_many_arguments)]
     pub fn create(
         e: Env,
@@ -54,7 +70,15 @@ impl Factory {
         event::create(&e, &address);
         Ok(address)
     }
-    pub fn set_max_components(e: Env, max_components: u32) -> Result<(), Error> {
+
+    /// sets maxumum number of component tokens allowed when creating a new constellation tokekn
+    /// returns error if Administrator is not set
+    /// returns error if value is zero
+    ///
+    /// # Arguments
+    /// - `e` - The runtime environment.
+    /// - `value` - Value of max components
+    pub fn set_max_components(e: Env, value: u32) -> Result<(), Error> {
         match read_administrator(&e) {
             Some(admin) => admin.require_auth(),
             None => return Err(Error::RequiresAdministrator),
@@ -63,13 +87,17 @@ impl Factory {
         if max_components == 0 {
             return Err(Error::ZeroValue);
         }
-        write_max_components(&e, max_components);
-        event::set_max_components(&e, max_components);
+        write_max_components(&e, value);
+        event::set_max_components(&e, value);
         Ok(())
     }
+
+    /// Returns list of created component tokens
     pub fn get_token_list(e: Env) -> Vec<Address> {
         read_token_list(&e)
     }
+
+    /// Returns maximum number of component tokens allowed when creating a new constellation tokekn
     pub fn get_max_components(e: Env) -> Option<u32> {
         read_max_components(&e)
     }
