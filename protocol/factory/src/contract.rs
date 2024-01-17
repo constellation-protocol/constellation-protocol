@@ -12,6 +12,11 @@ pub struct Factory {}
 
 #[contractimpl]
 impl Factory {
+    /// Returns error if already initialized
+    ///
+    /// # Arguments
+    /// * `e` - The runtime environment.
+    /// * `admin` - Address of contract administrator
     pub fn initialize(e: Env, admin: Address) -> Result<(), Error> {
         if has_administrator(&e) {
             return Err(Error::AlreadyInitialized);
