@@ -28,7 +28,7 @@ impl ConstellationToken {
     //////////////////////////////////////////////////////////////////
     ///////// mutable functions //////////////////////////////////////
     //////////////////////////////////////////////////////////////////
-    fn set_admin(e: Env, new_admin: Address) -> Result<(), Error> {
+    pub fn set_admin(e: Env, new_admin: Address) -> Result<(), Error> {
         let admin = match read_administrator(&e) {
             Some(admin) => {
                 admin.require_auth();
@@ -51,13 +51,13 @@ impl ConstellationToken {
     ///////// Read Only functions ////////////////////////////////////
     //////////////////////////////////////////////////////////////////
 
-    fn get_allowance(e: Env, from: Address, spender: Address) -> Option<AllowanceValue> {
+    pub fn get_allowance(e: Env, from: Address, spender: Address) -> Option<AllowanceValue> {
         let key = DataKey::Allowance(AllowanceDataKey { from, spender });
         let allowance = e.storage().temporary().get::<_, AllowanceValue>(&key);
         allowance
     }
 
-    fn get_admin(e: Env) -> Option<Address> {
+    pub fn get_admin(e: Env) -> Option<Address> {
         read_administrator(&e)
     }
 }
@@ -67,11 +67,24 @@ impl ConstellationTokenInterface for ConstellationToken {
     //////////////////////////////////////////////////////////////////
     ///////// mutable functions //////////////////////////////////////
     //////////////////////////////////////////////////////////////////
+
+    /// Initializes the deployed constellation token
+    ///
+    /// # Arguments
+    ///
+    /// - `e` Runtime environment.
+    /// - `decimal` Token decimal
+    /// - `components` Component tokens of this token
+    /// - `units` Amounts of each componet token required to mint constellation token
+    /// - `name` Name of token
+    /// - `symbol` Symbol of token
+    /// - `admin` Token administrator
+    /// - `manager` Manages constellation token components and rebalancing
     fn initialize(
         e: Env,
         decimal: u32,
         components: Vec<Address>,
-        amounts: Vec<i128>,
+        units: Vec<i128>,
         name: String,
         symbol: String,
         admin: Address,
@@ -95,11 +108,20 @@ impl ConstellationTokenInterface for ConstellationToken {
                 symbol,
             },
         );
-        let components = write_components(&e, &components, &amounts);
+        let components = write_components(&e, &components, &units);
         event::initialize(&e, components);
         Ok(())
     }
 
+    /// Mints ew constellatio tokens
+    /// Returns error if administrator is not set
+    ///
+    /// # Arguments
+    /// - `e` Runtime environment
+    /// - `to` Address receiver
+    /// - `amount` Amount of constellation tokens to mint
+    ///
+    /// `to` Address should have balance of component tokens equal to or greater than amount * unit (component unit)
     fn mint(e: Env, to: Address, amount: i128) -> Result<(), Error> {
         check_zero_or_negative_amount(&e, amount);
         let admin = match read_administrator(&e) {
@@ -114,6 +136,7 @@ impl ConstellationTokenInterface for ConstellationToken {
             .instance()
             .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
 
+        // Locks component tokens
         lock(&e, &to, amount);
 
         receive_balance(&e, to.clone(), amount);
@@ -121,14 +144,28 @@ impl ConstellationTokenInterface for ConstellationToken {
 
         Ok(())
     }
-    fn redeem(e: Env, spender: Address, from: Address, amount: i128) -> Result<(), Error> {
+
+    /// Mints ew constellatio tokens
+    /// Returns error if administrator is not set
+    ///
+    /// # Arguments
+    /// - `spender`
+    /// - `e` Runtime environment
+    /// - `to` Address receiver
+    /// - `amount` Amount of constellation tokens to mint
+    ///
+    /// `to` Address should have balance of component tokens equal to or greater than amount * unit (component unit)
+    fn redeem(e: Env, to: Address, amount: i128) -> Result<(), Error> {
         check_zero_or_negative_amount(&e, amount);
-        match read_administrator(&e) {
-            Some(admin) => admin.require_auth(),
+        let admin = match read_administrator(&e) {
+            Some(admin) => {
+                admin.require_auth();
+                admin
+            }
             None => return Err(Error::RequiresAdministrator),
         };
-        redeem(&e, &from, amount);
-        event::redeem(&e, spender, from, amount);
+        redeem(&e, &to, amount);
+        event::redeem(&e, admin, to, amount);
         Ok(())
     }
 

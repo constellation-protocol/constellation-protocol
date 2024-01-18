@@ -7,7 +7,7 @@ pub(crate) mod constellation_factory {
     }
 }
 
-/// Makes a cross contract call to the factory contract to deploy a constellation token 
+/// Makes a cross contract call to the factory contract to deploy a constellation token
 ///  Returns the address of the deployed constellation token
 ///
 ///  # Arguments
@@ -20,7 +20,7 @@ pub(crate) mod constellation_factory {
 /// - `manager` Manages constellation token components and rebalancing
 /// - `components` Component tokens of this token
 /// - `amounts` Amounts of each componet token required to mint constellation token
-/// - `factory_address` Address of factory contract 
+/// - `factory_address` Address of factory contract
 /// - `wasm_hash` constellation token wasm has
 /// - `salt` Unique salt
 #[allow(clippy::too_many_arguments)]
