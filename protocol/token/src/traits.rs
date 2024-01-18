@@ -17,7 +17,7 @@ pub trait ConstellationTokenInterface {
 
     fn mint(e: Env, to: Address, amount: i128) -> Result<(), Error>;
 
-    fn redeem(e: Env, spender: Address, from: Address, amount: i128) -> Result<(), Error>;
+    fn redeem(e: Env, from: Address, amount: i128) -> Result<(), Error>;
     fn set_manager(e: Env, new_manager: Address) -> Result<(), Error>;
 
     fn get_components(e: Env) -> Vec<Component>;

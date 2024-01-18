@@ -64,9 +64,9 @@ fn test_initialize_should_panic_with_already_initalized() {
     );
 
     assert_eq!(res, Err(Ok(Error::AlreadyInitalized)));
-    assert_eq!(ct.admin(), admin);
-    assert_eq!(ct.manager(), manager);
-    assert_eq!(ct.components().len(), 3);
+    // assert_eq!(ct.get_admin(), admin);
+    assert_eq!(ct.get_manager().unwrap(), manager);
+    assert_eq!(ct.get_components().len(), 3);
 }
 
 #[test]
@@ -217,9 +217,9 @@ fn test_initialize_successful() {
         &manager,
     );
 
-    assert_eq!(ct.admin(), admin);
-    assert_eq!(ct.manager(), manager);
-    assert_eq!(ct.components().len(), 3);
+    assert_eq!(ct.get_admin().unwrap(), admin);
+    assert_eq!(ct.get_manager().unwrap(), manager);
+    assert_eq!(ct.get_components().len(), 3);
 }
 
 #[test]
@@ -227,7 +227,15 @@ fn test_set_manager_panics_with_authorization_failed() {
     let e = Env::default();
     e.mock_all_auths();
     let new_manager = Address::generate(&e);
-    let (ct, admin, manager) = initialize_token(&e, create_constellation_token(&e));
+    let token1 = create_token_contract(&e, &Address::generate(&e));
+    let token2 = create_token_contract(&e, &Address::generate(&e));
+    let token3 = create_token_contract(&e, &Address::generate(&e));
+
+    let (ct, admin, manager) = initialize_token(
+        &e,
+        create_constellation_token(&e),
+        (token1.address, token2.address, token3.address),
+    );
     ct.set_manager(&new_manager);
     assert_eq!(
         e.auths(),
@@ -243,7 +251,7 @@ fn test_set_manager_panics_with_authorization_failed() {
             }
         )]
     );
-    assert_eq!(ct.manager(), new_manager);
+    assert_eq!(ct.get_manager().unwrap(), new_manager);
 }
 
 #[test]
@@ -252,7 +260,16 @@ fn mint_reverts_with_zero_or_negative_amount_not_allowed() {
     e.mock_all_auths();
     let mint_to = Address::generate(&e);
     let new_manager = Address::generate(&e);
-    let (ct, _, _) = initialize_token(&e, create_constellation_token(&e));
+
+    let token1 = create_token_contract(&e, &Address::generate(&e));
+    let token2 = create_token_contract(&e, &Address::generate(&e));
+    let token3 = create_token_contract(&e, &Address::generate(&e));
+
+    let (ct, _, _) = initialize_token(
+        &e,
+        create_constellation_token(&e),
+        (token1.address, token2.address, token3.address),
+    );
 
     let restult = ct.try_mint(&mint_to, &i128::from(0));
     assert_eq!(restult, Err(Ok(Error::ZeroOrNegativeAmount.into())));

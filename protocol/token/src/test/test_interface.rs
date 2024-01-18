@@ -24,19 +24,20 @@ fn create_constellation_token<'a>(e: &Env) -> ConstellationTokenClient<'a> {
 pub(crate) fn initialize_token<'a>(
     e: &Env,
     ct: ConstellationTokenClient<'a>,
+    tokens: (Address, Address, Address),
 ) -> (ConstellationTokenClient<'a>, Address, Address) {
-    let components = vec![
-        &e,
-        Address::generate(e),
-        Address::generate(e),
-        Address::generate(e),
-    ];
-    let amounts = vec![&e, 100, 100, 100];
+    let amounts = vec![&e, 1, 1, 1];
     let decimal: u32 = 6;
     let name = "c_token".into_val(e);
     let symbol = "token_symbol".into_val(e);
     let admin = Address::generate(e);
     let manager = Address::generate(e);
+
+    let token1 = create_token_contract(&e, &admin);
+    let token2 = create_token_contract(&e, &admin);
+    let token3 = create_token_contract(&e, &admin);
+
+    let components = vec![&e, tokens.0, tokens.1, tokens.2];
 
     ct.initialize(
         &decimal,
@@ -55,23 +56,40 @@ fn test() {
     let e = Env::default();
     e.mock_all_auths();
 
-    let mut token = create_constellation_token(&e);
-
-    let (mut token, admin1, manager) = initialize_token(&e, token);
-
-    let admin2 = Address::generate(&e);
+    let admin = Address::generate(&e);
     let user1 = Address::generate(&e);
     let user2 = Address::generate(&e);
     let user3 = Address::generate(&e);
 
-    token.mint(&user1, &1000);
+    let token1 = create_token_contract(&e, &admin);
+    let token2 = create_token_contract(&e, &admin);
+    let token3 = create_token_contract(&e, &admin);
+
+    let (mut ct, admin1, manager) = initialize_token(
+        &e,
+        create_constellation_token(&e),
+        (
+            token1.address.clone(),
+            token2.address.clone(),
+            token3.address.clone(),
+        ),
+    );
+    token1.mint(&user1, &1000i128);
+    token2.mint(&user1, &1000i128);
+    token3.mint(&user1, &1000i128);
+
+    token1.approve(&user1, &ct.address, &1000i128, &1000u32);
+    token2.approve(&user1, &ct.address, &1000i128, &1000u32);
+    token3.approve(&user1, &ct.address, &1000i128, &1000u32);
+
+    ct.mint(&user1, &1000);
     assert_eq!(
         e.auths(),
         std::vec![(
             admin1.clone(),
             AuthorizedInvocation {
                 function: AuthorizedFunction::Contract((
-                    token.address.clone(),
+                    ct.address.clone(),
                     symbol_short!("mint"),
                     (&user1, 1000_i128).into_val(&e),
                 )),
@@ -79,16 +97,16 @@ fn test() {
             }
         )]
     );
-    assert_eq!(token.balance(&user1), 1000);
+    assert_eq!(ct.balance(&user1), 1000);
 
-    token.approve(&user2, &user3, &500, &200);
+    ct.approve(&user2, &user3, &500, &200);
     assert_eq!(
         e.auths(),
         std::vec![(
             user2.clone(),
             AuthorizedInvocation {
                 function: AuthorizedFunction::Contract((
-                    token.address.clone(),
+                    ct.address.clone(),
                     symbol_short!("approve"),
                     (&user2, &user3, 500_i128, 200_u32).into_val(&e),
                 )),
@@ -96,16 +114,16 @@ fn test() {
             }
         )]
     );
-    assert_eq!(token.allowance(&user2, &user3), 500);
+    assert_eq!(ct.allowance(&user2, &user3), 500);
 
-    token.transfer(&user1, &user2, &600);
+    ct.transfer(&user1, &user2, &600);
     assert_eq!(
         e.auths(),
         std::vec![(
             user1.clone(),
             AuthorizedInvocation {
                 function: AuthorizedFunction::Contract((
-                    token.address.clone(),
+                    ct.address.clone(),
                     symbol_short!("transfer"),
                     (&user1, &user2, 600_i128).into_val(&e),
                 )),
@@ -113,17 +131,17 @@ fn test() {
             }
         )]
     );
-    assert_eq!(token.balance(&user1), 400);
-    assert_eq!(token.balance(&user2), 600);
+    assert_eq!(ct.balance(&user1), 400);
+    assert_eq!(ct.balance(&user2), 600);
 
-    token.transfer_from(&user3, &user2, &user1, &400);
+    ct.transfer_from(&user3, &user2, &user1, &400);
     assert_eq!(
         e.auths(),
         std::vec![(
             user3.clone(),
             AuthorizedInvocation {
                 function: AuthorizedFunction::Contract((
-                    token.address.clone(),
+                    ct.address.clone(),
                     Symbol::new(&e, "transfer_from"),
                     (&user3, &user2, &user1, 400_i128).into_val(&e),
                 )),
@@ -131,23 +149,23 @@ fn test() {
             }
         )]
     );
-    assert_eq!(token.balance(&user1), 800);
-    assert_eq!(token.balance(&user2), 200);
+    assert_eq!(ct.balance(&user1), 800);
+    assert_eq!(ct.balance(&user2), 200);
 
-    token.transfer(&user1, &user3, &300);
-    assert_eq!(token.balance(&user1), 500);
-    assert_eq!(token.balance(&user3), 300);
+    ct.transfer(&user1, &user3, &300);
+    assert_eq!(ct.balance(&user1), 500);
+    assert_eq!(ct.balance(&user3), 300);
 
-    token.set_admin(&admin2);
+    ct.set_admin(&admin);
     assert_eq!(
         e.auths(),
         std::vec![(
             admin1.clone(),
             AuthorizedInvocation {
                 function: AuthorizedFunction::Contract((
-                    token.address.clone(),
+                    ct.address.clone(),
                     symbol_short!("set_admin"),
-                    (&admin2,).into_val(&e),
+                    (&admin,).into_val(&e),
                 )),
                 sub_invocations: std::vec![]
             }
@@ -155,16 +173,16 @@ fn test() {
     );
 
     // Increase to 500
-    token.approve(&user2, &user3, &500, &200);
-    assert_eq!(token.allowance(&user2, &user3), 500);
-    token.approve(&user2, &user3, &0, &200);
+    ct.approve(&user2, &user3, &500, &200);
+    assert_eq!(ct.allowance(&user2, &user3), 500);
+    ct.approve(&user2, &user3, &0, &200);
     assert_eq!(
         e.auths(),
         std::vec![(
             user2.clone(),
             AuthorizedInvocation {
                 function: AuthorizedFunction::Contract((
-                    token.address.clone(),
+                    ct.address.clone(),
                     symbol_short!("approve"),
                     (&user2, &user3, 0_i128, 200_u32).into_val(&e),
                 )),
@@ -172,7 +190,7 @@ fn test() {
             }
         )]
     );
-    assert_eq!(token.allowance(&user2, &user3), 0);
+    assert_eq!(ct.allowance(&user2, &user3), 0);
 }
 
 #[test]
@@ -184,16 +202,35 @@ fn test_burn_from_panics_with_zero_or_negative_amount_not_allowed() {
     let user1 = Address::generate(&e);
     let user2 = Address::generate(&e);
 
-    let mut token = create_constellation_token(&e);
-    let (mut token, admin1, manager) = initialize_token(&e, token);
+    let token1 = create_token_contract(&e, &admin);
+    let token2 = create_token_contract(&e, &admin);
+    let token3 = create_token_contract(&e, &admin);
 
-    token.mint(&user1, &1000);
-    assert_eq!(token.balance(&user1), 1000);
+    let (mut ct, admin1, manager) = initialize_token(
+        &e,
+        create_constellation_token(&e),
+        (
+            token1.address.clone(),
+            token2.address.clone(),
+            token3.address.clone(),
+        ),
+    );
 
-    token.approve(&user1, &user2, &500, &200);
-    assert_eq!(token.allowance(&user1, &user2), 500);
+    token1.mint(&user1, &1000i128);
+    token2.mint(&user1, &1000i128);
+    token3.mint(&user1, &1000i128);
 
-    let result = token.try_burn_from(&user2, &user1, &0);
+    token1.approve(&user1, &ct.address, &1000i128, &1000u32);
+    token2.approve(&user1, &ct.address, &1000i128, &1000u32);
+    token3.approve(&user1, &ct.address, &1000i128, &1000u32);
+
+    ct.mint(&user1, &1000);
+    assert_eq!(ct.balance(&user1), 1000);
+
+    ct.approve(&user1, &user2, &500, &200);
+    assert_eq!(ct.allowance(&user1, &user2), 500);
+
+    let result = ct.try_burn_from(&user2, &user1, &0);
     assert_eq!(result, Err(Ok(Error::ZeroOrNegativeAmount.into())));
 }
 
@@ -206,16 +243,35 @@ fn test_burn_from_panics_with_insufficient_allowance() {
     let user1 = Address::generate(&e);
     let user2 = Address::generate(&e);
 
-    let mut token = create_constellation_token(&e);
-    let (mut token, admin1, manager) = initialize_token(&e, token);
+    let token1 = create_token_contract(&e, &admin);
+    let token2 = create_token_contract(&e, &admin);
+    let token3 = create_token_contract(&e, &admin);
 
-    token.mint(&user1, &1000);
-    assert_eq!(token.balance(&user1), 1000);
+    let (mut ct, admin1, manager) = initialize_token(
+        &e,
+        create_constellation_token(&e),
+        (
+            token1.address.clone(),
+            token2.address.clone(),
+            token3.address.clone(),
+        ),
+    );
 
-    token.approve(&user1, &user2, &500, &200);
-    assert_eq!(token.allowance(&user1, &user2), 500);
+    token1.mint(&user1, &1000i128);
+    token2.mint(&user1, &1000i128);
+    token3.mint(&user1, &1000i128);
 
-    let result = token.try_burn_from(&user2, &user1, &600);
+    token1.approve(&user1, &ct.address, &1000i128, &1000u32);
+    token2.approve(&user1, &ct.address, &1000i128, &1000u32);
+    token3.approve(&user1, &ct.address, &1000i128, &1000u32);
+
+    ct.mint(&user1, &1000);
+    assert_eq!(ct.balance(&user1), 1000);
+
+    ct.approve(&user1, &user2, &500, &200);
+    assert_eq!(ct.allowance(&user1, &user2), 500);
+
+    let result = ct.try_burn_from(&user2, &user1, &600);
     assert_eq!(result, Err(Ok(Error::InsufficientAllowance.into())));
 }
 
@@ -227,13 +283,31 @@ fn test_burn_panics_with_zero_or_negative_amount_not_allowed() {
     let admin = Address::generate(&e);
     let user1 = Address::generate(&e);
 
-    let mut token = create_constellation_token(&e);
-    let (mut token, admin1, manager) = initialize_token(&e, token);
+    let token1 = create_token_contract(&e, &admin);
+    let token2 = create_token_contract(&e, &admin);
+    let token3 = create_token_contract(&e, &admin);
+    let (mut ct, admin1, manager) = initialize_token(
+        &e,
+        create_constellation_token(&e),
+        (
+            token1.address.clone(),
+            token2.address.clone(),
+            token3.address.clone(),
+        ),
+    );
 
-    token.mint(&user1, &1000);
-    assert_eq!(token.balance(&user1), 1000);
+    token1.mint(&user1, &1000i128);
+    token2.mint(&user1, &1000i128);
+    token3.mint(&user1, &1000i128);
 
-    let result = token.try_burn(&user1, &0);
+    token1.approve(&user1, &ct.address, &1000i128, &1000u32);
+    token2.approve(&user1, &ct.address, &1000i128, &1000u32);
+    token3.approve(&user1, &ct.address, &1000i128, &1000u32);
+
+    ct.mint(&user1, &1000);
+    assert_eq!(ct.balance(&user1), 1000);
+
+    let result = ct.try_burn(&user1, &0);
     assert_eq!(result, Err(Ok(Error::ZeroOrNegativeAmount.into())));
 }
 
@@ -246,23 +320,42 @@ fn test_burn() {
     let user1 = Address::generate(&e);
     let user2 = Address::generate(&e);
 
-    let mut token = create_constellation_token(&e);
-    let (mut token, admin1, manager) = initialize_token(&e, token);
+    let token1 = create_token_contract(&e, &admin);
+    let token2 = create_token_contract(&e, &admin);
+    let token3 = create_token_contract(&e, &admin);
 
-    token.mint(&user1, &1000);
-    assert_eq!(token.balance(&user1), 1000);
+    let (mut ct, admin1, manager) = initialize_token(
+        &e,
+        create_constellation_token(&e),
+        (
+            token1.address.clone(),
+            token2.address.clone(),
+            token3.address.clone(),
+        ),
+    );
 
-    token.approve(&user1, &user2, &500, &200);
-    assert_eq!(token.allowance(&user1, &user2), 500);
+    token1.mint(&user1, &1000i128);
+    token2.mint(&user1, &1000i128);
+    token3.mint(&user1, &1000i128);
 
-    token.burn_from(&user2, &user1, &500);
+    token1.approve(&user1, &ct.address, &1000i128, &1000u32);
+    token2.approve(&user1, &ct.address, &1000i128, &1000u32);
+    token3.approve(&user1, &ct.address, &1000i128, &1000u32);
+
+    ct.mint(&user1, &1000);
+    assert_eq!(ct.balance(&user1), 1000);
+
+    ct.approve(&user1, &user2, &500, &200);
+    assert_eq!(ct.allowance(&user1, &user2), 500);
+
+    ct.burn_from(&user2, &user1, &500);
     assert_eq!(
         e.auths(),
         std::vec![(
             user2.clone(),
             AuthorizedInvocation {
                 function: AuthorizedFunction::Contract((
-                    token.address.clone(),
+                    ct.address.clone(),
                     symbol_short!("burn_from"),
                     (&user2, &user1, 500_i128).into_val(&e),
                 )),
@@ -271,18 +364,18 @@ fn test_burn() {
         )]
     );
 
-    assert_eq!(token.allowance(&user1, &user2), 0);
-    assert_eq!(token.balance(&user1), 500);
-    assert_eq!(token.balance(&user2), 0);
+    assert_eq!(ct.allowance(&user1, &user2), 0);
+    assert_eq!(ct.balance(&user1), 500);
+    assert_eq!(ct.balance(&user2), 0);
 
-    token.burn(&user1, &500);
+    ct.burn(&user1, &500);
     assert_eq!(
         e.auths(),
         std::vec![(
             user1.clone(),
             AuthorizedInvocation {
                 function: AuthorizedFunction::Contract((
-                    token.address.clone(),
+                    ct.address.clone(),
                     symbol_short!("burn"),
                     (&user1, 500_i128).into_val(&e),
                 )),
@@ -291,8 +384,8 @@ fn test_burn() {
         )]
     );
 
-    assert_eq!(token.balance(&user1), 0);
-    assert_eq!(token.balance(&user2), 0);
+    assert_eq!(ct.balance(&user1), 0);
+    assert_eq!(ct.balance(&user2), 0);
 }
 
 #[test]
@@ -303,10 +396,18 @@ fn transfer_panics_with_zero_or_negative_amount_not_allowed() {
     let user1 = Address::generate(&e);
     let user2 = Address::generate(&e);
 
-    let mut token = create_constellation_token(&e);
-    let (mut token, admin1, manager) = initialize_token(&e, token);
+    let token_ = create_token_contract(&e, &user1);
+    let (mut ct, admin1, manager) = initialize_token(
+        &e,
+        create_constellation_token(&e),
+        (
+            token_.address.clone(),
+            token_.address.clone(),
+            token_.address.clone(),
+        ),
+    );
 
-    let result = token.try_transfer(&user1, &user2, &0);
+    let result = ct.try_transfer(&user1, &user2, &0);
     assert_eq!(result, Err(Ok(Error::ZeroOrNegativeAmount.into())));
 }
 
@@ -314,17 +415,36 @@ fn transfer_panics_with_zero_or_negative_amount_not_allowed() {
 fn transfer_insufficient_balance() {
     let e = Env::default();
     e.mock_all_auths();
+    let admin = Address::generate(&e);
 
     let user1 = Address::generate(&e);
     let user2 = Address::generate(&e);
 
-    let mut token = create_constellation_token(&e);
-    let (mut token, admin1, manager) = initialize_token(&e, token);
+    let token1 = create_token_contract(&e, &admin);
+    let token2 = create_token_contract(&e, &admin);
+    let token3 = create_token_contract(&e, &admin);
+    let (mut ct, admin1, manager) = initialize_token(
+        &e,
+        create_constellation_token(&e),
+        (
+            token1.address.clone(),
+            token2.address.clone(),
+            token3.address.clone(),
+        ),
+    );
 
-    token.mint(&user1, &1000);
-    assert_eq!(token.balance(&user1), 1000);
+    token1.mint(&user1, &1000i128);
+    token2.mint(&user1, &1000i128);
+    token3.mint(&user1, &1000i128);
 
-    let result = token.try_transfer(&user1, &user2, &1001);
+    token1.approve(&user1, &ct.address, &1000i128, &1000u32);
+    token2.approve(&user1, &ct.address, &1000i128, &1000u32);
+    token3.approve(&user1, &ct.address, &1000i128, &1000u32);
+
+    ct.mint(&user1, &1000);
+    assert_eq!(ct.balance(&user1), 1000);
+
+    let result = ct.try_transfer(&user1, &user2, &1001);
     assert_eq!(result, Err(Ok(Error::InsufficientBalance.into())));
 }
 
@@ -338,10 +458,18 @@ fn transfer_from_with_zero_or_negative_amount_not_allowed() {
     let user2 = Address::generate(&e);
     let user3 = Address::generate(&e);
 
-    let mut token = create_constellation_token(&e);
-    let (mut token, admin1, manager) = initialize_token(&e, token);
+    let token_ = create_token_contract(&e, &user1);
+    let (mut ct, admin1, manager) = initialize_token(
+        &e,
+        create_constellation_token(&e),
+        (
+            token_.address.clone(),
+            token_.address.clone(),
+            token_.address.clone(),
+        ),
+    );
 
-    let result = token.try_transfer_from(&user3, &user1, &user2, &0);
+    let result = ct.try_transfer_from(&user3, &user1, &user2, &0);
     assert_eq!(result, Err(Ok(Error::ZeroOrNegativeAmount.into())));
 }
 
@@ -355,15 +483,34 @@ fn transfer_from_insufficient_allowance() {
     let user2 = Address::generate(&e);
     let user3 = Address::generate(&e);
 
-    let mut token = create_constellation_token(&e);
-    let (mut token, admin1, manager) = initialize_token(&e, token);
+    let token1 = create_token_contract(&e, &admin);
+    let token2 = create_token_contract(&e, &admin);
+    let token3 = create_token_contract(&e, &admin);
 
-    token.mint(&user1, &1000);
-    assert_eq!(token.balance(&user1), 1000);
+    let (mut ct, admin1, manager) = initialize_token(
+        &e,
+        create_constellation_token(&e),
+        (
+            token1.address.clone(),
+            token2.address.clone(),
+            token3.address.clone(),
+        ),
+    );
 
-    token.approve(&user1, &user3, &100, &200);
-    assert_eq!(token.allowance(&user1, &user3), 100);
-    let result = token.try_transfer_from(&user3, &user1, &user2, &101);
+    token1.mint(&user1, &1000i128);
+    token2.mint(&user1, &1000i128);
+    token3.mint(&user1, &1000i128);
+
+    token1.approve(&user1, &ct.address, &1000i128, &1000u32);
+    token2.approve(&user1, &ct.address, &1000i128, &1000u32);
+    token3.approve(&user1, &ct.address, &1000i128, &1000u32);
+
+    ct.mint(&user1, &1000);
+    assert_eq!(ct.balance(&user1), 1000);
+
+    ct.approve(&user1, &user3, &100, &200);
+    assert_eq!(ct.allowance(&user1, &user3), 100);
+    let result = ct.try_transfer_from(&user3, &user1, &user2, &101);
     assert_eq!(result, Err(Ok(Error::InsufficientAllowance.into())));
 }
 
@@ -377,20 +524,38 @@ fn transfer_from_insufficient_balance() {
     let user2 = Address::generate(&e);
     let user3 = Address::generate(&e);
 
-    let mut token = create_constellation_token(&e);
-    let (mut token, admin1, manager) = initialize_token(&e, token);
+    let token1 = create_token_contract(&e, &admin);
+    let token2 = create_token_contract(&e, &admin);
+    let token3 = create_token_contract(&e, &admin);
 
-    token.mint(&user1, &1000);
-    assert_eq!(token.balance(&user1), 1000);
+    let (mut ct, admin1, manager) = initialize_token(
+        &e,
+        create_constellation_token(&e),
+        (
+            token1.address.clone(),
+            token2.address.clone(),
+            token3.address.clone(),
+        ),
+    );
 
-    token.approve(&user1, &user3, &1001, &200);
-    assert_eq!(token.allowance(&user1, &user3), 1001);
-    let result = token.try_transfer_from(&user3, &user1, &user2, &1001);
+    token1.mint(&user1, &1000i128);
+    token2.mint(&user1, &1000i128);
+    token3.mint(&user1, &1000i128);
+
+    token1.approve(&user1, &ct.address, &1000i128, &1000u32);
+    token2.approve(&user1, &ct.address, &1000i128, &1000u32);
+    token3.approve(&user1, &ct.address, &1000i128, &1000u32);
+
+    ct.mint(&user1, &1000);
+    assert_eq!(ct.balance(&user1), 1000);
+
+    ct.approve(&user1, &user3, &1001, &200);
+    assert_eq!(ct.allowance(&user1, &user3), 1001);
+    let result = ct.try_transfer_from(&user3, &user1, &user2, &1001);
     assert_eq!(result, Err(Ok(Error::InsufficientBalance.into())));
 }
 
 #[test]
-// #[should_panic(expected = "Decimal must fit in a u8")]
 fn decimal_is_over_max() {
     let e = Env::default();
     let admin = Address::generate(&e);

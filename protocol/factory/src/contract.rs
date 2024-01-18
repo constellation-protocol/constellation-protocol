@@ -84,7 +84,7 @@ impl Factory {
             None => return Err(Error::RequiresAdministrator),
         }
 
-        if max_components == 0 {
+        if value == 0 {
             return Err(Error::ZeroValue);
         }
         write_max_components(&e, value);

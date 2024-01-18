@@ -29,8 +29,6 @@ pub(crate) fn initialize_token(
     components: Vec<Address>,
     amounts: Vec<i128>,
 ) {
-    let ct = constellation_token::Client::new(e, address);
-
     let client = constellation_token::Client::new(&e, &token_address);
     client.initialize(
         &decimal,
