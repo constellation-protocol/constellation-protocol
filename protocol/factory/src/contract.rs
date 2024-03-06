@@ -71,7 +71,7 @@ impl Factory {
         Ok(address)
     }
 
-    /// sets maxumum number of component tokens allowed when creating a new constellation tokekn
+    /// sets maxumum number of component tokens allowed when creating a new constellation token
     /// returns error if Administrator is not set
     /// returns error if value is zero
     ///
