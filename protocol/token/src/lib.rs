@@ -12,6 +12,7 @@ pub mod error;
 mod event;
 mod helpers;
 mod manager;
+mod module;
 #[cfg(test)]
 mod test;
 pub mod traits;

@@ -1,8 +1,8 @@
 use soroban_sdk::{Address,Symbol, Vec, Val,contracttype, contractclient, contractspecfn };
 
 
-pub use IAMMClient as Client;
-pub use IAMM as Interface;
+pub use IExchangeClient as Client;
+pub use IExchange as Interface;
 
 #[contracttype]
 pub struct CallData {
@@ -11,25 +11,25 @@ pub struct CallData {
     data: Vec<Val>,
 }
 
-#[contractclient(name="IAMMClient")]
-#[contractspecfn(name = "IMMSpec")]
-pub trait IAMM {
+#[contractclient(name="IExchangeClient")]
+#[contractspecfn(name = "IExchangeSpec")]
+pub trait IExchange {
     fn get_call_data() ->CallData ;
 }
 
-/// Spec contains the contract spec of iamm contracts, including the general
+/// Spec contains the contract spec of iExchange contracts, including the general
 /// interface, as well as the admin interface, such as the Stellar Asset
 /// Contract.
 #[doc(hidden)]
-pub struct  IMMSpec;
+pub struct  IExchangeSpec;
 
 pub(crate) const SPEC_XDR_INPUT: &[&[u8]] = &[ 
-    &IMMSpec::spec_xdr_get_call_data(),
+    &IExchangeSpec::spec_xdr_get_call_data(),
 ];
 
 pub(crate) const SPEC_XDR_LEN: usize = 5336;
 
-impl IMMSpec {
+impl IExchangeSpec {
     /// Returns the XDR spec for the Token contract.
     pub const fn spec_xdr() -> [u8; SPEC_XDR_LEN] {
         let input = SPEC_XDR_INPUT;

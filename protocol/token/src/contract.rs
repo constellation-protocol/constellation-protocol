@@ -10,11 +10,12 @@ use crate::error::{check_nonnegative_amount, check_zero_or_negative_amount};
 use crate::manager::{read_manager, write_manager};
 use crate::metadata::*;
 use crate::metadata::{read_decimal, read_name, read_symbol, write_metadata};
+// use crate::module::{read_module, remove_module, write_module};
 use crate::storage_types::Component;
 use crate::storage_types::{
     AllowanceDataKey, AllowanceValue, DataKey, INSTANCE_BUMP_AMOUNT, INSTANCE_LIFETIME_THRESHOLD,
 };
-use crate::traits::ConstellationTokenInterface;
+use crate::traits::{Module, ConstellationTokenInterface};
 use soroban_sdk::{
     contract, contractimpl, contracttype, log, panic_with_error, symbol_short, token,
     token::Interface, Address, Env, IntoVal, String, Symbol, Val, Vec,
@@ -300,3 +301,39 @@ impl token::Interface for ConstellationToken {
         read_symbol(&e)
     }
 }
+
+// impl Module for ConstellationToken {
+
+//     fn add_module(e: Env, module_id: Address) {
+//         let manager = match read_manager(&e) {
+//             Some(manager) => {
+//                 manager.require_auth();
+//                 manager
+//             }
+//             None => return Err(Error::RequiresManager),
+//         };
+
+//         write_module(&e, &module_id);
+//     }
+//     fn remove_module(e: Env, module_id: Address) {
+//         let manager = match read_manager(&e) {
+//             Some(manager) => {
+//                 manager.require_auth();
+//                 manager
+//             }
+//             None => return Err(Error::RequiresManager),
+//         };
+
+//         remove_module(&e, &module_id);
+//     }
+  
+//     fn invoke(e: Env, target_exchange: Address, method_name: Symbol, args: Vec<Val>){
+//         let module = match read_module(&e) {
+//             Some(module) => {
+//                 module.require_auth();
+//                 module
+//             }
+//             None => return Err(Error::RequiresModule),
+//         }; 
+//     }
+// }

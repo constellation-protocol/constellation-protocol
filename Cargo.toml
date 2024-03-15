@@ -4,7 +4,8 @@
  members = [
     "protocol/token",
     "protocol/router",
-    "protocol/factory",
+    "protocol/factory", 
+    "protocol/module/trade",
  ]
 
 [workspace.dependencies]
