@@ -15,7 +15,7 @@ use crate::storage_types::Component;
 use crate::storage_types::{
     AllowanceDataKey, AllowanceValue, DataKey, INSTANCE_BUMP_AMOUNT, INSTANCE_LIFETIME_THRESHOLD,
 };
-use crate::traits::{Module, ConstellationTokenInterface};
+use crate::traits::{ConstellationTokenInterface, Module};
 use soroban_sdk::{
     contract, contractimpl, contracttype, log, panic_with_error, symbol_short, token,
     token::Interface, Address, Env, IntoVal, String, Symbol, Val, Vec,
@@ -326,7 +326,7 @@ impl token::Interface for ConstellationToken {
 
 //         remove_module(&e, &module_id);
 //     }
-  
+
 //     fn invoke(e: Env, target_exchange: Address, method_name: Symbol, args: Vec<Val>){
 //         let module = match read_module(&e) {
 //             Some(module) => {
@@ -334,6 +334,6 @@ impl token::Interface for ConstellationToken {
 //                 module
 //             }
 //             None => return Err(Error::RequiresModule),
-//         }; 
+//         };
 //     }
 // }

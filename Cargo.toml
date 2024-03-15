@@ -2,10 +2,10 @@
  resolver = "2"
  nested = true
  members = [
-    "protocol/token",
-    "protocol/router",
-    "protocol/factory", 
-    "protocol/module/trade",
+    "constellation/token",
+    "constellation/factory", 
+    "constellation/router",
+    "constellation/module/trade",
  ]
 
 [workspace.dependencies]

@@ -1,3 +1,4 @@
+#![no_std]
 pub mod contract;
 mod error;
 mod event;

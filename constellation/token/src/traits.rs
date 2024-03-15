@@ -1,9 +1,13 @@
+use soroban_sdk::{contractclient, contractspecfn, token::Interface, Address, Env, String, Vec};
 use soroban_sdk::{Symbol, Val};
-use soroban_sdk::{token::Interface, Address, Env, String, Vec};
 
 use crate::error::Error;
 use crate::storage_types::AllowanceValue;
 use crate::storage_types::Component;
+
+pub use ConstellationTokenInterfaceClient as MyClient;
+
+#[contractclient(name = "ConstellationTokenInterfaceClient")]
 pub trait ConstellationTokenInterface {
     fn initialize(
         e: Env,

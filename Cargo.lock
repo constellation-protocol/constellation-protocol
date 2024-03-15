@@ -160,9 +160,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "constellation-module-trade"
+version = "0.1.0"
+dependencies = [
+ "soroban-env-common",
+ "soroban-sdk",
+]
+
+[[package]]
 name = "constellation-router"
 version = "0.1.0"
 dependencies = [
+ "constellation-module-trade",
  "constellation-token",
  "soroban-env-common",
  "soroban-sdk",
@@ -1273,13 +1282,6 @@ checksum = "7ba3a3ef41e6672a2f0f001392bb5dcd3ff0a9992d618ca761a11c3121547774"
 dependencies = [
  "num-conv",
  "time-core",
-]
-
-[[package]]
-name = "trade-module"
-version = "0.1.0"
-dependencies = [
- "soroban-sdk",
 ]
 
 [[package]]

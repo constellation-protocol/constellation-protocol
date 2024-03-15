@@ -1,16 +1,16 @@
 [package]
-name = "constellation-router"
+name = "constellation-module-trade"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
 [lib]
 crate-type = ["cdylib"]
-doctest = false
+# doctest = false
 
-[dependencies]
+[dependencies] 
 soroban-sdk.workspace = true
-constellation-token = { path = "../token"}
 
 [dev-dependencies]
 soroban-sdk = { version = "20.3.1", features = ["testutils"] }

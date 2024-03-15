@@ -1,4 +1,3 @@
-#![no_std]
 use crate::error::{self, Error};
 use crate::event;
 use crate::factory;
@@ -109,7 +108,7 @@ impl Router {
         amounts: Vec<i128>,
         wasm_hash: BytesN<32>,
         salt: BytesN<32>,
-    ) -> Result<Address, Error> { 
+    ) -> Result<Address, Error> {
         let constellation_token_adddress = match read_factory(&e) {
             Some(factory) => factory::create(
                 &e,
@@ -124,7 +123,7 @@ impl Router {
                 wasm_hash,
                 salt,
             ),
-        
+
             None => return Err(Error::RequiresFactory),
         };
         Ok(constellation_token_adddress)
@@ -133,5 +132,5 @@ impl Router {
     /// Returns the address of factory contract
     pub fn get_factory_address(e: Env) -> Option<Address> {
         read_factory(&e)
-    } 
-} 
+    }
+}

@@ -1,31 +1,34 @@
-use soroban_sdk::{Address,Symbol, Vec, Val,contracttype, contractclient, contractspecfn };
+use soroban_sdk::{contractclient, contractspecfn, contracttype, Address, Symbol, Val, Vec};
 
-
-pub use IExchangeClient as Client;
 pub use IExchange as Interface;
+pub use IExchangeClient as Client;
 
 #[contracttype]
-pub struct CallData {
-    target: Address,
-    method: Symbol,
-    data: Vec<Val>,
+pub struct CallData { 
+    pub method: Symbol,
+    pub data: Vec<Val>,
 }
 
-#[contractclient(name="IExchangeClient")]
-#[contractspecfn(name = "IExchangeSpec")]
+#[contractclient(name = "IExchangeClient")]
+#[contractspecfn(name = "IExchangeSpec", export = false)]
 pub trait IExchange {
-    fn get_call_data() ->CallData ;
+    fn get_call_data(
+        token_in_id: Address,
+        token_out_id: Address,
+        amount_in: i128,
+        amount_out: i128,
+        to: Address,
+        deadline: u64,
+    ) -> CallData;
 }
 
 /// Spec contains the contract spec of iExchange contracts, including the general
 /// interface, as well as the admin interface, such as the Stellar Asset
 /// Contract.
 #[doc(hidden)]
-pub struct  IExchangeSpec;
+pub struct IExchangeSpec;
 
-pub(crate) const SPEC_XDR_INPUT: &[&[u8]] = &[ 
-    &IExchangeSpec::spec_xdr_get_call_data(),
-];
+pub(crate) const SPEC_XDR_INPUT: &[&[u8]] = &[&IExchangeSpec::spec_xdr_get_call_data()];
 
 pub(crate) const SPEC_XDR_LEN: usize = 5336;
 
