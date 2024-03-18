@@ -160,9 +160,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "constellation-module-trade"
+version = "0.1.0"
+dependencies = [
+ "soroban-env-common",
+ "soroban-sdk",
+]
+
+[[package]]
 name = "constellation-router"
 version = "0.1.0"
 dependencies = [
+ "constellation-module-trade",
  "constellation-token",
  "soroban-env-common",
  "soroban-sdk",

@@ -26,6 +26,7 @@ pub enum Error {
     AlreadyInitalized = 502,
     RequiresAdministrator = 503,
     RequiresManager = 504,
+    RequiresModule = 505,
 }
 
 pub fn check_zero_or_negative_amount(e: &Env, amount: i128) {

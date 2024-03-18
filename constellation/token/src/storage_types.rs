@@ -37,4 +37,5 @@ pub enum DataKey {
     Admin,
     Components,
     Manager,
+    Module(Address),
 }

@@ -1,9 +1,9 @@
-#![no_std]
 use crate::error::{self, Error};
 use crate::event;
 use crate::factory;
 use crate::storage::{has_factory, read_factory, write_factory};
 use crate::token as ctoken;
+use soroban_sdk::auth::SubContractInvocation;
 use soroban_sdk::{
     contract, contracterror, contractimpl, contracttype, log, panic_with_error, symbol_short,
     token, Address, BytesN, ConversionError, Env, InvokeError, String, Symbol, Vec,
@@ -123,6 +123,7 @@ impl Router {
                 wasm_hash,
                 salt,
             ),
+
             None => return Err(Error::RequiresFactory),
         };
         Ok(constellation_token_adddress)
