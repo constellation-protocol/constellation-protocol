@@ -1,19 +1,20 @@
 [package]
 name = "constellation-token"
+description = "constellation token contract"
 version = "0.1.0"
 edition = "2021"
-
+# rust-version = "1.74.0"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
 crate-type = ["cdylib"]
 
 [dependencies]
-soroban-sdk = { version = "20.0.0-rc2", features = ["alloc"]}
-soroban-token-sdk = { version = "20.0.0-rc2" }
+soroban-sdk = { version = "20.3.1", features = ["alloc"]}
+soroban-token-sdk = { version = "20.3.1" }
 
 [dev-dependencies]
-soroban-sdk = { version = "20.0.0-rc2", features = ["testutils", "alloc"] }
-soroban-token-sdk = { version = "20.0.0-rc2" }
+soroban-sdk = { version = "20.3.1", features = ["testutils", "alloc"] }
+soroban-token-sdk = { version = "20.3.1" }
 
 [profile.release]
 opt-level = "z"

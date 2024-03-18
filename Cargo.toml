@@ -8,11 +8,11 @@
  ]
 
 [workspace.dependencies]
-soroban-sdk = "20.0.0-rc2"
+soroban-sdk = "20.3.1"
 
 [workspace.dev2-dependencies]
-soroban-sdk = { version = "20.0.0-rc2", features = ["testutils", "alloc"] }
-soroban-token-sdk = { version = "20.0.0-rc2" }
+soroban-sdk = { version = "20.3.1", features = ["testutils", "alloc"] }
+soroban-token-sdk = { version = "20.3.1" }
 
 [profile.release]
 opt-level = "z"

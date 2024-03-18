@@ -12,11 +12,11 @@ doctest = false
 [dependencies]
 soroban-sdk.workspace = true
 constellation-token = { path = "../token"}
-soroban-env-common = { version = "20.0.2", faetures = ["macros"]}
+soroban-env-common = { version = "20.2.1", faetures = ["macros"]}
 
 [dev-dependencies]
-soroban-sdk = { version = "20.0.0-rc2", features = ["testutils"] }
-soroban-env-common = { version = "20.0.2", faetures = ["testutils"]}
+soroban-sdk = { version = "20.3.1", features = ["testutils"] }
+soroban-env-common = { version = "20.2.1", faetures = ["testutils"]}
 
 [profile.release]
 opt-level = "z"
