@@ -9,6 +9,8 @@
         "./protocol/minter-burner/Cargo.toml",
         "./protocol/router/Cargo.toml",
         "./protocol/token/Cargo.toml",
-        "./protocol/token/Cargo.toml"
+        "./protocol/token/Cargo.toml",
+        "./protocol/module/trade/Cargo.toml",
+        "./protocol/module/trade/Cargo.toml"
     ]
 }
