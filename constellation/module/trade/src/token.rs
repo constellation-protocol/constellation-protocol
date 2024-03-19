@@ -1,7 +1,9 @@
-use soroban_sdk::{Address, Env, String, Vec};
+use crate::traits::adapter::{self, CallData};
+use soroban_sdk::{Address, Env, String, Symbol, Vec};
+
 pub(crate) mod constellation_token {
     soroban_sdk::contractimport!(
-        file = "../../target/wasm32-unknown-unknown/release/constellation_token.wasm"
+        file = "../../../target/wasm32-unknown-unknown/release/constellation_token.wasm"
     );
 }
 
@@ -20,12 +22,15 @@ pub(crate) mod constellation_token {
 /// - `amounts` Amounts of each componet token required to mint constellation token
 pub(crate) fn invoke(
     e: &Env,
-    method: &Address,
-    call_data: CallData, 
+    constellation_token_id: &Address,
+    target_exchange_id: &Address,
+    call_data: CallData,
 ) {
-    let client = constellation_token::Client::new(&e, &token_address);
+    let client = constellation_token::Client::new(&e, &constellation_token_id);
     client.invoke(
-        &method,
-        &call_data
+        &e.current_contract_address(),
+        &target_exchange_id,
+        &call_data.function,
+        &call_data.data,
     );
 }

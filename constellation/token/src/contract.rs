@@ -10,7 +10,7 @@ use crate::error::{check_nonnegative_amount, check_zero_or_negative_amount};
 use crate::manager::{read_manager, write_manager};
 use crate::metadata::*;
 use crate::metadata::{read_decimal, read_name, read_symbol, write_metadata};
-// use crate::module::{read_module, remove_module, write_module};
+use crate::module::{is_registered, read_module, remove_module, write_module};
 use crate::storage_types::Component;
 use crate::storage_types::{
     AllowanceDataKey, AllowanceValue, DataKey, INSTANCE_BUMP_AMOUNT, INSTANCE_LIFETIME_THRESHOLD,
@@ -302,38 +302,47 @@ impl token::Interface for ConstellationToken {
     }
 }
 
-// impl Module for ConstellationToken {
+#[contractimpl]
+impl Module for ConstellationToken {
+    fn add_module(e: Env, module_id: Address) -> Result<(), Error> {
+        let manager = match read_manager(&e) {
+            Some(manager) => {
+                manager.require_auth();
+                manager
+            }
+            None => return Err(Error::RequiresManager),
+        };
 
-//     fn add_module(e: Env, module_id: Address) {
-//         let manager = match read_manager(&e) {
-//             Some(manager) => {
-//                 manager.require_auth();
-//                 manager
-//             }
-//             None => return Err(Error::RequiresManager),
-//         };
+        write_module(&e, module_id);
 
-//         write_module(&e, &module_id);
-//     }
-//     fn remove_module(e: Env, module_id: Address) {
-//         let manager = match read_manager(&e) {
-//             Some(manager) => {
-//                 manager.require_auth();
-//                 manager
-//             }
-//             None => return Err(Error::RequiresManager),
-//         };
+        Ok(())
+    }
+    fn remove_module(e: Env, module_id: Address) -> Result<(), Error> {
+        let manager = match read_manager(&e) {
+            Some(manager) => {
+                manager.require_auth();
+                manager
+            }
+            None => return Err(Error::RequiresManager),
+        };
 
-//         remove_module(&e, &module_id);
-//     }
+        remove_module(&e, module_id);
 
-//     fn invoke(e: Env, target_exchange: Address, method_name: Symbol, args: Vec<Val>){
-//         let module = match read_module(&e) {
-//             Some(module) => {
-//                 module.require_auth();
-//                 module
-//             }
-//             None => return Err(Error::RequiresModule),
-//         };
-//     }
-// }
+        Ok(())
+    }
+
+    fn invoke(
+        e: Env,
+        module_id: Address,
+        target_contract_id: Address,
+        function: Symbol,
+        args: Vec<Val>,
+    ) -> Result<(), Error> {
+        module_id.require_auth();
+        if is_registered(&e, module_id) == false {
+            return Err(Error::UnregisteredModule);
+        }
+        e.invoke_contract::<Val>(&target_contract_id, &function, args);
+        Ok(())
+    }
+}

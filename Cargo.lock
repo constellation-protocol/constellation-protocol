@@ -163,6 +163,7 @@ dependencies = [
 name = "constellation-module-trade"
 version = "0.1.0"
 dependencies = [
+ "constellation-token",
  "soroban-env-common",
  "soroban-sdk",
 ]
