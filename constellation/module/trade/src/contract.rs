@@ -1,15 +1,22 @@
-use soroban_sdk::{contract, contractimpl, contracttype, Address, Env};
-use crate::storage::adapter::{read_adapter, remove_adapter, write_adapter, is_registered};
+use soroban_sdk::{contract, contractimpl, panic_with_error,contracttype, Address, Env};
+use crate::storage::{
+    admin::{has_administrator, read_administrator, write_administrator},
+    adapter::{read_adapter, remove_adapter, write_adapter, is_registered}};
 use crate::traits::adapter::{self, CallData};
 use crate::token;
+use crate::error::Error;
 
 #[contract]
 pub struct Trade {}
 
 #[contractimpl]
 impl Trade {
-    pub fn initialize(e: Env, admin: Address) {
+    pub fn initialize(e: Env, id: Address) {
+        if has_administrator(&e) {
+            panic_with_error!(&e, Error::AlreadyInitalized);
+        }
 
+         write_administrator(&e, &id);
     }
 
     pub fn trade(
