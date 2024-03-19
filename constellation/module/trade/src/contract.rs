@@ -1,6 +1,6 @@
 use soroban_sdk::{contract, contractimpl, panic_with_error,contracttype, Address, Env};
 use crate::storage::{
-    adapter::{is_registered, panic_unregistered_adapter, read_adapter, remove_adapter, write_adapter}, admin::{has_administrator, read_administrator, write_administrator}};
+    adapter::{read_or_panic_unregistered_adapter, read_adapter, remove_adapter, write_adapter}, admin::{has_administrator, read_administrator, write_administrator}};
 use crate::traits::adapter::{self, CallData};
 use crate::token;
 use crate::error::Error;
@@ -29,9 +29,9 @@ impl Trade {
         deadline: u64,
     ) {
 
-        panic_unregistered_adapter(&e, &exchange_id);
+        let adapter_id = read_or_panic_unregistered_adapter(&e, &exchange_id);
 
-        let exchange_adapter = adapter::Client::new(&e, &exchange_id);
+        let exchange_adapter = adapter::Client::new(&e, &adapter_id);
         let call_data = exchange_adapter.get_call_data(
             &token_in_id,
             &token_out_id,
