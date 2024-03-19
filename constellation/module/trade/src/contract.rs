@@ -21,10 +21,7 @@ impl Trade {
     ) {
         // check adapter is registered (exchange_id)
         let exchange_adapter = adapter::Client::new(&e, &target_exchange_id);
-        let CallData {
-            method,
-            data,
-        } = exchange_adapter.get_call_data(
+        let call_data = exchange_adapter.get_call_data(
             &token_in_id,
             &token_out_id,
             &amount_in,
@@ -32,5 +29,11 @@ impl Trade {
             &constellation_token_id, 
             &deadline,
         );
+
+        Self::_trade(&e, &call_data);
+    }
+
+    fn _trade(e: &Env, CallData { method, data}: &CallData  ) {
+
     }
 }
