@@ -1,6 +1,6 @@
 use soroban_sdk::{contract, contractimpl, panic_with_error,contracttype, Address, Env};
-use crate::storage::{
-    adapter::{read_or_panic_unregistered_adapter, read_adapter, remove_adapter, write_adapter}, admin::{has_administrator, read_administrator, write_administrator}};
+use crate::{storage::{
+    adapter::{read_adapter, read_or_panic_unregistered_adapter, remove_adapter, write_adapter}, admin::{has_administrator, read_administrator, write_administrator}}, validation::require_administrator};
 use crate::traits::adapter::{self, CallData};
 use crate::token;
 use crate::error::Error;
@@ -45,21 +45,13 @@ impl Trade {
     }
 
     pub fn add_adapter(e: Env,  exchange_id: Address, adapter_id: Address) -> Result<(), Error> {
-        match read_administrator(&e) {
-            Some(admin) => admin.require_auth(),
-            None => return Err(Error::RequiresAdmin),
-        }
-
+        require_administrator(&e)?;
         write_adapter(&e, exchange_id, adapter_id);
         Ok(())
     }
 
     pub fn remove_adapter(e: Env, exchange_id: Address) -> Result<(), Error> {
-        match read_administrator(&e) {
-            Some(admin) => admin.require_auth(),
-            None => return Err(Error::RequiresAdmin),
-        }
-
+        require_administrator(&e)?;
         remove_adapter(&e, exchange_id);
         Ok(())
     }
