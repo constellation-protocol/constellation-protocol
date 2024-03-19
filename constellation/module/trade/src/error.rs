@@ -7,4 +7,6 @@ use soroban_sdk::{
 #[repr(u32)]
 pub enum Error {
     AlreadyInitalized = 101,
+    UnregisteredAdapter = 102,
+    RequiresAdmin = 103,
 } 

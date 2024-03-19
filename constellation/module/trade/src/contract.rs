@@ -1,7 +1,6 @@
 use soroban_sdk::{contract, contractimpl, panic_with_error,contracttype, Address, Env};
 use crate::storage::{
-    admin::{has_administrator, read_administrator, write_administrator},
-    adapter::{read_adapter, remove_adapter, write_adapter, is_registered}};
+    adapter::{is_registered, panic_unregistered_adapter, read_adapter, remove_adapter, write_adapter}, admin::{has_administrator, read_administrator, write_administrator}};
 use crate::traits::adapter::{self, CallData};
 use crate::token;
 use crate::error::Error;
@@ -29,7 +28,9 @@ impl Trade {
         amount_out: i128,
         deadline: u64,
     ) {
-        // check adapter is registered (exchange_id)
+
+        panic_unregistered_adapter(&e, &exchange_id);
+
         let exchange_adapter = adapter::Client::new(&e, &exchange_id);
         let call_data = exchange_adapter.get_call_data(
             &token_in_id,
@@ -43,12 +44,24 @@ impl Trade {
         Self::_trade(&e, &constellation_token_id, &exchange_id, &call_data);
     }
 
-    pub fn add_adapter(e: Env, adapter_id: Address, exchange_id: Address) {
-       
+    pub fn add_adapter(e: Env,  exchange_id: Address, adapter_id: Address) -> Result<(), Error> {
+        match read_administrator(&e) {
+            Some(admin) => admin.require_auth(),
+            None => return Err(Error::RequiresAdmin),
+        }
+
+        write_adapter(&e, exchange_id, adapter_id);
+        Ok(())
     }
 
-    pub fn remove_adapter(e: Env, exchange_id: Address) {
-       
+    pub fn remove_adapter(e: Env, exchange_id: Address) -> Result<(), Error> {
+        match read_administrator(&e) {
+            Some(admin) => admin.require_auth(),
+            None => return Err(Error::RequiresAdmin),
+        }
+
+        remove_adapter(&e, exchange_id);
+        Ok(())
     }
 
     fn _trade(
