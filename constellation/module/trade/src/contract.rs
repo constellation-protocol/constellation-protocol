@@ -1,6 +1,6 @@
 use soroban_sdk::{contract, contractimpl, contracttype, Address, Env};
-
 use crate::traits::adapter::{self, CallData};
+use crate::token;
 
 #[contract]
 pub struct Trade {}
@@ -32,12 +32,13 @@ impl Trade {
 
         Self::_trade(&e, &constellation_token_id, &target_exchange_id, &call_data);
     }
-    //     fn invoke(e: Env, module_id: Address, target_contract_id: Address, function: Symbol, args: Vec<Val>)
+
     fn _trade(
         e: &Env,
         constellation_token_id: &Address,
         target_exchange_id: &Address,
         CallData { function, data }: &CallData,
     ) {
+        token::invoke(&e, constellation_token_id, target_exchange_id, &function, &data);
     }
 }
