@@ -31,8 +31,13 @@ pub trait ConstellationTokenInterface {
 }
 
 pub trait Module {
-    fn add_module(e: Env, module: Address);
-    fn remove_module(e: Env, module: Address);
-    fn initialize_module(e: Env);
-    fn invoke(e: Env, module: Address, function_name: Symbol, args: Vec<Val>);
+    fn add_module(e: Env, module: Address) -> Result<(), Error>;
+    fn remove_module(e: Env, module: Address) -> Result<(), Error>;
+    fn invoke(
+        e: Env,
+        caller_module_id: Address,
+        target_exchange_id: Address,
+        function_name: Symbol,
+        args: Vec<Val>,
+    ) -> Result<(), Error>;
 }
