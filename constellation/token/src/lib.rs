@@ -17,5 +17,5 @@ mod module;
 mod test;
 pub mod traits;
 
-pub use crate::contract::{ConstellationToken, ConstellationTokenClient};
-pub use crate::traits::MyClient;
+// pub use crate::contract::{ConstellationToken, ConstellationTokenClient};
+// pub use crate::traits::MyClient;

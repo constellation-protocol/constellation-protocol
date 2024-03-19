@@ -4,8 +4,8 @@ pub use IExchange as Interface;
 pub use IExchangeClient as Client;
 
 #[contracttype]
-pub struct CallData { 
-    pub method: Symbol,
+pub struct CallData {
+    pub function: Symbol,
     pub data: Vec<Val>,
 }
 
