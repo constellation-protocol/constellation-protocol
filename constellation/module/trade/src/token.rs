@@ -7,19 +7,15 @@ pub(crate) mod constellation_token {
     );
 }
 
-/// Initializes the deployed constellation token
+/// Invokes the invoke function of the constellation token to trade / exchange tokens 
 ///
 /// # Arguments
 ///
 /// - `e` The runtime environment.
-/// - `token_address` Address of deployed constellation token
-/// - `decimal` Token decimal
-/// - `name` Name of token
-/// - `symbol` Symbol of token
-/// - `admin` Token administrator
-/// - `manager` Manages constellation token components and rebalancing
-/// - `components` Component tokens of this token
-/// - `amounts` Amounts of each componet token required to mint constellation token
+/// - `constellation_token_id` Target constellation token id 
+/// - `target_exchange_id` Target exchange identifier
+/// - `function` Name of function to invoke on target exchange
+/// - `data` Function arguments
 pub(crate) fn invoke(
     e: &Env,
     constellation_token_id: &Address,
