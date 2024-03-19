@@ -5,7 +5,7 @@
     "constellation/token",
     "constellation/factory", 
     "constellation/router",
-    "constellation/module/trade",
+    "constellation/module/trade", "constellation/module/registry",
  ]
 
 [workspace.dependencies]

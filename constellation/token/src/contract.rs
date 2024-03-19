@@ -305,6 +305,7 @@ impl token::Interface for ConstellationToken {
 #[contractimpl]
 impl Module for ConstellationToken {
     fn add_module(e: Env, module_id: Address) -> Result<(), Error> {
+        
         let manager = match read_manager(&e) {
             Some(manager) => {
                 manager.require_auth();
