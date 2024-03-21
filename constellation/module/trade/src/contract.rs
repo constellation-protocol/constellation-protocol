@@ -1,5 +1,4 @@
 use crate::error::Error;
-use crate::registry::get_adapter_id;
 use crate::token;
 use crate::traits::adapter::{self, CallData};
 use crate::{
@@ -7,7 +6,7 @@ use crate::{
         adapter::{read_adapter, remove_adapter, write_adapter},
         registry::{has_registry, read_registry, write_registry},
     },
-    validation::require_administrator,
+    validation::{require_adapter, require_administrator, require_registry},
 };
 use soroban_sdk::{contract, contractimpl, contracttype, panic_with_error, Address, Env};
 #[contract]
@@ -32,15 +31,9 @@ impl Trade {
         amount_out: i128,
         deadline: u64,
     ) -> Result<(), Error> {
-        let registry_id = match read_registry(&e) {
-            Some(registry_id) => registry_id,
-            None => return Err(Error::RequiresRegistry),
-        };
+        let registry_id = require_registry(&e)?;
 
-        let adapter_id = match get_adapter_id(&e, &registry_id, &exchange_id) {
-            Some(adapter_id) => adapter_id,
-            None => return Err(Error::RequiresExchangeAdapter),
-        };
+        let adapter_id = require_adapter(&e, &registry_id, &exchange_id)?;
 
         let exchange_adapter = adapter::Client::new(&e, &adapter_id);
         let call_data = exchange_adapter.get_call_data(
@@ -55,7 +48,6 @@ impl Trade {
         Self::_trade(&e, &constellation_token_id, &exchange_id, &call_data);
         Ok(())
     }
-
     fn _trade(
         e: &Env,
         constellation_token_id: &Address,
