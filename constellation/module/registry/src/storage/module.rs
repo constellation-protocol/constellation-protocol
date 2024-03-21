@@ -1,7 +1,6 @@
-
-use soroban_sdk::{panic_with_error, Address, Env};
-use crate::error::Error;
 use super::keys::DataKey;
+use crate::error::Error;
+use soroban_sdk::{panic_with_error, Address, Env};
 
 pub fn read_module(e: &Env, module_id: &Address) -> Option<Address> {
     let key = DataKey::Module(module_id.clone());
@@ -24,4 +23,4 @@ pub fn read_or_panic_unregistered_module(e: &Env, module_id: &Address) -> Addres
         None => panic_with_error!(e, Error::UnregisteredModule),
     };
     module
-}  
+}

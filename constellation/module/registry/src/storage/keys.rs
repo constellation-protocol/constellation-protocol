@@ -4,6 +4,6 @@ use soroban_sdk::{contracttype, Address};
 #[contracttype]
 pub enum DataKey {
     Admin,
-    Adapter(Address /*module_id*/, Address /* adapter_id*/ ),
-    Module(Address), 
+    Adapter(Address /*module_id*/, Address /* adapter_id*/),
+    Module(Address),
 }

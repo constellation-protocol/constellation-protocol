@@ -1,23 +1,27 @@
-use soroban_sdk::{contract, contractimpl, panic_with_error,contracttype, Address, Env};
-use crate::{storage::{
-    adapter::{read_adapter, read_or_panic_unregistered_adapter, remove_adapter, write_adapter}, admin::{has_administrator, read_administrator, write_administrator}}, validation::require_administrator};
-use crate::traits::adapter::{self, CallData};
-use crate::token;
 use crate::error::Error;
-
+use crate::registry::get_adapter_id;
+use crate::token;
+use crate::traits::adapter::{self, CallData};
+use crate::{
+    storage::{
+        adapter::{read_adapter, remove_adapter, write_adapter},
+        registry::{has_registry, read_registry, write_registry},
+    },
+    validation::require_administrator,
+};
+use soroban_sdk::{contract, contractimpl, contracttype, panic_with_error, Address, Env};
 #[contract]
 pub struct Trade {}
 
 #[contractimpl]
 impl Trade {
     pub fn initialize(e: Env, id: Address) {
-        if has_administrator(&e) {
+        if has_registry(&e) {
             panic_with_error!(&e, Error::AlreadyInitalized);
         }
 
-         write_administrator(&e, &id);
+        write_registry(&e, &id);
     }
-
     pub fn trade(
         e: Env,
         constellation_token_id: Address,
@@ -27,9 +31,16 @@ impl Trade {
         amount_in: i128,
         amount_out: i128,
         deadline: u64,
-    ) { 
+    ) -> Result<(), Error> {
+        let registry_id = match read_registry(&e) {
+            Some(registry_id) => registry_id,
+            None => return Err(Error::RequiresRegistry),
+        };
 
-        let adapter_id = read_or_panic_unregistered_adapter(&e, &exchange_id);
+        let adapter_id = match get_adapter_id(&e, &registry_id, &exchange_id) {
+            Some(adapter_id) => adapter_id,
+            None => return Err(Error::RequiresExchangeAdapter),
+        };
 
         let exchange_adapter = adapter::Client::new(&e, &adapter_id);
         let call_data = exchange_adapter.get_call_data(
@@ -42,17 +53,6 @@ impl Trade {
         );
 
         Self::_trade(&e, &constellation_token_id, &exchange_id, &call_data);
-    }
- 
-    pub fn add_adapter(e: Env,  exchange_id: Address, adapter_id: Address) -> Result<(), Error> {
-        require_administrator(&e)?;
-        write_adapter(&e, exchange_id, adapter_id);
-        Ok(())
-    }
-
-    pub fn remove_adapter(e: Env, exchange_id: Address) -> Result<(), Error> {
-        require_administrator(&e)?;
-        remove_adapter(&e, exchange_id);
         Ok(())
     }
 
