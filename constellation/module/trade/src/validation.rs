@@ -1,5 +1,5 @@
 use super::registry::get_adapter_id;
-use crate::registry::get_adapter_id;
+use crate::token::get_manager;
 use crate::{error::Error, storage::admin::read_administrator};
 use soroban_sdk::{contract, contractimpl, contracttype, panic_with_error, Address, Env};
 
@@ -30,3 +30,11 @@ pub fn require_adapter(
     };
     Ok(adapter_id)
 } 
+
+pub fn require_manager(e: &Env) -> Result<Address, Error> {
+    let manage_id = match get_manager(&e) {
+        Some(manage_id) => manage_id,
+        None => return Err(Error::RequiresManage),
+    };
+    Ok(manage_id)
+}

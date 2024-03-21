@@ -6,7 +6,7 @@ use crate::{
         adapter::{read_adapter, remove_adapter, write_adapter},
         registry::{has_registry, read_registry, write_registry},
     },
-    validation::{require_adapter, require_administrator, require_registry},
+    validation::{require_adapter, require_administrator, require_manager, require_registry},
 };
 use soroban_sdk::{contract, contractimpl, contracttype, panic_with_error, Address, Env};
 #[contract]
@@ -31,7 +31,10 @@ impl Trade {
         amount_out: i128,
         deadline: u64,
     ) -> Result<(), Error> {
-        let registry_id = require_registry(&e)?;
+          let manager = require_manager(&e)?;
+           manager.require_auth();
+       
+         let registry_id = require_registry(&e)?;
 
         let adapter_id = require_adapter(&e, &registry_id, &exchange_id)?;
 

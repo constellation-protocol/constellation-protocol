@@ -339,9 +339,11 @@ impl Module for ConstellationToken {
         args: Vec<Val>,
     ) -> Result<(), Error> {
         module_id.require_auth();
-        if is_registered(&e, module_id) == false {
-            return Err(Error::UnregisteredModule);
-        }
+        // TODO: VALIDATE module_id FROM REGISTRY
+
+        // if is_registered(&e, module_id) == false {
+        //     return Err(Error::UnregisteredModule);
+        // }
         e.invoke_contract::<Val>(&target_contract_id, &function, args);
         Ok(())
     }
