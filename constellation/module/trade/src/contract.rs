@@ -27,7 +27,7 @@ impl Trade {
         amount_in: i128,
         amount_out: i128,
         deadline: u64,
-    ) {
+    ) { 
 
         let adapter_id = read_or_panic_unregistered_adapter(&e, &exchange_id);
 
@@ -43,7 +43,7 @@ impl Trade {
 
         Self::_trade(&e, &constellation_token_id, &exchange_id, &call_data);
     }
-
+ 
     pub fn add_adapter(e: Env,  exchange_id: Address, adapter_id: Address) -> Result<(), Error> {
         require_administrator(&e)?;
         write_adapter(&e, exchange_id, adapter_id);

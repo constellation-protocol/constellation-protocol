@@ -17,9 +17,9 @@ impl Registry {
         }
          write_administrator(&e, &id);
     }
-    pub fn add_module(e: Env,  module_id: Address, exchange_id: Address) -> Result<(), Error> {
+    pub fn add_module(e: Env,  module_id: Address) -> Result<(), Error> {
         require_administrator(&e)?;
-        write_module(&e, exchange_id, module_id);
+        write_module(&e, module_id);
         Ok(())
     }
     pub fn  remove_module(e: Env, module_id: Address) -> Result<(), Error> {

@@ -7,4 +7,5 @@ pub enum Error {
     AlreadyInitalized = 101,
     UnregisteredModule = 102,
     RequiresAdmin = 103,
+    UnregisteredAdapter = 104,
 }
