@@ -2,9 +2,8 @@ use crate::error::Error;
 use crate::token;
 use crate::traits::adapter::{self, CallData};
 use crate::{
-    storage::{
-        adapter::{read_adapter, remove_adapter, write_adapter},
-        registry::{has_registry, read_registry, write_registry},
+    storage::{ 
+        registry::{has_registry, write_registry},
     },
     validation::{require_adapter, require_administrator, require_manager, require_registry},
 };
@@ -31,7 +30,7 @@ impl Trade {
         amount_out: i128,
         deadline: u64,
     ) -> Result<(), Error> {
-          let manager = require_manager(&e)?;
+          let manager = require_manager(&e, &constellation_token_id)?;
            manager.require_auth();
        
          let registry_id = require_registry(&e)?;

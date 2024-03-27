@@ -1,6 +1,6 @@
 use soroban_sdk::{Address, Env};
-
-use crate::{error::Error, storage_types::DataKey};
+use super::keys::DataKey;
+use crate::error::Error;
 
 pub fn read_module(e: &Env, id: Address) -> Option<bool> {
     let key = DataKey::Module(id);

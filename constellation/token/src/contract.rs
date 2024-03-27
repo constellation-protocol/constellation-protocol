@@ -8,13 +8,12 @@ use crate::component::{read_components, write_components};
 use crate::error::Error;
 use crate::error::{check_nonnegative_amount, check_zero_or_negative_amount};
 use crate::manager::{read_manager, write_manager};
-use crate::metadata::*;
-use crate::metadata::{read_decimal, read_name, read_symbol, write_metadata};
+use crate::metadata::*; 
 use crate::module::{is_registered, read_module, remove_module, write_module};
-use crate::storage_types::Component;
-use crate::storage_types::{
-    AllowanceDataKey, AllowanceValue, DataKey, INSTANCE_BUMP_AMOUNT, INSTANCE_LIFETIME_THRESHOLD,
+use crate::storage::types::{
+    Component, AllowanceValue, INSTANCE_BUMP_AMOUNT, INSTANCE_LIFETIME_THRESHOLD,
 };
+use crate::storage::keys::{AllowanceDataKey, DataKey};
 use crate::traits::{ConstellationTokenInterface, Module};
 use soroban_sdk::{
     contract, contractimpl, contracttype, log, panic_with_error, symbol_short, token,

@@ -1,5 +1,5 @@
-use crate::component::read_components;
-use crate::metadata::read_decimal;
+use crate::storage::component::read_components;
+use crate::storage::metadata::read_decimal;
 use soroban_sdk::{token, Address, Env};
 
 ///  Lock - Transfers each component token to constellation token

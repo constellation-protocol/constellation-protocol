@@ -1,6 +1,6 @@
 use super::registry::get_adapter_id;
 use crate::token::get_manager;
-use crate::{error::Error, storage::admin::read_administrator};
+use crate::{error::Error, storage::admin::read_administrator, storage::registry::read_registry};
 use soroban_sdk::{contract, contractimpl, contracttype, panic_with_error, Address, Env};
 
 pub fn require_administrator(e: &Env) -> Result<(), Error> {
@@ -31,8 +31,8 @@ pub fn require_adapter(
     Ok(adapter_id)
 } 
 
-pub fn require_manager(e: &Env) -> Result<Address, Error> {
-    let manage_id = match get_manager(&e) {
+pub fn require_manager(e: &Env, constellation_token_id: &Address) -> Result<Address, Error> {
+    let manage_id = match get_manager(&e, constellation_token_id) {
         Some(manage_id) => manage_id,
         None => return Err(Error::RequiresManage),
     };

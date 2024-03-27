@@ -9,4 +9,5 @@ pub enum Error {
     RequiresAdmin = 103,
     RequiresRegistry = 104,
     RequiresExchangeAdapter = 105,
+    RequiresManage = 106,
 }

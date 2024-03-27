@@ -1,7 +1,8 @@
 use crate::error::{check_zero_or_negative_amount, Error};
-use crate::storage_types::{
-    Component, DataKey, PERSISTENT_LEDGER_LIFE, PERSISTENT_LEDGER_TTL_THRESHOLD,
+use super::types::{
+    Component, PERSISTENT_LEDGER_LIFE, PERSISTENT_LEDGER_TTL_THRESHOLD,
 };
+use super::keys::DataKey;
 use soroban_sdk::{contracttype, panic_with_error, Address, Env, Vec};
 extern crate alloc;
 use alloc::vec;
