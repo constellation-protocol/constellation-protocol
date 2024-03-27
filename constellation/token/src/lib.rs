@@ -1,21 +1,14 @@
 #![no_std]
 mod contract;
+pub mod error;
 mod event;
-mod helpers; 
-mod storage;
+mod helpers;
 mod registry;
-pub mod error; 
+mod storage;
+mod validation;
 
 #[cfg(test)]
 mod test;
 
 pub mod traits;
-use storage::{
-    manager,
-    allowance,
-    component,
-    balance,
-    admin,
-    module,
-    metadata
-}; 
+use storage::{admin, allowance, balance, component, manager, metadata, module};

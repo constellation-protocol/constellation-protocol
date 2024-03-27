@@ -2,9 +2,7 @@ use crate::error::Error;
 use crate::token;
 use crate::traits::adapter::{self, CallData};
 use crate::{
-    storage::{ 
-        registry::{has_registry, write_registry},
-    },
+    storage::registry::{has_registry, write_registry},
     validation::{require_adapter, require_administrator, require_manager, require_registry},
 };
 use soroban_sdk::{contract, contractimpl, contracttype, panic_with_error, Address, Env};
@@ -30,10 +28,10 @@ impl Trade {
         amount_out: i128,
         deadline: u64,
     ) -> Result<(), Error> {
-          let manager = require_manager(&e, &constellation_token_id)?;
-           manager.require_auth();
-       
-         let registry_id = require_registry(&e)?;
+        let manager = require_manager(&e, &constellation_token_id)?;
+        manager.require_auth();
+
+        let registry_id = require_registry(&e)?;
 
         let adapter_id = require_adapter(&e, &registry_id, &exchange_id)?;
 

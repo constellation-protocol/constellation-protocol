@@ -24,7 +24,7 @@ pub(crate) fn get_adapter_id(
     client.get_adapter_id(&e.current_contract_address(), &target_exchange_id)
 }
 
-pub(crate) fn is_registered_module(e: &Env, module_id: &Address, registry_id: &Address,) -> bool  {
+pub(crate) fn is_registered_module(e: &Env, module_id: &Address, registry_id: &Address) -> bool {
     let client = registry::Client::new(&e, &registry_id);
     client.is_registered_module(&module_id)
 }

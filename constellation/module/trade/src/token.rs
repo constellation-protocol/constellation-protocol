@@ -32,10 +32,7 @@ pub(crate) fn invoke(
     );
 }
 
-pub(crate) fn get_manager(
-    e: &Env,
-    constellation_token_id: &Address,
-) -> Option<Address> {
+pub(crate) fn get_manager(e: &Env, constellation_token_id: &Address) -> Option<Address> {
     let client = constellation_token::Client::new(&e, &constellation_token_id);
     client.get_manager()
 }

@@ -1,5 +1,5 @@
-use soroban_sdk::{Address, Env};
 use super::keys::DataKey;
+use soroban_sdk::{Address, Env};
 
 pub fn has_manager(e: &Env) -> bool {
     let key = DataKey::Manager;

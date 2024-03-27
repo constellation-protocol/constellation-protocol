@@ -29,7 +29,7 @@ pub fn require_adapter(
         None => return Err(Error::RequiresExchangeAdapter),
     };
     Ok(adapter_id)
-} 
+}
 
 pub fn require_manager(e: &Env, constellation_token_id: &Address) -> Result<Address, Error> {
     let manage_id = match get_manager(&e, constellation_token_id) {

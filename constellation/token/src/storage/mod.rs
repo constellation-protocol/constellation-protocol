@@ -1,10 +1,10 @@
-pub mod manager;
-pub mod allowance;
-pub mod component;
-pub mod balance;
 pub mod admin;
-pub mod module;
-pub mod metadata;
-pub mod types;
+pub mod allowance;
+pub mod balance;
+pub mod component;
 pub mod keys;
+pub mod manager;
+pub mod metadata;
+pub mod module;
 pub mod registry;
+pub mod types;

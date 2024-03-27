@@ -8,17 +8,19 @@ use crate::component::{read_components, write_components};
 use crate::error::Error;
 use crate::error::{check_nonnegative_amount, check_zero_or_negative_amount};
 use crate::manager::{read_manager, write_manager};
-use crate::metadata::*; 
+use crate::metadata::*;
 use crate::module::{is_registered, read_module, remove_module, write_module};
-use crate::storage::types::{
-    Component, AllowanceValue, INSTANCE_BUMP_AMOUNT, INSTANCE_LIFETIME_THRESHOLD,
-};
 use crate::storage::keys::{AllowanceDataKey, DataKey};
+use crate::storage::types::{
+    AllowanceValue, Component, INSTANCE_BUMP_AMOUNT, INSTANCE_LIFETIME_THRESHOLD,
+};
 use crate::traits::{ConstellationTokenInterface, Module};
+use crate::validation::{require_administrator, require_manager, require_registry};
 use soroban_sdk::{
     contract, contractimpl, contracttype, log, panic_with_error, symbol_short, token,
     token::Interface, Address, Env, IntoVal, String, Symbol, Val, Vec,
 };
+
 use soroban_token_sdk::{metadata::TokenMetadata, TokenUtils};
 #[contract]
 pub struct ConstellationToken;
@@ -29,14 +31,7 @@ impl ConstellationToken {
     ///////// mutable functions //////////////////////////////////////
     //////////////////////////////////////////////////////////////////
     pub fn set_admin(e: Env, new_admin: Address) -> Result<(), Error> {
-        let admin = match read_administrator(&e) {
-            Some(admin) => {
-                admin.require_auth();
-                admin
-            }
-            None => return Err(Error::RequiresAdministrator),
-        };
-
+        let admin = require_administrator(&e)?;
         e.storage()
             .instance()
             .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
@@ -124,14 +119,7 @@ impl ConstellationTokenInterface for ConstellationToken {
     /// `to` Address should have balance of component tokens equal to or greater than amount * unit (component unit)
     fn mint(e: Env, to: Address, amount: i128) -> Result<(), Error> {
         check_zero_or_negative_amount(&e, amount);
-        let admin = match read_administrator(&e) {
-            Some(admin) => {
-                admin.require_auth();
-                admin
-            }
-            None => return Err(Error::RequiresAdministrator),
-        };
-
+        let admin = require_administrator(&e)?;
         e.storage()
             .instance()
             .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
@@ -157,27 +145,14 @@ impl ConstellationTokenInterface for ConstellationToken {
     /// `to` Address should have balance of component tokens equal to or greater than amount * unit (component unit)
     fn redeem(e: Env, to: Address, amount: i128) -> Result<(), Error> {
         check_zero_or_negative_amount(&e, amount);
-        let admin = match read_administrator(&e) {
-            Some(admin) => {
-                admin.require_auth();
-                admin
-            }
-            None => return Err(Error::RequiresAdministrator),
-        };
+        let admin = require_administrator(&e)?;
         redeem(&e, &to, amount);
         event::redeem(&e, admin, to, amount);
         Ok(())
     }
 
     fn set_manager(e: Env, new_manager: Address) -> Result<(), Error> {
-        let manager = match read_manager(&e) {
-            Some(manager) => {
-                manager.require_auth();
-                manager
-            }
-            None => return Err(Error::RequiresManager),
-        };
-
+        let manager =  require_manager(&e)?;
         e.storage()
             .instance()
             .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
@@ -304,29 +279,13 @@ impl token::Interface for ConstellationToken {
 #[contractimpl]
 impl Module for ConstellationToken {
     fn add_module(e: Env, module_id: Address) -> Result<(), Error> {
-        let manager = match read_manager(&e) {
-            Some(manager) => {
-                manager.require_auth();
-                manager
-            }
-            None => return Err(Error::RequiresManager),
-        };
-
+        let manager = require_manager(&e)?;
         write_module(&e, module_id);
-
         Ok(())
     }
     fn remove_module(e: Env, module_id: Address) -> Result<(), Error> {
-        let manager = match read_manager(&e) {
-            Some(manager) => {
-                manager.require_auth();
-                manager
-            }
-            None => return Err(Error::RequiresManager),
-        };
-
+        let manager = require_manager(&e)?;
         remove_module(&e, module_id);
-
         Ok(())
     }
 

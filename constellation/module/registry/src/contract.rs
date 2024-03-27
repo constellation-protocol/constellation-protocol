@@ -1,6 +1,6 @@
 use crate::storage::adapter::{read_adapter, remove_adapter as _remove_adapter, write_adapter};
 use crate::storage::admin::{has_administrator, write_administrator};
-use crate::storage::module::{remove_module as _remove_module, write_module, read_module};
+use crate::storage::module::{read_module, remove_module as _remove_module, write_module};
 use soroban_sdk::{contract, contractimpl, contracttype, panic_with_error, Address, Env};
 
 use crate::error::Error;
@@ -32,7 +32,7 @@ impl Registry {
             Some(_) => true,
             None => false,
         }
-    } 
+    }
     pub fn add_adapter(
         e: Env,
         module_id: Address,
