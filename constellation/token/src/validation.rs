@@ -3,13 +3,11 @@ use super::registry::get_adapter_id;
 use crate::error::Error;
 use crate::storage::{admin::read_administrator,manager::read_manager
     , registry::read_registry};
+use crate::registry::is_registered_module;
 
 pub fn require_administrator(e: &Env) -> Result<Address, Error> {
     let admin = match read_administrator(e) {
-        Some(admin) => {
-            admin.require_auth();
-            admin
-        }
+        Some(admin) => admin,
         None => return Err(Error::RequiresAdministrator),
     };
     Ok(admin)
@@ -25,11 +23,16 @@ pub fn require_registry(e: &Env) -> Result<Address, Error> {
 
 pub fn require_manager(e: &Env) -> Result<Address, Error> {
     let manage_id = match read_manager(&e) {
-        Some(manage_id) => {
-            manage_id.require_auth();
-            manage_id
-        },
+        Some(manage_id) =>  manage_id,
         None => return Err(Error::RequiresManage),
     };
     Ok(manage_id)
+}
+
+
+pub fn assert_registered_module(e: &Env, module_id: &Address, registry_id: &Address) -> Result<(),Error> {
+     if is_registered_module(e, module_id, registry_id) == false  {
+        return Err(Error::UnregisteredModule);
+    };
+    Ok(())
 }

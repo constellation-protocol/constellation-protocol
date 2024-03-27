@@ -15,7 +15,7 @@ use crate::storage::types::{
     AllowanceValue, Component, INSTANCE_BUMP_AMOUNT, INSTANCE_LIFETIME_THRESHOLD,
 };
 use crate::traits::{ConstellationTokenInterface, Module};
-use crate::validation::{require_administrator, require_manager, require_registry};
+use crate::validation::{require_administrator,assert_registered_module, require_manager, require_registry};
 use soroban_sdk::{
     contract, contractimpl, contracttype, log, panic_with_error, symbol_short, token,
     token::Interface, Address, Env, IntoVal, String, Symbol, Val, Vec,
@@ -32,6 +32,7 @@ impl ConstellationToken {
     //////////////////////////////////////////////////////////////////
     pub fn set_admin(e: Env, new_admin: Address) -> Result<(), Error> {
         let admin = require_administrator(&e)?;
+        admin.require_auth();
         e.storage()
             .instance()
             .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
@@ -120,6 +121,7 @@ impl ConstellationTokenInterface for ConstellationToken {
     fn mint(e: Env, to: Address, amount: i128) -> Result<(), Error> {
         check_zero_or_negative_amount(&e, amount);
         let admin = require_administrator(&e)?;
+        admin.require_auth();
         e.storage()
             .instance()
             .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
@@ -146,6 +148,7 @@ impl ConstellationTokenInterface for ConstellationToken {
     fn redeem(e: Env, to: Address, amount: i128) -> Result<(), Error> {
         check_zero_or_negative_amount(&e, amount);
         let admin = require_administrator(&e)?;
+        admin.require_auth();
         redeem(&e, &to, amount);
         event::redeem(&e, admin, to, amount);
         Ok(())
@@ -153,6 +156,7 @@ impl ConstellationTokenInterface for ConstellationToken {
 
     fn set_manager(e: Env, new_manager: Address) -> Result<(), Error> {
         let manager =  require_manager(&e)?;
+        manager.require_auth();
         e.storage()
             .instance()
             .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
@@ -280,11 +284,13 @@ impl token::Interface for ConstellationToken {
 impl Module for ConstellationToken {
     fn add_module(e: Env, module_id: Address) -> Result<(), Error> {
         let manager = require_manager(&e)?;
+        manager.require_auth();
         write_module(&e, module_id);
         Ok(())
     }
     fn remove_module(e: Env, module_id: Address) -> Result<(), Error> {
         let manager = require_manager(&e)?;
+        manager.require_auth();
         remove_module(&e, module_id);
         Ok(())
     }
@@ -297,11 +303,8 @@ impl Module for ConstellationToken {
         args: Vec<Val>,
     ) -> Result<(), Error> {
         module_id.require_auth();
-        // TODO: VALIDATE module_id FROM REGISTRY
-
-        // if is_registered(&e, module_id) == false {
-        //     return Err(Error::UnregisteredModule);
-        // }
+        let registry = require_registry(&e)?;
+        assert_registered_module(&e, &module_id, &registry);
         e.invoke_contract::<Val>(&target_contract_id, &function, args);
         Ok(())
     }
