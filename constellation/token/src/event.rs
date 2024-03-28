@@ -1,7 +1,7 @@
 use soroban_sdk::{contracttype, symbol_short, Address, Env, IntoVal, String, Symbol, Vec};
 use soroban_token_sdk::{metadata::TokenMetadata, TokenUtils};
 
-use crate::storage_types::Component;
+use crate::storage::types::Component;
 
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]

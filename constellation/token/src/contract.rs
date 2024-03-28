@@ -9,17 +9,18 @@ use crate::error::Error;
 use crate::error::{check_nonnegative_amount, check_zero_or_negative_amount};
 use crate::manager::{read_manager, write_manager};
 use crate::metadata::*;
-use crate::metadata::{read_decimal, read_name, read_symbol, write_metadata};
 use crate::module::{is_registered, read_module, remove_module, write_module};
-use crate::storage_types::Component;
-use crate::storage_types::{
-    AllowanceDataKey, AllowanceValue, DataKey, INSTANCE_BUMP_AMOUNT, INSTANCE_LIFETIME_THRESHOLD,
+use crate::storage::keys::{AllowanceDataKey, DataKey};
+use crate::storage::types::{
+    AllowanceValue, Component, INSTANCE_BUMP_AMOUNT, INSTANCE_LIFETIME_THRESHOLD,
 };
 use crate::traits::{ConstellationTokenInterface, Module};
+use crate::validation::{require_administrator,assert_registered_module, require_manager, require_registry};
 use soroban_sdk::{
     contract, contractimpl, contracttype, log, panic_with_error, symbol_short, token,
     token::Interface, Address, Env, IntoVal, String, Symbol, Val, Vec,
 };
+
 use soroban_token_sdk::{metadata::TokenMetadata, TokenUtils};
 #[contract]
 pub struct ConstellationToken;
@@ -30,14 +31,8 @@ impl ConstellationToken {
     ///////// mutable functions //////////////////////////////////////
     //////////////////////////////////////////////////////////////////
     pub fn set_admin(e: Env, new_admin: Address) -> Result<(), Error> {
-        let admin = match read_administrator(&e) {
-            Some(admin) => {
-                admin.require_auth();
-                admin
-            }
-            None => return Err(Error::RequiresAdministrator),
-        };
-
+        let admin = require_administrator(&e)?;
+        admin.require_auth();
         e.storage()
             .instance()
             .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
@@ -125,14 +120,8 @@ impl ConstellationTokenInterface for ConstellationToken {
     /// `to` Address should have balance of component tokens equal to or greater than amount * unit (component unit)
     fn mint(e: Env, to: Address, amount: i128) -> Result<(), Error> {
         check_zero_or_negative_amount(&e, amount);
-        let admin = match read_administrator(&e) {
-            Some(admin) => {
-                admin.require_auth();
-                admin
-            }
-            None => return Err(Error::RequiresAdministrator),
-        };
-
+        let admin = require_administrator(&e)?;
+        admin.require_auth();
         e.storage()
             .instance()
             .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
@@ -158,27 +147,16 @@ impl ConstellationTokenInterface for ConstellationToken {
     /// `to` Address should have balance of component tokens equal to or greater than amount * unit (component unit)
     fn redeem(e: Env, to: Address, amount: i128) -> Result<(), Error> {
         check_zero_or_negative_amount(&e, amount);
-        let admin = match read_administrator(&e) {
-            Some(admin) => {
-                admin.require_auth();
-                admin
-            }
-            None => return Err(Error::RequiresAdministrator),
-        };
+        let admin = require_administrator(&e)?;
+        admin.require_auth();
         redeem(&e, &to, amount);
         event::redeem(&e, admin, to, amount);
         Ok(())
     }
 
     fn set_manager(e: Env, new_manager: Address) -> Result<(), Error> {
-        let manager = match read_manager(&e) {
-            Some(manager) => {
-                manager.require_auth();
-                manager
-            }
-            None => return Err(Error::RequiresManager),
-        };
-
+        let manager =  require_manager(&e)?;
+        manager.require_auth();
         e.storage()
             .instance()
             .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
@@ -305,29 +283,15 @@ impl token::Interface for ConstellationToken {
 #[contractimpl]
 impl Module for ConstellationToken {
     fn add_module(e: Env, module_id: Address) -> Result<(), Error> {
-        let manager = match read_manager(&e) {
-            Some(manager) => {
-                manager.require_auth();
-                manager
-            }
-            None => return Err(Error::RequiresManager),
-        };
-
+        let manager = require_manager(&e)?;
+        manager.require_auth();
         write_module(&e, module_id);
-
         Ok(())
     }
     fn remove_module(e: Env, module_id: Address) -> Result<(), Error> {
-        let manager = match read_manager(&e) {
-            Some(manager) => {
-                manager.require_auth();
-                manager
-            }
-            None => return Err(Error::RequiresManager),
-        };
-
+        let manager = require_manager(&e)?;
+        manager.require_auth();
         remove_module(&e, module_id);
-
         Ok(())
     }
 
@@ -339,9 +303,8 @@ impl Module for ConstellationToken {
         args: Vec<Val>,
     ) -> Result<(), Error> {
         module_id.require_auth();
-        if is_registered(&e, module_id) == false {
-            return Err(Error::UnregisteredModule);
-        }
+        let registry = require_registry(&e)?;
+        assert_registered_module(&e, &module_id, &registry);
         e.invoke_contract::<Val>(&target_contract_id, &function, args);
         Ok(())
     }

@@ -1,8 +1,7 @@
+use super::keys::{AllowanceDataKey, DataKey};
+use super::types::AllowanceValue;
+use crate::error;
 use crate::error::Error;
-use crate::{
-    error,
-    storage_types::{AllowanceDataKey, AllowanceValue, DataKey},
-};
 use soroban_sdk::{panic_with_error, Address, Env};
 
 pub fn read_allowance(e: &Env, from: Address, spender: Address) -> AllowanceValue {

@@ -1,21 +1,14 @@
 #![no_std]
-
-mod admin;
-mod allowance;
-mod balance;
-mod metadata;
-mod storage_types;
-
-mod component;
 mod contract;
 pub mod error;
 mod event;
 mod helpers;
-mod manager;
-mod module;
+mod registry;
+mod storage;
+mod validation;
+
 #[cfg(test)]
 mod test;
-pub mod traits;
 
-// pub use crate::contract::{ConstellationToken, ConstellationTokenClient};
-// pub use crate::traits::MyClient;
+pub mod traits;
+use storage::{admin, allowance, balance, component, manager, metadata, module};

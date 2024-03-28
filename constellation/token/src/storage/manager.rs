@@ -1,6 +1,5 @@
+use super::keys::DataKey;
 use soroban_sdk::{Address, Env};
-
-use crate::storage_types::DataKey;
 
 pub fn has_manager(e: &Env) -> bool {
     let key = DataKey::Manager;
