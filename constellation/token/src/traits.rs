@@ -2,8 +2,8 @@ use soroban_sdk::{contractclient, contractspecfn, token::Interface, Address, Env
 use soroban_sdk::{Symbol, Val};
 
 use crate::error::Error;
-use crate::storage_types::AllowanceValue;
-use crate::storage_types::Component;
+use crate::storage::types::AllowanceValue;
+use crate::storage::types::Component;
 
 pub use ConstellationTokenInterfaceClient as MyClient;
 

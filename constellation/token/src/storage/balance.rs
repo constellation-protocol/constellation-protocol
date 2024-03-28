@@ -1,5 +1,6 @@
+use super::keys::DataKey;
+use super::types::{INSTANCE_BUMP_AMOUNT, INSTANCE_LIFETIME_THRESHOLD};
 use crate::error::Error;
-use crate::storage_types::{DataKey, INSTANCE_BUMP_AMOUNT, INSTANCE_LIFETIME_THRESHOLD};
 use soroban_sdk::{panic_with_error, Address, Env};
 
 pub fn read_balance(e: &Env, addr: Address) -> i128 {

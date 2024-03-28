@@ -7,13 +7,6 @@ pub(crate) const INSTANCE_LIFETIME_THRESHOLD: u32 = INSTANCE_BUMP_AMOUNT - DAY_I
 pub(crate) const PERSISTENT_LEDGER_LIFE: u32 = 90 * DAY_IN_LEDGERS; // ~90 days.
 pub(crate) const PERSISTENT_LEDGER_TTL_THRESHOLD: u32 = PERSISTENT_LEDGER_LIFE - DAY_IN_LEDGERS;
 
-#[derive(Clone)]
-#[contracttype]
-pub struct AllowanceDataKey {
-    pub from: Address,
-    pub spender: Address,
-}
-
 #[contracttype]
 pub struct AllowanceValue {
     pub amount: i128,
@@ -25,17 +18,4 @@ pub struct AllowanceValue {
 pub struct Component {
     pub address: Address,
     pub unit: i128,
-}
-
-#[derive(Clone)]
-#[contracttype]
-pub enum DataKey {
-    Allowance(AllowanceDataKey),
-    Balance(Address),
-    Nonce(Address),
-    State(Address),
-    Admin,
-    Components,
-    Manager,
-    Module(Address),
 }
