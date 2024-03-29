@@ -15,7 +15,9 @@ use crate::storage::types::{
     AllowanceValue, Component, INSTANCE_BUMP_AMOUNT, INSTANCE_LIFETIME_THRESHOLD,
 };
 use crate::traits::{ConstellationTokenInterface, Module};
-use crate::validation::{require_administrator,assert_registered_module, require_manager, require_registry};
+use crate::validation::{
+    assert_registered_module, require_administrator, require_manager, require_registry,
+};
 use soroban_sdk::{
     contract, contractimpl, contracttype, log, panic_with_error, symbol_short, token,
     token::Interface, Address, Env, IntoVal, String, Symbol, Val, Vec,
@@ -155,7 +157,7 @@ impl ConstellationTokenInterface for ConstellationToken {
     }
 
     fn set_manager(e: Env, new_manager: Address) -> Result<(), Error> {
-        let manager =  require_manager(&e)?;
+        let manager = require_manager(&e)?;
         manager.require_auth();
         e.storage()
             .instance()
@@ -285,6 +287,8 @@ impl Module for ConstellationToken {
     fn add_module(e: Env, module_id: Address) -> Result<(), Error> {
         let manager = require_manager(&e)?;
         manager.require_auth();
+        let registry = require_registry(&e)?;
+        assert_registered_module(&e, &module_id, &registry);
         write_module(&e, module_id);
         Ok(())
     }
@@ -298,14 +302,18 @@ impl Module for ConstellationToken {
     fn invoke(
         e: Env,
         module_id: Address,
-        target_contract_id: Address,
-        function: Symbol,
-        args: Vec<Val>,
+        exchange_id: Address,
+        calls: Vec<(Symbol, Vec<Val>)>,
     ) -> Result<(), Error> {
         module_id.require_auth();
         let registry = require_registry(&e)?;
         assert_registered_module(&e, &module_id, &registry);
-        e.invoke_contract::<Val>(&target_contract_id, &function, args);
+        // TODO: Check module is registered on the token
+        for call in calls {
+            let (function, args) = call;
+            e.invoke_contract::<Val>(&exchange_id, &function, args);
+        }
+
         Ok(())
     }
 }

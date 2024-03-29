@@ -1,5 +1,5 @@
 [package]
-name = "constellation-module-trade"
+name = "constellation-registry"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,11 +7,10 @@ edition = "2021"
 
 [lib]
 crate-type = ["cdylib"]
-doctest = false
+# doctest = false
 
 [dependencies] 
 soroban-sdk.workspace = true
-constellation-lib = { path = "../../lib"}
 
 [dev-dependencies]
 soroban-sdk = { version = "20.3.1", features = ["testutils"] }
@@ -30,3 +29,5 @@ lto = true
 [profile.release-with-logs]
 inherits = "release"
 debug-assertions = true
+
+

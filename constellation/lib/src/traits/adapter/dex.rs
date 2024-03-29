@@ -1,25 +1,21 @@
-use soroban_sdk::{contractclient, contractspecfn, contracttype, Address, Symbol, Val, Vec};
+use soroban_sdk::{contractclient, contractspecfn, contracttype, Address, Env, Symbol, Val, Vec};
 
 pub use IExchange as Interface;
 pub use IExchangeClient as Client;
-
-#[contracttype]
-pub struct CallData {
-    pub function: Symbol,
-    pub data: Vec<Val>,
-}
 
 #[contractclient(name = "IExchangeClient")]
 #[contractspecfn(name = "IExchangeSpec", export = false)]
 pub trait IExchange {
     fn get_call_data(
+        e: &Env,
         token_in_id: Address,
         token_out_id: Address,
         amount_in: i128,
         amount_out: i128,
         to: Address,
         deadline: u64,
-    ) -> CallData;
+        spender: Address,
+    ) -> Vec<(Symbol, Vec<Val>)>;
 }
 
 /// Spec contains the contract spec of iExchange contracts, including the general

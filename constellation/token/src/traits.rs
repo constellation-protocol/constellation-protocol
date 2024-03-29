@@ -36,8 +36,7 @@ pub trait Module {
     fn invoke(
         e: Env,
         caller_module_id: Address,
-        target_exchange_id: Address,
-        function_name: Symbol,
-        args: Vec<Val>,
+        exchange_id: Address,
+        calls: Vec<(Symbol, Vec<Val>)>,
     ) -> Result<(), Error>;
 }

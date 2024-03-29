@@ -5,9 +5,10 @@
     "constellation/token",
     "constellation/factory", 
     "constellation/router",
-    "constellation/module/registry",
+    "constellation/registry",
     "constellation/module/trade", 
- ]
+    "constellation/adapter/soroswap"
+ , "constellation/lib"]
 
 [workspace.dependencies]
 soroban-sdk = "20.3.1"
