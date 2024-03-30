@@ -77,7 +77,7 @@ impl dex::Interface for SoroswapAdapter {
         let mut sub_auth_vec = vec![&e];
         let pre_auth_entry = InvokerContractAuthEntry::Contract(SubContractInvocation {
             context: ContractContext {
-                contract: constellation_token_id.clone(),
+                contract: token_in.clone(),
                 fn_name: Symbol::new(&e, TRANSFER),
                 args: args.clone(),
             },
