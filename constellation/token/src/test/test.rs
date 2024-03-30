@@ -6,13 +6,16 @@ use std::println;
 
 use crate::error::Error;
 
+use super::soroswap::add_liquidity::add_liquidity_v2;
+use super::soroswap::{self, SoroswapRouterTest};
 use super::test_interface::initialize_token;
 use soroban_sdk::{
     symbol_short,
     testutils::{Address as _, AuthorizedFunction, AuthorizedInvocation},
-    vec, BytesN, Env, IntoVal, Vec,
+    vec, BytesN, Env, IntoVal, Symbol, Val, Vec,
 };
 use soroban_sdk::{Address, String};
+
 pub mod token {
     soroban_sdk::contractimport!(file = "../../libs/soroban_token_contract.wasm");
 }
@@ -24,6 +27,173 @@ fn create_constellation_token<'a>(e: &Env) -> ConstellationTokenClient<'a> {
     let contract_id = &e.register_contract(None, crate::contract::ConstellationToken {});
     let ct: ConstellationTokenClient<'_> = ConstellationTokenClient::new(e, contract_id);
     ct
+}
+
+#[test]
+fn swap_tokens_for_exact_tokens_amount_in_should() {
+    let test = SoroswapRouterTest::setup();
+    test.env.budget().reset_unlimited();
+    test.contract.initialize(&test.factory.address);
+    let deadline: u64 = test.env.ledger().timestamp() + 1000;
+
+    let mut path: Vec<Address> = Vec::new(&test.env);
+    path.push_back(test.token_0.address.clone());
+    path.push_back(test.token_1.address.clone());
+
+    let amount_0: i128 = 1_000_000_000;
+    let amount_1: i128 = 4_000_000_000;
+
+    // -->
+    let mut token_2 = soroswap::create_token_contract(&test.env, &test.admin);
+    let mut token_3 = soroswap::create_token_contract(&test.env, &test.admin);
+
+    if &token_3.address < &token_2.address {
+        std::mem::swap(&mut token_2, &mut token_3);
+    }
+    token_2.mint(&test.user, &10_000_000_000_000_000_000);
+    token_3.mint(&test.user, &10_000_000_000_000_000_000);
+
+    add_liquidity_v2(
+        &test,
+        &test.token_0.address,
+        &test.token_1.address,
+        &amount_0,
+        &amount_1,
+    );
+    add_liquidity_v2(
+        &test,
+        &token_2.address,
+        &token_3.address,
+        &amount_0,
+        &amount_1,
+    );
+
+    add_liquidity_v2(
+        &test,
+        &test.token_0.address,
+        &token_2.address,
+        &amount_0,
+        &amount_1,
+    );
+    add_liquidity_v2(
+        &test,
+        &test.token_0.address,
+        &token_3.address,
+        &amount_0,
+        &amount_1,
+    );
+
+    add_liquidity_v2(
+        &test,
+        &test.token_1.address,
+        &token_2.address,
+        &amount_0,
+        &amount_1,
+    );
+    add_liquidity_v2(
+        &test,
+        &test.token_1.address,
+        &token_3.address,
+        &amount_0,
+        &amount_1,
+    );
+    // -- //
+
+    let expected_amount_out = 5_000_000;
+    let amount_in_should = test
+        .contract
+        .router_get_amounts_in(&expected_amount_out, &path)
+        .get(0)
+        .unwrap();
+
+    let amounts = test.contract.swap_tokens_for_exact_tokens(
+        &expected_amount_out, //amount_out
+        &(amount_in_should),  // amount_in_max
+        &path,                // path
+        &test.user,           // to
+        &deadline,
+    ); // deadline
+
+    // let e = Env::default();
+    &test.env.mock_all_auths();
+    let components = vec![
+        &test.env,
+        test.token_0.address.clone(),
+        test.token_1.address.clone(),
+    ];
+    let amounts = vec![&test.env, 1, 1];
+    let decimal: u32 = 6;
+    let name = "c_token".into_val(&test.env);
+    let symbol = "token_symbol".into_val(&test.env);
+    let admin = Address::generate(&test.env);
+    let manager = Address::generate(&test.env);
+    let ct: ConstellationTokenClient<'_> = create_constellation_token(&test.env);
+
+    ct.initialize(
+        &decimal,
+        &components,
+        &amounts,
+        &name,
+        &symbol,
+        &admin,
+        &manager,
+    );
+
+    let mut args: Vec<Val> = vec![&test.env];
+    args.push_back(ct.address.into_val(&test.env));
+    args.push_back(test.contract.address.into_val(&test.env));
+    args.push_back(1_200_000i128.into_val(&test.env));
+    args.push_back(10000u32.into_val(&test.env));
+
+    ct.invoke(
+        &token_2.address,
+        &test.token_0.address,
+        &(Symbol::new(&test.env, "approve"), args),
+    );
+
+    assert_eq!(
+        test.token_0.allowance(&ct.address, &test.contract.address),
+        1_200_000i128
+    );
+
+    test.token_0
+        .approve(&test.user, &ct.address, &1_200_000i128, &1000u32);
+    test.token_1
+        .approve(&test.user, &ct.address, &1_200_000i128, &1000u32);
+    ct.mint(&test.user, &2i128);
+
+    test.token_0.approve(
+        &ct.address,
+        &test.contract.address,
+        &1_200_000i128,
+        &1000u32,
+    );
+
+    // trade
+    let path: Vec<Address> = vec![
+        &test.env,
+        test.token_0.address.clone(),
+        token_2.address.clone(),
+    ];
+    let res = &test.contract.router_get_amounts_out(&1_000_000i128, &path);
+    let amount_out = res.get(1).unwrap();
+    // assert_eq!(res.get(1).unwrap(), 1000000);
+    let mut args: Vec<Val> = vec![&test.env];
+    // args.push_back(test.token_0.address.into_val(&test.env));
+    // args.push_back(token_2.address.into_val(&test.env));
+
+    args.push_back(1_000_000i128.into_val(&test.env));
+    args.push_back(amount_out.into_val(&test.env));
+    args.push_back(path.into_val(&test.env));
+    args.push_back(ct.address.into_val(&test.env));
+    args.push_back(deadline.into_val(&test.env));
+    // solve auth before call
+
+    ct.invoke(
+        &token_2.address,
+        &test.contract.address,
+        &(Symbol::new(&test.env, "swap_exact_tokens_for_tokens"), args),
+    );
 }
 
 #[test]

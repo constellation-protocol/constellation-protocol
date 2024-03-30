@@ -302,17 +302,15 @@ impl Module for ConstellationToken {
     fn invoke(
         e: Env,
         module_id: Address,
-        exchange_id: Address,
-        calls: Vec<(Symbol, Vec<Val>)>,
+        target_id: Address,
+        call_data: (Symbol, Vec<Val>),
     ) -> Result<(), Error> {
-        module_id.require_auth();
-        let registry = require_registry(&e)?;
-        assert_registered_module(&e, &module_id, &registry);
+        //  module_id.require_auth();
+        //    let registry = require_registry(&e)?;
+        //   assert_registered_module(&e, &module_id, &registry);
         // TODO: Check module is registered on the token
-        for call in calls {
-            let (function, args) = call;
-            e.invoke_contract::<Val>(&exchange_id, &function, args);
-        }
+        let (function, args) = call_data;
+        e.invoke_contract::<Val>(&target_id, &function, args);
 
         Ok(())
     }

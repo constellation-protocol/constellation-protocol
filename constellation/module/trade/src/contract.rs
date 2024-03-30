@@ -30,6 +30,7 @@ impl Trade {
         amount_in: i128,
         amount_out: i128,
         deadline: u64,
+        expiration_ledger: u32,
     ) -> Result<(), Error> {
         let manager = require_manager(&e, &constellation_token_id)?;
         manager.require_auth();
@@ -41,24 +42,48 @@ impl Trade {
         let adapter_id = require_adapter(&e, &registry_id, &exchange_id)?;
 
         let exchange_adapter = dex::Client::new(&e, &adapter_id);
-        let call_data = exchange_adapter.get_call_data(
+
+        let approve_call_data = exchange_adapter.get_approve_call_data(
+            &constellation_token_id,
+            &exchange_id,
+            &amount_in,
+            &expiration_ledger,
+        );
+
+        Self::approve_exchange(
+            &e,
+            &constellation_token_id,
             &token_in_id,
-            &token_out_id,
+            &approve_call_data,
+        );
+
+        let swap_call_data = exchange_adapter.get_swap_call_data(
+            &token_in_id.clone(),
+            &token_out_id.clone(),
             &amount_in,
             &amount_out,
-            &constellation_token_id,
+            &constellation_token_id.clone(),
             &deadline,
-            &exchange_id,
         );
-        Self::_trade(&e, &constellation_token_id, &exchange_id, &call_data);
+
+        Self::execute_trade(&e, &constellation_token_id, &exchange_id, &swap_call_data);
         Ok(())
     }
-    fn _trade(
+
+    fn approve_exchange(
+        e: &Env,
+        constellation_token_id: &Address,
+        token_id: &Address,
+        call_data: &(Symbol /* function */, Vec<Val>),
+    ) {
+        token::invoke(&e, constellation_token_id, token_id, &call_data);
+    }
+    fn execute_trade(
         e: &Env,
         constellation_token_id: &Address,
         exchange_id: &Address,
-        calls: &Vec<(Symbol /* function */, Vec<Val>)>,
+        call_data: &(Symbol /* function */, Vec<Val>),
     ) {
-        token::invoke(&e, constellation_token_id, exchange_id, &calls);
+        token::invoke(&e, constellation_token_id, exchange_id, &call_data);
     }
 }

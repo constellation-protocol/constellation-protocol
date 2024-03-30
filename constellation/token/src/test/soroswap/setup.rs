@@ -66,6 +66,7 @@ impl<'a> SoroswapRouterTest<'a> {
 
         let mut token_0 = create_token_contract(&env, &admin);
         let mut token_1 = create_token_contract(&env, &admin);
+
         if &token_1.address < &token_0.address {
             std::mem::swap(&mut token_0, &mut token_1);
         }

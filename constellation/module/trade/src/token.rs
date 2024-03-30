@@ -17,11 +17,11 @@ pub(crate) mod constellation_token {
 pub(crate) fn invoke(
     e: &Env,
     constellation_token_id: &Address,
-    exchange_id: &Address,
-    calls: &Vec<(Symbol, Vec<Val>)>,
+    target_contract_id: &Address,
+    call_data: &(Symbol, Vec<Val>),
 ) {
     let client = constellation_token::Client::new(&e, &constellation_token_id);
-    client.invoke(&e.current_contract_address(), exchange_id, calls);
+    client.invoke(&e.current_contract_address(), target_contract_id, call_data);
 }
 
 pub(crate) fn get_manager(e: &Env, constellation_token_id: &Address) -> Option<Address> {

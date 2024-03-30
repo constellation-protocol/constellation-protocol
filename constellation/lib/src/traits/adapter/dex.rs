@@ -1,4 +1,7 @@
-use soroban_sdk::{contractclient, contractspecfn, contracttype, Address, Env, Symbol, Val, Vec};
+use soroban_sdk::{
+    auth::InvokerContractAuthEntry, contractclient, contractspecfn, contracttype, Address, Env,
+    Symbol, Val, Vec,
+};
 
 pub use IExchange as Interface;
 pub use IExchangeClient as Client;
@@ -6,7 +9,7 @@ pub use IExchangeClient as Client;
 #[contractclient(name = "IExchangeClient")]
 #[contractspecfn(name = "IExchangeSpec", export = false)]
 pub trait IExchange {
-    fn get_call_data(
+    fn get_swap_call_data(
         e: &Env,
         token_in_id: Address,
         token_out_id: Address,
@@ -14,8 +17,23 @@ pub trait IExchange {
         amount_out: i128,
         to: Address,
         deadline: u64,
+    ) -> (Symbol, Vec<Val>);
+
+    fn get_approve_call_data(
+        e: &Env,
+        from: Address,
         spender: Address,
-    ) -> Vec<(Symbol, Vec<Val>)>;
+        amount: i128,
+        expiration_ledger: u32,
+    ) -> (Symbol, Vec<Val>);
+
+    fn create_sub_auth(
+        e: &Env,
+        amount_in: i128,
+        token_in: Address,
+        token_out: Address,
+        constellation_token_id: Address,
+    ) -> Vec<InvokerContractAuthEntry> ;
 }
 
 /// Spec contains the contract spec of iExchange contracts, including the general
@@ -24,7 +42,11 @@ pub trait IExchange {
 #[doc(hidden)]
 pub struct IExchangeSpec;
 
-pub(crate) const SPEC_XDR_INPUT: &[&[u8]] = &[&IExchangeSpec::spec_xdr_get_call_data()];
+pub(crate) const SPEC_XDR_INPUT: &[&[u8]] = &[
+    &IExchangeSpec::spec_xdr_get_swap_call_data(),
+    &IExchangeSpec::spec_xdr_get_approve_call_data(),
+    &IExchangeSpec::spec_xdr_create_sub_auth(),
+];
 
 pub(crate) const SPEC_XDR_LEN: usize = 5336;
 
