@@ -1,28 +1,32 @@
+use crate::error::Error;
+use crate::require::{require_factory, require_pair};
+use crate::storage::{factory, router};
+use constellation_lib::traits::adapter::dex::IExchange;
+use constellation_lib::traits::adapter::{self, dex};
 use soroban_sdk::IntoVal;
 use soroban_sdk::{
     auth::{ContractContext, InvokerContractAuthEntry, SubContractInvocation},
-    contract, contractimpl, vec, Address, BytesN, Env, String, Symbol, Val, Vec,
+    contract, contractimpl, panic_with_error, vec, Address, BytesN, Env, String, Symbol, Val, Vec,
 };
-use crate::require::{require_factory, require_pair};
-use crate::storage::{factory, router};
-use constellation_lib::traits::adapter::{self, dex};
-
 static SWAP_EXACT_TOKENS_FOR_TOKENS: &'static str = "swap_exact_tokens_for_tokens";
 static APPROVE: &'static str = "approve";
 static TRANSFER: &'static str = "transfer";
+
 #[contract]
 pub struct SoroswapAdapter;
 
+#[contractimpl]
 impl SoroswapAdapter {
     pub fn initialize(e: Env, router_id: Address, factory_id: Address) {
         if router::has_router(&e) {
-            panic!("already initialized");
+            panic_with_error!(&e, Error::AlreadyInitalized);
         }
         router::write_router(&e, &router_id);
         factory::write_factory(&e, &factory_id);
     }
 }
 
+#[contractimpl]
 impl dex::Interface for SoroswapAdapter {
     fn get_approve_call_data(
         e: &Env,
@@ -63,12 +67,12 @@ impl dex::Interface for SoroswapAdapter {
         token_in: Address,
         token_out: Address,
         constellation_token_id: Address,
-    ) -> Vec<InvokerContractAuthEntry>  {
-        let factory =  require_factory(e);
+    ) -> Vec<InvokerContractAuthEntry> {
+        let factory = require_factory(e);
 
         let pair = require_pair(e, factory.clone(), token_in.clone(), token_out.clone());
 
-        // transfer arguments - used in soroswap router 
+        // transfer arguments - used in soroswap router
         let mut args: Vec<Val> = vec![e];
         args.push_back(constellation_token_id.into_val(e));
         args.push_back(pair.into_val(e));
@@ -84,7 +88,7 @@ impl dex::Interface for SoroswapAdapter {
             sub_invocations: vec![&e],
         });
         sub_auth_vec.push_back(pre_auth_entry);
-       
-       sub_auth_vec
+
+        sub_auth_vec
     }
 }

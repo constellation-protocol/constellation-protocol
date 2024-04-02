@@ -18,6 +18,7 @@ use crate::traits::{ConstellationTokenInterface, Module};
 use crate::validation::{
     assert_registered_module, require_administrator, require_manager, require_registry,
 };
+use soroban_sdk::auth::InvokerContractAuthEntry;
 use soroban_sdk::{
     contract, contractimpl, contracttype, log, panic_with_error, symbol_short, token,
     token::Interface, Address, Env, IntoVal, String, Symbol, Val, Vec,
@@ -304,12 +305,14 @@ impl Module for ConstellationToken {
         module_id: Address,
         target_id: Address,
         call_data: (Symbol, Vec<Val>),
+        auth_entries: Vec<InvokerContractAuthEntry>,
     ) -> Result<(), Error> {
         //  module_id.require_auth();
         //    let registry = require_registry(&e)?;
         //   assert_registered_module(&e, &module_id, &registry);
         // TODO: Check module is registered on the token
         let (function, args) = call_data;
+        e.authorize_as_current_contract(auth_entries);
         e.invoke_contract::<Val>(&target_id, &function, args);
 
         Ok(())

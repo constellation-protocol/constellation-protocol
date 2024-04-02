@@ -4,5 +4,6 @@ use soroban_sdk::{contracterror, contractimpl};
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
 #[repr(u32)]
 pub enum Error {
-    RequiresFactory = 500
+    AlreadyInitalized = 502,
+    RequiresFactory = 550,
 }

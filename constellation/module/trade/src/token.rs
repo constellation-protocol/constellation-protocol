@@ -1,5 +1,6 @@
-use soroban_sdk::{Address, Env, String, Symbol, Val, Vec};
+use soroban_sdk::{auth::InvokerContractAuthEntry, Address, Env, String, Symbol, Val, Vec};
 pub(crate) mod constellation_token {
+    use soroban_sdk::auth::InvokerContractAuthEntry;
     soroban_sdk::contractimport!(
         file = "../../../target/wasm32-unknown-unknown/release/constellation_token.wasm"
     );
@@ -19,9 +20,15 @@ pub(crate) fn invoke(
     constellation_token_id: &Address,
     target_contract_id: &Address,
     call_data: &(Symbol, Vec<Val>),
+    auth_entries: &Vec<InvokerContractAuthEntry>,
 ) {
     let client = constellation_token::Client::new(&e, &constellation_token_id);
-    client.invoke(&e.current_contract_address(), target_contract_id, call_data);
+    client.invoke(
+        &e.current_contract_address(),
+        target_contract_id,
+        call_data,
+        auth_entries,
+    );
 }
 
 pub(crate) fn get_manager(e: &Env, constellation_token_id: &Address) -> Option<Address> {

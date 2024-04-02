@@ -9,6 +9,7 @@ use crate::error::Error;
 use super::soroswap::add_liquidity::add_liquidity_v2;
 use super::soroswap::{self, SoroswapRouterTest};
 use super::test_interface::initialize_token;
+use constellation_lib::traits::adapter::dex::Interface;
 use soroban_sdk::{
     symbol_short,
     testutils::{Address as _, AuthorizedFunction, AuthorizedInvocation},
@@ -19,6 +20,13 @@ use soroban_sdk::{Address, String};
 pub mod token {
     soroban_sdk::contractimport!(file = "../../libs/soroban_token_contract.wasm");
 }
+
+pub mod adapter {
+    use soroban_sdk::auth::InvokerContractAuthEntry;
+    soroban_sdk::contractimport!(
+        file = "../../target/wasm32-unknown-unknown/release/constellation_adapter_soroswap.wasm"
+    );
+}
 fn create_token_contract<'a>(e: &Env, admin: &Address) -> token::Client<'a> {
     token::Client::new(e, &e.register_stellar_asset_contract(admin.clone()))
 }
@@ -27,6 +35,10 @@ fn create_constellation_token<'a>(e: &Env) -> ConstellationTokenClient<'a> {
     let contract_id = &e.register_contract(None, crate::contract::ConstellationToken {});
     let ct: ConstellationTokenClient<'_> = ConstellationTokenClient::new(e, contract_id);
     ct
+}
+
+fn create_adapter<'a>(e: &Env, router: &Address, factory: &Address) -> adapter::Client<'a> {
+    adapter::Client::new(e, &e.register_contract_wasm(None, adapter::WASM))
 }
 
 #[test]
@@ -121,7 +133,7 @@ fn swap_tokens_for_exact_tokens_amount_in_should() {
         test.token_0.address.clone(),
         test.token_1.address.clone(),
     ];
-    let amounts = vec![&test.env, 1, 1];
+    let amounts = vec![&test.env, 1000, 1000];
     let decimal: u32 = 6;
     let name = "c_token".into_val(&test.env);
     let symbol = "token_symbol".into_val(&test.env);
@@ -139,35 +151,31 @@ fn swap_tokens_for_exact_tokens_amount_in_should() {
         &manager,
     );
 
+    let allowance = 10_200_000i128;
+
     let mut args: Vec<Val> = vec![&test.env];
     args.push_back(ct.address.into_val(&test.env));
     args.push_back(test.contract.address.into_val(&test.env));
-    args.push_back(1_200_000i128.into_val(&test.env));
+    args.push_back(allowance.into_val(&test.env));
     args.push_back(10000u32.into_val(&test.env));
 
     ct.invoke(
         &token_2.address,
         &test.token_0.address,
         &(Symbol::new(&test.env, "approve"), args),
+        &vec![&test.env],
     );
 
     assert_eq!(
         test.token_0.allowance(&ct.address, &test.contract.address),
-        1_200_000i128
+        allowance
     );
 
     test.token_0
         .approve(&test.user, &ct.address, &1_200_000i128, &1000u32);
     test.token_1
         .approve(&test.user, &ct.address, &1_200_000i128, &1000u32);
-    ct.mint(&test.user, &2i128);
-
-    test.token_0.approve(
-        &ct.address,
-        &test.contract.address,
-        &1_200_000i128,
-        &1000u32,
-    );
+    ct.mint(&test.user, &10i128);
 
     // trade
     let path: Vec<Address> = vec![
@@ -175,25 +183,35 @@ fn swap_tokens_for_exact_tokens_amount_in_should() {
         test.token_0.address.clone(),
         token_2.address.clone(),
     ];
-    let res = &test.contract.router_get_amounts_out(&1_000_000i128, &path);
+    let amount_in = 1000; //1_000_000i128;
+    let res = &test.contract.router_get_amounts_out(&amount_in, &path);
     let amount_out = res.get(1).unwrap();
-    // assert_eq!(res.get(1).unwrap(), 1000000);
-    let mut args: Vec<Val> = vec![&test.env];
-    // args.push_back(test.token_0.address.into_val(&test.env));
-    // args.push_back(token_2.address.into_val(&test.env));
 
-    args.push_back(1_000_000i128.into_val(&test.env));
+    let mut args: Vec<Val> = vec![&test.env];
+    args.push_back(amount_in.into_val(&test.env));
     args.push_back(amount_out.into_val(&test.env));
     args.push_back(path.into_val(&test.env));
     args.push_back(ct.address.into_val(&test.env));
     args.push_back(deadline.into_val(&test.env));
-    // solve auth before call
 
+    let adapter = create_adapter(&test.env, &test.contract.address, &test.factory.address);
+    adapter.initialize(&test.contract.address, &test.factory.address);
+    let auth_entries = adapter.create_sub_auth(
+        &amount_in,
+        &test.token_0.address.clone(),
+        &token_2.address,
+        &ct.address,
+    );
+    let bal = token_2.balance(&ct.address);
+    assert_eq!(bal, 0);
     ct.invoke(
         &token_2.address,
         &test.contract.address,
         &(Symbol::new(&test.env, "swap_exact_tokens_for_tokens"), args),
+        &auth_entries,
     );
+    let bal = token_2.balance(&ct.address);
+    assert_eq!(bal, amount_out);
 }
 
 #[test]

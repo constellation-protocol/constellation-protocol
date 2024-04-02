@@ -1,3 +1,4 @@
+use soroban_sdk::auth::InvokerContractAuthEntry;
 use soroban_sdk::{contractclient, contractspecfn, token::Interface, Address, Env, String, Vec};
 use soroban_sdk::{Symbol, Val};
 
@@ -38,5 +39,6 @@ pub trait Module {
         caller_module_id: Address,
         target_id: Address,
         call_data: (Symbol, Vec<Val>),
+        auth_entries: Vec<InvokerContractAuthEntry>,
     ) -> Result<(), Error>;
 }

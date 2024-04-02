@@ -5,6 +5,7 @@ use crate::{
     validation::{require_adapter, require_administrator, require_manager, require_registry},
 };
 use constellation_lib::traits::adapter::dex;
+use soroban_sdk::auth::InvokerContractAuthEntry;
 use soroban_sdk::vec;
 use soroban_sdk::{
     contract, contractimpl, contracttype, panic_with_error, Address, Env, Symbol, Val, Vec,
@@ -14,12 +15,12 @@ pub struct Trade {}
 
 #[contractimpl]
 impl Trade {
-    pub fn initialize(e: Env, id: Address) {
+    pub fn initialize(e: Env, registry_id: Address) {
         if has_registry(&e) {
             panic_with_error!(&e, Error::AlreadyInitalized);
         }
 
-        write_registry(&e, &id);
+        write_registry(&e, &registry_id);
     }
     pub fn trade(
         e: Env,
@@ -66,7 +67,24 @@ impl Trade {
             &deadline,
         );
 
-        Self::execute_trade(&e, &constellation_token_id, &exchange_id, &swap_call_data);
+        let auth_entries = exchange_adapter.create_sub_auth(
+            &amount_in,
+            &token_in_id,
+            &token_out_id,
+            &constellation_token_id,
+        );
+
+        Self::execute_trade(
+            &e,
+            &constellation_token_id,
+            &exchange_id,
+            &swap_call_data,
+            &auth_entries,
+        );
+
+        // instantiate token in and token out
+        // get balance and calcutate new units
+
         Ok(())
     }
 
@@ -76,14 +94,22 @@ impl Trade {
         token_id: &Address,
         call_data: &(Symbol /* function */, Vec<Val>),
     ) {
-        token::invoke(&e, constellation_token_id, token_id, &call_data);
+        token::invoke(&e, constellation_token_id, token_id, &call_data, &vec![e]);
     }
     fn execute_trade(
         e: &Env,
         constellation_token_id: &Address,
         exchange_id: &Address,
         call_data: &(Symbol /* function */, Vec<Val>),
+
+        auth_entries: &Vec<InvokerContractAuthEntry>,
     ) {
-        token::invoke(&e, constellation_token_id, exchange_id, &call_data);
+        token::invoke(
+            &e,
+            constellation_token_id,
+            exchange_id,
+            &call_data,
+            auth_entries,
+        );
     }
 }

@@ -33,7 +33,7 @@ pub trait IExchange {
         token_in: Address,
         token_out: Address,
         constellation_token_id: Address,
-    ) -> Vec<InvokerContractAuthEntry> ;
+    ) -> Vec<InvokerContractAuthEntry>;
 }
 
 /// Spec contains the contract spec of iExchange contracts, including the general

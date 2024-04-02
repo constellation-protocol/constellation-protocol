@@ -5,3 +5,6 @@ mod registry;
 mod storage;
 mod token;
 mod validation;
+
+#[cfg(test)]
+mod test;
