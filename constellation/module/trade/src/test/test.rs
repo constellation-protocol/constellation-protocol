@@ -30,9 +30,9 @@ fn swap_tokens_for_exact_tokens_amount_in_should() {
     let amount_in = 5000i128;
     let res = test.router.router_get_amounts_out(&amount_in, path);   
     let amount_out = res.get(1).unwrap();
- 
-     test.trade_module.trade(&test.constellation_token.address, &test.router.address, &test.tokens.0.address, &test.tokens.2.address, &amount_in, &amount_out, &deadline, &expiration_ledger)
-    
+    assert_eq!(test.tokens.2.balance(&test.constellation_token.address), 0);
+    test.trade_module.trade(&test.constellation_token.address, &test.router.address, &test.tokens.0.address, &test.tokens.2.address, &amount_in, &amount_out, &deadline, &expiration_ledger);
+    assert_eq!(test.tokens.2.balance(&test.constellation_token.address), amount_out);
     //test.env.budget().reset_unlimited();
     //let deadline: u64 = test.env.ledger().timestamp() + 1000;
 
