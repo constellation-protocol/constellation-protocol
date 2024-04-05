@@ -26,6 +26,8 @@ pub trait ConstellationTokenInterface {
     fn redeem(e: Env, from: Address, amount: i128) -> Result<(), Error>;
     fn set_manager(e: Env, new_manager: Address) -> Result<(), Error>;
 
+    fn set_registry(e: Env, registry: Address) -> Result<(), Error>;
+
     fn get_components(e: Env) -> Vec<Component>;
 
     fn get_manager(e: Env) -> Option<Address>;

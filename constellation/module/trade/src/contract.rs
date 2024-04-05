@@ -38,11 +38,11 @@ impl Trade {
 
         let mut args: Vec<Val> = vec![&e];
 
-        let registry_id = require_registry(&e)?;
+       let registry_id = require_registry(&e)?;
 
         let adapter_id = require_adapter(&e, &registry_id, &exchange_id)?;
 
-        let exchange_adapter = dex::Client::new(&e, &adapter_id);
+         let exchange_adapter = dex::Client::new(&e, &adapter_id);
 
         let approve_call_data = exchange_adapter.get_approve_call_data(
             &constellation_token_id,

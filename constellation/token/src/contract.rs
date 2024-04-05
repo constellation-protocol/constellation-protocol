@@ -2,6 +2,7 @@ use super::event;
 use super::helpers::{lock, redeem};
 use crate::admin::read_administrator;
 use crate::admin::{has_administrator, write_administrator};
+use crate::storage::registry::write_registry;
 use crate::allowance::*;
 use crate::balance::*;
 use crate::component::{read_components, write_components};
@@ -169,6 +170,20 @@ impl ConstellationTokenInterface for ConstellationToken {
         Ok(())
     }
 
+    fn set_registry(e: Env, registry: Address) -> Result<(), Error> {
+        let admin = require_administrator(&e)?;
+        admin.require_auth();
+        e.storage()
+            .instance()
+            .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
+
+        write_registry(&e, &registry);
+ 
+       event::set_registry(&e, registry);
+
+        Ok(())
+    }
+
     //////////////////////////////////////////////////////////////////
     ///////// Read Only functions ////////////////////////////////////
     //////////////////////////////////////////////////////////////////
@@ -307,14 +322,13 @@ impl Module for ConstellationToken {
         call_data: (Symbol, Vec<Val>),
         auth_entries: Vec<InvokerContractAuthEntry>,
     ) -> Result<(), Error> {
-        //  module_id.require_auth();
-        //    let registry = require_registry(&e)?;
-        //   assert_registered_module(&e, &module_id, &registry);
-        // TODO: Check module is registered on the token
+         module_id.require_auth();
+        let registry = require_registry(&e)?;
+         assert_registered_module(&e, &module_id, &registry);
+        // // TODO: Check module is registered on the token
         let (function, args) = call_data;
         e.authorize_as_current_contract(auth_entries);
         e.invoke_contract::<Val>(&target_id, &function, args);
-
         Ok(())
     }
 }

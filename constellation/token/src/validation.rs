@@ -1,4 +1,4 @@
-use super::registry::get_adapter_id;
+// use super::registry::get_adapter_id;
 use crate::error::Error;
 use crate::registry::is_registered_module;
 use crate::storage::{admin::read_administrator, manager::read_manager, registry::read_registry};

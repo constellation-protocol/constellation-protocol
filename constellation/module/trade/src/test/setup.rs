@@ -19,6 +19,7 @@ pub type Tokens<'a> = (
 pub struct TradeTest<'a> {
     pub env: Env,
     pub user: Address,
+    pub admin: Address,
     pub adapter: TradeAdapterClient<'a>,
     pub registry: RegistryClient<'a>,
     pub router: SoroswapRouterClient<'a>,
@@ -41,9 +42,13 @@ impl<'a> TradeTest<'a> {
         let registry = create_registry(&env);
         let trade_module = create_trade_module(&env);
 
-        router.initialize(&factory.address); 
+        // constellation_token.initialize(decimal, components, units, name, symbol, &admin, manager);
 
+        adapter.initialize(&router.address, &factory.address);
+        router.initialize(&factory.address); 
+        registry.initialize(&admin);
         factory.initialize(&admin, &pair_contract_wasm(&env));
+        trade_module.initialize(&registry.address);
 
         let mut tokens: Tokens = (
             create_token_contract(&env, &admin),
@@ -61,7 +66,7 @@ impl<'a> TradeTest<'a> {
         tokens.2.mint(&user, &10_000_000_000_000_000_000);
         tokens.3.mint(&user, &10_000_000_000_000_000_000); 
 
-        let amount_0: i128 = 1_000_000_000;
+        let amount_0: i128 = 4_000_000_000;
         let amount_1: i128 = 4_000_000_000;
 
         add_liquidity(
@@ -109,6 +114,7 @@ impl<'a> TradeTest<'a> {
         Self {
             env,
             user,
+            admin,
             adapter,
             router,
             registry,

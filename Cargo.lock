@@ -192,6 +192,7 @@ dependencies = [
  "constellation-lib",
  "soroban-env-common",
  "soroban-sdk",
+ "soroswap-library",
 ]
 
 [[package]]
