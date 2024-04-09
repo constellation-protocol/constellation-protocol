@@ -10,11 +10,11 @@ pub struct Registry {}
 
 #[contractimpl]
 impl Registry {
-    pub fn initialize(e: Env, id: Address) {
+    pub fn initialize(e: Env, adminitrator_id: Address) {
         if has_administrator(&e) {
             panic_with_error!(&e, Error::AlreadyInitalized);
         }
-        write_administrator(&e, &id);
+        write_administrator(&e, &adminitrator_id);
     }
     pub fn add_module(e: Env, module_id: Address) -> Result<(), Error> {
         require_administrator(&e)?;

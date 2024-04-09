@@ -2,7 +2,7 @@ use soroban_sdk::{Address, Env, String, Symbol, Val, Vec};
 
 pub(crate) mod registry {
     soroban_sdk::contractimport!(
-        file = "../../../target/wasm32-unknown-unknown/release/constellation_module_registry.wasm"
+        file = "../../../target/wasm32-unknown-unknown/release/constellation_registry.wasm"
     );
 }
 

@@ -2,6 +2,7 @@ use super::event;
 use super::helpers::{lock, redeem};
 use crate::admin::read_administrator;
 use crate::admin::{has_administrator, write_administrator};
+use crate::storage::registry::write_registry;
 use crate::allowance::*;
 use crate::balance::*;
 use crate::component::{read_components, write_components};
@@ -15,7 +16,10 @@ use crate::storage::types::{
     AllowanceValue, Component, INSTANCE_BUMP_AMOUNT, INSTANCE_LIFETIME_THRESHOLD,
 };
 use crate::traits::{ConstellationTokenInterface, Module};
-use crate::validation::{require_administrator,assert_registered_module, require_manager, require_registry};
+use crate::validation::{
+    assert_registered_module, require_administrator, require_manager, require_registry,
+};
+use soroban_sdk::auth::InvokerContractAuthEntry;
 use soroban_sdk::{
     contract, contractimpl, contracttype, log, panic_with_error, symbol_short, token,
     token::Interface, Address, Env, IntoVal, String, Symbol, Val, Vec,
@@ -155,7 +159,7 @@ impl ConstellationTokenInterface for ConstellationToken {
     }
 
     fn set_manager(e: Env, new_manager: Address) -> Result<(), Error> {
-        let manager =  require_manager(&e)?;
+        let manager = require_manager(&e)?;
         manager.require_auth();
         e.storage()
             .instance()
@@ -163,6 +167,20 @@ impl ConstellationTokenInterface for ConstellationToken {
 
         write_manager(&e, &new_manager);
         event::set_manager(&e, manager, new_manager);
+        Ok(())
+    }
+
+    fn set_registry(e: Env, registry: Address) -> Result<(), Error> {
+        let admin = require_administrator(&e)?;
+        admin.require_auth();
+        e.storage()
+            .instance()
+            .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
+
+        write_registry(&e, &registry);
+ 
+       event::set_registry(&e, registry);
+
         Ok(())
     }
 
@@ -285,6 +303,8 @@ impl Module for ConstellationToken {
     fn add_module(e: Env, module_id: Address) -> Result<(), Error> {
         let manager = require_manager(&e)?;
         manager.require_auth();
+        let registry = require_registry(&e)?;
+        assert_registered_module(&e, &module_id, &registry);
         write_module(&e, module_id);
         Ok(())
     }
@@ -298,14 +318,17 @@ impl Module for ConstellationToken {
     fn invoke(
         e: Env,
         module_id: Address,
-        target_contract_id: Address,
-        function: Symbol,
-        args: Vec<Val>,
+        target_id: Address,
+        call_data: (Symbol, Vec<Val>),
+        auth_entries: Vec<InvokerContractAuthEntry>,
     ) -> Result<(), Error> {
-        module_id.require_auth();
+         module_id.require_auth();
         let registry = require_registry(&e)?;
-        assert_registered_module(&e, &module_id, &registry);
-        e.invoke_contract::<Val>(&target_contract_id, &function, args);
+         assert_registered_module(&e, &module_id, &registry);
+        // // TODO: Check module is registered on the token
+        let (function, args) = call_data;
+        e.authorize_as_current_contract(auth_entries);
+        e.invoke_contract::<Val>(&target_id, &function, args);
         Ok(())
     }
 }

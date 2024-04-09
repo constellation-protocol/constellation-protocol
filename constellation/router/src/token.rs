@@ -1,6 +1,7 @@
 use soroban_sdk::{Address, Env};
 
 pub mod constellation_token {
+    use soroban_sdk::auth::InvokerContractAuthEntry;
     soroban_sdk::contractimport!(
         file = "../../target/wasm32-unknown-unknown/release/constellation_token.wasm"
     );
