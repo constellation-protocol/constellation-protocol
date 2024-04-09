@@ -4,5 +4,7 @@ mod error;
 mod registry;
 mod storage;
 mod token;
-mod traits;
 mod validation;
+
+#[cfg(test)]
+mod test;

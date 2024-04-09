@@ -33,6 +33,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "anyhow"
+version = "1.0.81"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0952808a6c2afd1aa8947271f3a60f1a6763c7b912d210184c5149b5cf147247"
+
+[[package]]
 name = "arbitrary"
 version = "1.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -151,6 +157,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2459377285ad874054d797f3ccebf984978aa39129f6eafde5cdc8315b612f8"
 
 [[package]]
+name = "constellation-adapter-soroswap"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "constellation-lib",
+ "soroban-env-common",
+ "soroban-sdk",
+ "soroswap-library",
+]
+
+[[package]]
 name = "constellation-factory"
 version = "0.1.0"
 dependencies = [
@@ -160,9 +177,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "constellation-module-registry"
+name = "constellation-lib"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "soroban-env-common",
  "soroban-sdk",
 ]
@@ -171,7 +189,16 @@ dependencies = [
 name = "constellation-module-trade"
 version = "0.1.0"
 dependencies = [
- "constellation-token",
+ "constellation-lib",
+ "soroban-env-common",
+ "soroban-sdk",
+ "soroswap-library",
+]
+
+[[package]]
+name = "constellation-registry"
+version = "0.1.0"
+dependencies = [
  "soroban-env-common",
  "soroban-sdk",
 ]
@@ -190,6 +217,7 @@ dependencies = [
 name = "constellation-token"
 version = "0.1.0"
 dependencies = [
+ "constellation-lib",
  "soroban-sdk",
  "soroban-token-sdk",
 ]
@@ -1168,6 +1196,16 @@ dependencies = [
  "wasmi_arena",
  "wasmi_core",
  "wasmparser-nostd",
+]
+
+[[package]]
+name = "soroswap-library"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "26352158999f8f2bbbc70481c0218d6e9cd8cc39f1d3eaa54a133e6b914f4dec"
+dependencies = [
+ "num-integer",
+ "soroban-sdk",
 ]
 
 [[package]]

@@ -1,3 +1,4 @@
+use soroban_sdk::auth::InvokerContractAuthEntry;
 use soroban_sdk::{contractclient, contractspecfn, token::Interface, Address, Env, String, Vec};
 use soroban_sdk::{Symbol, Val};
 
@@ -25,6 +26,8 @@ pub trait ConstellationTokenInterface {
     fn redeem(e: Env, from: Address, amount: i128) -> Result<(), Error>;
     fn set_manager(e: Env, new_manager: Address) -> Result<(), Error>;
 
+    fn set_registry(e: Env, registry: Address) -> Result<(), Error>;
+
     fn get_components(e: Env) -> Vec<Component>;
 
     fn get_manager(e: Env) -> Option<Address>;
@@ -36,8 +39,8 @@ pub trait Module {
     fn invoke(
         e: Env,
         caller_module_id: Address,
-        target_exchange_id: Address,
-        function_name: Symbol,
-        args: Vec<Val>,
+        target_id: Address,
+        call_data: (Symbol, Vec<Val>),
+        auth_entries: Vec<InvokerContractAuthEntry>,
     ) -> Result<(), Error>;
 }

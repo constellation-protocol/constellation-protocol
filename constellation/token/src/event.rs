@@ -24,6 +24,13 @@ pub struct SetManager {
     new_manager: Address,
 }
 
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct SetRegistry { 
+    registry: Address,
+}
+
+
 pub(crate) fn redeem(e: &Env, spender: Address, from: Address, amount: i128) {
     let topics = (Symbol::new(e, "redeem"),);
     e.events().publish(
@@ -43,6 +50,16 @@ pub(crate) fn set_manager(e: &Env, old_manager: Address, new_manager: Address) {
         SetManager {
             old_manager,
             new_manager,
+        },
+    );
+}
+
+pub(crate) fn set_registry(e: &Env, registry: Address) {
+    let topics = (Symbol::new(e, "set_registry"),);
+    e.events().publish(
+        topics,
+        SetRegistry { 
+            registry,
         },
     );
 }

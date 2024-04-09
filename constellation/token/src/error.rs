@@ -24,6 +24,7 @@ pub enum Error {
     InsufficientAllowance = 500,
     InsufficientBalance = 501,
     AlreadyInitalized = 502,
+    // requires -> 550 -> 559
     RequiresAdministrator = 503,
     RequiresManager = 504,
     RequiresRegistry = 505,

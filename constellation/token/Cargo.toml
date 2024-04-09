@@ -15,6 +15,7 @@ soroban-token-sdk = { version = "20.3.1" }
 [dev-dependencies]
 soroban-sdk = { version = "20.3.1", features = ["testutils", "alloc"] }
 soroban-token-sdk = { version = "20.3.1" }
+constellation-lib = {path = "../lib" }
 
 [profile.release]
 opt-level = "z"
