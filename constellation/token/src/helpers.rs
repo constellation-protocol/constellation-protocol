@@ -1,4 +1,4 @@
-use crate::storage::component::read_components;
+use crate::storage::component::read_components_list;
 use crate::storage::metadata::read_decimal;
 use soroban_sdk::{token, Address, Env};
 
@@ -10,7 +10,7 @@ use soroban_sdk::{token, Address, Env};
 /// - `from` Address of component tokens owner account
 /// - `amount` amount of constellation token mint, which is multiplied by unit to obtain component value to transfer
 pub fn lock(e: &Env, from: &Address, amount: i128) {
-    let components = read_components(e);
+    let components = read_components_list(e);
     for c in components.iter() {
         let quantity = amount * c.unit; // unit * amount
         let _token = token::Client::new(e, &c.address);
@@ -32,7 +32,7 @@ pub fn lock(e: &Env, from: &Address, amount: i128) {
 /// - `to` Address to send component tokens
 /// - `amount` amount of constellation token  which is multiplied by  unit to obtain component value to transfer
 pub fn redeem(e: &Env, to: &Address, amount: i128) {
-    let components = read_components(e);
+    let components = read_components_list(e);
     for c in components.iter() {
         let quantity = amount * c.unit; // c.unit * amount;
         let _token = token::Client::new(&e, &c.address);

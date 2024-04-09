@@ -5,7 +5,7 @@ use crate::admin::{has_administrator, write_administrator};
 use crate::storage::registry::write_registry;
 use crate::allowance::*;
 use crate::balance::*;
-use crate::component::{read_components, write_components};
+use crate::component::{read_components, write_components, read_components_list};
 use crate::error::Error;
 use crate::error::{check_nonnegative_amount, check_zero_or_negative_amount};
 use crate::manager::{read_manager, write_manager};
@@ -108,8 +108,9 @@ impl ConstellationTokenInterface for ConstellationToken {
                 symbol,
             },
         );
-        let components = write_components(&e, &components, &units);
-        event::initialize(&e, components);
+        //let components = 
+        write_components(&e, &components, &units);
+      //  event::initialize(&e, components);
         Ok(())
     }
 
@@ -189,7 +190,7 @@ impl ConstellationTokenInterface for ConstellationToken {
     //////////////////////////////////////////////////////////////////
 
     fn get_components(e: Env) -> Vec<Component> {
-        read_components(&e)
+        read_components_list(&e)
     }
 
     fn get_manager(e: Env) -> Option<Address> {
