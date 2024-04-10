@@ -28,8 +28,7 @@ pub fn write_components(
         check_zero_or_negative_amount(e, unit);
         store.set(address.clone(), Component { address, unit }); 
     } 
-   _write_store(e, &store);
-   _extend_ttl(e);
+  _write_store(e, &store);
 }
 
 pub fn read_components_list(e: &Env) -> Vec<Component>{
@@ -40,14 +39,20 @@ pub fn read_components(e: &Env) -> Map<Address, Component>{
     _read_store(e)
 }
 
-pub fn read_component(e: Env, address: Address) -> Option<Component> {
-     _read_store(&e).get(address)
+pub fn read_component(e: &Env, address: Address) -> Option<Component> {
+     _read_store(e).get(address)
 }
 
-pub fn write_component(e: Env, address: Address, component: Component) -> Option<Component> {
-     let store  = _read_store(&e);
+pub fn write_component(e: &Env, address: Address, component: Component) {
+     let mut store  = _read_store(&e);
      store.set(address,component );
-     _write_store(&e, &store);
+     _write_store(e, &store);
+}
+
+pub fn remove_component(e: &Env, address: Address) {
+    let mut store  = _read_store(&e);
+    store.remove(address);
+    _write_store(e, &store);
 }
 
 fn _read_store(e: &Env) -> Map<Address, Component> {
@@ -60,14 +65,12 @@ fn _read_store(e: &Env) -> Map<Address, Component> {
         Some(store) => store,
         None => Map::new(e)
     };
-    _extend_ttl(e);
     store 
 }
 
 fn _write_store(e: &Env, store: &Map<Address, Component>) {
     let key = DataKey::Components;
     e.storage().persistent().set(&key, store);
-    _extend_ttl(e);
 }
 
 fn _extend_ttl(e: &Env) {

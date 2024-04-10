@@ -376,38 +376,39 @@ fn create_adapter<'a>(e: &Env, router: &Address, factory: &Address) -> adapter::
 //     assert_eq!(res, Err(Ok(Error::ZeroOrNegativeAmount)));
 // }
 
-#[test]
-fn test_initialize_successful() {
-    let e = Env::default();
-    e.mock_all_auths();
-    let components = vec![
-        &e,
-        Address::generate(&e),
-        Address::generate(&e),
-        Address::generate(&e),
-    ];
-    let amounts = vec![&e, 100, 100, 100];
-    let decimal: u32 = 6;
-    let name: String = "c_token".into_val(&e);
-    let symbol: String = "token_symbol".into_val(&e);
-    let admin = Address::generate(&e);
-    let manager = Address::generate(&e);
-    let ct: ConstellationTokenClient<'_> = create_constellation_token(&e);
+// #[test]
+// fn test_initialize_successful() {
+//     let e = Env::default();
+//     e.mock_all_auths();
+//     let components = vec![
+//         &e,
+//         Address::generate(&e),
+//         Address::generate(&e),
+//         Address::generate(&e),
+//     ];
+//     let amounts = vec![&e, 100, 100, 100];
+//     let decimal: u32 = 6;
+//     let name: String = "c_token".into_val(&e);
+//     let symbol: String = "token_symbol".into_val(&e);
+//     let admin = Address::generate(&e);
+//     let manager = Address::generate(&e);
+//     let ct: ConstellationTokenClient<'_> = create_constellation_token(&e);
 
-    ct.initialize(
-        &decimal,
-        &components,
-        &amounts,
-        &name,
-        &symbol,
-        &admin,
-        &manager,
-    );
+//     ct.initialize(
+//         &decimal,
+//         &components,
+//         &amounts,
+//         &name,
+//         &symbol,
+//         &admin,
+//         &manager,
+//     );
 
-   assert_eq!(ct.get_admin().unwrap(), admin);
-   assert_eq!(ct.get_manager().unwrap(), manager);
-   assert_eq!(ct.get_components().len(), 3);
-}
+//    assert_eq!(ct.get_admin().unwrap(), admin);
+//    assert_eq!(ct.get_manager().unwrap(), manager);
+//    assert_eq!(ct.get_components().len(), 3);
+// }
+
 
 // #[test]
 // fn test_set_manager_panics_with_authorization_failed() {

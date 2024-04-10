@@ -19,6 +19,7 @@ pub enum Error {
     IndexUnwrapError = 406,
     ComponentsAmountsLengthMismatch = 407,
     ValueTooLargeOverFlow = 408,
+    NotComponent = 409,
 
     /// Errors caused by smart contract state or logic
     InsufficientAllowance = 500,

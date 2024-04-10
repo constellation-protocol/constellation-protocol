@@ -1,17 +1,21 @@
 use super::event;
-use super::helpers::{lock, redeem};
+use super::helpers::{lock, redeem, calculate_airdropped_amount, calculate_position,
+    decrease_supply, increase_supply
+};
 use crate::admin::read_administrator;
 use crate::admin::{has_administrator, write_administrator};
+use crate::helpers::update_position;
 use crate::storage::registry::write_registry;
 use crate::allowance::*;
 use crate::balance::*;
-use crate::component::{read_components, write_components, read_components_list};
+use crate::component::{read_components_list,remove_component, read_component,write_component, write_components};
 use crate::error::Error;
 use crate::error::{check_nonnegative_amount, check_zero_or_negative_amount};
 use crate::manager::{read_manager, write_manager};
 use crate::metadata::*;
 use crate::module::{is_registered, read_module, remove_module, write_module};
 use crate::storage::keys::{AllowanceDataKey, DataKey};
+use crate::storage::total_supply::read_total_supply;
 use crate::storage::types::{
     AllowanceValue, Component, INSTANCE_BUMP_AMOUNT, INSTANCE_LIFETIME_THRESHOLD,
 };
@@ -20,6 +24,7 @@ use crate::validation::{
     assert_registered_module, require_administrator, require_manager, require_registry,
 };
 use soroban_sdk::auth::InvokerContractAuthEntry;
+use soroban_sdk::token::TokenClient;
 use soroban_sdk::{
     contract, contractimpl, contracttype, log, panic_with_error, symbol_short, token,
     token::Interface, Address, Env, IntoVal, String, Symbol, Val, Vec,
@@ -108,9 +113,8 @@ impl ConstellationTokenInterface for ConstellationToken {
                 symbol,
             },
         );
-        //let components = 
-        write_components(&e, &components, &units);
-      //  event::initialize(&e, components);
+       write_components(&e, &components, &units);
+        event::initialize(&e, components, units);
         Ok(())
     }
 
@@ -135,6 +139,9 @@ impl ConstellationTokenInterface for ConstellationToken {
         lock(&e, &to, amount);
 
         receive_balance(&e, to.clone(), amount);
+
+        increase_supply(&e, amount);
+        
         TokenUtils::new(&e).events().mint(admin, to, amount);
 
         Ok(())
@@ -211,6 +218,8 @@ impl token::Interface for ConstellationToken {
 
         spend_balance(&e, from.clone(), amount);
 
+        decrease_supply(&e, amount);
+
         TokenUtils::new(&e).events().burn(from, amount);
     }
 
@@ -225,6 +234,7 @@ impl token::Interface for ConstellationToken {
 
         spend_allowance(&e, from.clone(), spender, amount);
         spend_balance(&e, from.clone(), amount);
+        decrease_supply(&e, amount);
 
         TokenUtils::new(&e).events().burn(from, amount)
     }
@@ -301,6 +311,13 @@ impl token::Interface for ConstellationToken {
 
 #[contractimpl]
 impl Module for ConstellationToken {
+    fn update_units(e: Env, token_in: (Address, i128), token_out:  (Address, i128)) -> Result<(), Error> { 
+      
+       let token_in_unit = update_position(&e, token_in);
+       let token_out_unit = update_position(&e, token_out);
+       // TODO: EMIT EVENT 
+       Ok(())
+    }
     fn add_module(e: Env, module_id: Address) -> Result<(), Error> {
         let manager = require_manager(&e)?;
         manager.require_auth();
