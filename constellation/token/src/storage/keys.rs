@@ -15,6 +15,7 @@ pub enum DataKey {
     Manager,
     Registry,
     TotalSupply,
+    ComponentUnit(Address),
     Allowance(AllowanceDataKey),
     Balance(Address),
     Nonce(Address),

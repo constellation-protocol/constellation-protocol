@@ -29,6 +29,8 @@ pub trait ConstellationTokenInterface {
     fn set_registry(e: Env, registry: Address) -> Result<(), Error>;
     fn get_components(e: Env) -> Vec<Component>;
 
+    fn get_component(e: Env, component_address: Address) ->  Option<Component>;
+
     fn get_manager(e: Env) -> Option<Address>;
 }
 

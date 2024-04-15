@@ -200,6 +200,10 @@ impl ConstellationTokenInterface for ConstellationToken {
         read_components_list(&e)
     }
 
+    fn get_component(e: Env, component_address: Address) -> Option<Component> {
+        read_component(&e,component_address )
+    }
+
     fn get_manager(e: Env) -> Option<Address> {
         read_manager(&e)
     }
