@@ -367,75 +367,34 @@
                 },
                 "durability": "persistent",
                 "val": {
-                  "vec": [
+                  "map": [
                     {
-                      "map": [
-                        {
-                          "key": {
-                            "symbol": "address"
+                      "key": {
+                        "address": "CDLDVFKHEZ2RVB3NG4UQA4VPD3TSHV6XMHXMHP2BSGCJ2IIWVTOHGDSG"
+                      },
+                      "val": {
+                        "map": [
+                          {
+                            "key": {
+                              "symbol": "address"
+                            },
+                            "val": {
+                              "address": "CDLDVFKHEZ2RVB3NG4UQA4VPD3TSHV6XMHXMHP2BSGCJ2IIWVTOHGDSG"
+                            }
                           },
-                          "val": {
-                            "address": "CDLDVFKHEZ2RVB3NG4UQA4VPD3TSHV6XMHXMHP2BSGCJ2IIWVTOHGDSG"
-                          }
-                        },
-                        {
-                          "key": {
-                            "symbol": "unit"
-                          },
-                          "val": {
-                            "i128": {
-                              "hi": 0,
-                              "lo": 1
+                          {
+                            "key": {
+                              "symbol": "unit"
+                            },
+                            "val": {
+                              "i128": {
+                                "hi": 0,
+                                "lo": 1
+                              }
                             }
                           }
-                        }
-                      ]
-                    },
-                    {
-                      "map": [
-                        {
-                          "key": {
-                            "symbol": "address"
-                          },
-                          "val": {
-                            "address": "CDLDVFKHEZ2RVB3NG4UQA4VPD3TSHV6XMHXMHP2BSGCJ2IIWVTOHGDSG"
-                          }
-                        },
-                        {
-                          "key": {
-                            "symbol": "unit"
-                          },
-                          "val": {
-                            "i128": {
-                              "hi": 0,
-                              "lo": 1
-                            }
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "map": [
-                        {
-                          "key": {
-                            "symbol": "address"
-                          },
-                          "val": {
-                            "address": "CDLDVFKHEZ2RVB3NG4UQA4VPD3TSHV6XMHXMHP2BSGCJ2IIWVTOHGDSG"
-                          }
-                        },
-                        {
-                          "key": {
-                            "symbol": "unit"
-                          },
-                          "val": {
-                            "i128": {
-                              "hi": 0,
-                              "lo": 1
-                            }
-                          }
-                        }
-                      ]
+                        ]
+                      }
                     }
                   ]
                 }
@@ -443,7 +402,7 @@
             },
             "ext": "v0"
           },
-          1555200
+          4095
         ]
       ],
       [
@@ -1584,78 +1543,45 @@
               "map": [
                 {
                   "key": {
-                    "symbol": "components"
+                    "symbol": "addresses"
                   },
                   "val": {
                     "vec": [
                       {
-                        "map": [
-                          {
-                            "key": {
-                              "symbol": "address"
-                            },
-                            "val": {
-                              "address": "CDLDVFKHEZ2RVB3NG4UQA4VPD3TSHV6XMHXMHP2BSGCJ2IIWVTOHGDSG"
-                            }
-                          },
-                          {
-                            "key": {
-                              "symbol": "unit"
-                            },
-                            "val": {
-                              "i128": {
-                                "hi": 0,
-                                "lo": 1
-                              }
-                            }
-                          }
-                        ]
+                        "address": "CDLDVFKHEZ2RVB3NG4UQA4VPD3TSHV6XMHXMHP2BSGCJ2IIWVTOHGDSG"
                       },
                       {
-                        "map": [
-                          {
-                            "key": {
-                              "symbol": "address"
-                            },
-                            "val": {
-                              "address": "CDLDVFKHEZ2RVB3NG4UQA4VPD3TSHV6XMHXMHP2BSGCJ2IIWVTOHGDSG"
-                            }
-                          },
-                          {
-                            "key": {
-                              "symbol": "unit"
-                            },
-                            "val": {
-                              "i128": {
-                                "hi": 0,
-                                "lo": 1
-                              }
-                            }
-                          }
-                        ]
+                        "address": "CDLDVFKHEZ2RVB3NG4UQA4VPD3TSHV6XMHXMHP2BSGCJ2IIWVTOHGDSG"
                       },
                       {
-                        "map": [
-                          {
-                            "key": {
-                              "symbol": "address"
-                            },
-                            "val": {
-                              "address": "CDLDVFKHEZ2RVB3NG4UQA4VPD3TSHV6XMHXMHP2BSGCJ2IIWVTOHGDSG"
-                            }
-                          },
-                          {
-                            "key": {
-                              "symbol": "unit"
-                            },
-                            "val": {
-                              "i128": {
-                                "hi": 0,
-                                "lo": 1
-                              }
-                            }
-                          }
-                        ]
+                        "address": "CDLDVFKHEZ2RVB3NG4UQA4VPD3TSHV6XMHXMHP2BSGCJ2IIWVTOHGDSG"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": {
+                    "symbol": "units"
+                  },
+                  "val": {
+                    "vec": [
+                      {
+                        "i128": {
+                          "hi": 0,
+                          "lo": 1
+                        }
+                      },
+                      {
+                        "i128": {
+                          "hi": 0,
+                          "lo": 1
+                        }
+                      },
+                      {
+                        "i128": {
+                          "hi": 0,
+                          "lo": 1
+                        }
                       }
                     ]
                   }

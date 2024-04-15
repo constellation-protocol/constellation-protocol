@@ -967,75 +967,90 @@
                 },
                 "durability": "persistent",
                 "val": {
-                  "vec": [
+                  "map": [
                     {
-                      "map": [
-                        {
-                          "key": {
-                            "symbol": "address"
+                      "key": {
+                        "address": "CBUSYNQKASUYFWYC3M2GUEDMX4AIVWPALDBYJPNK6554BREHTGZ2IUNF"
+                      },
+                      "val": {
+                        "map": [
+                          {
+                            "key": {
+                              "symbol": "address"
+                            },
+                            "val": {
+                              "address": "CBUSYNQKASUYFWYC3M2GUEDMX4AIVWPALDBYJPNK6554BREHTGZ2IUNF"
+                            }
                           },
-                          "val": {
-                            "address": "CBUSYNQKASUYFWYC3M2GUEDMX4AIVWPALDBYJPNK6554BREHTGZ2IUNF"
-                          }
-                        },
-                        {
-                          "key": {
-                            "symbol": "unit"
-                          },
-                          "val": {
-                            "i128": {
-                              "hi": 0,
-                              "lo": 1
+                          {
+                            "key": {
+                              "symbol": "unit"
+                            },
+                            "val": {
+                              "i128": {
+                                "hi": 0,
+                                "lo": 1
+                              }
                             }
                           }
-                        }
-                      ]
+                        ]
+                      }
                     },
                     {
-                      "map": [
-                        {
-                          "key": {
-                            "symbol": "address"
+                      "key": {
+                        "address": "CCABDO7UZXYE4W6GVSEGSNNZTKSLFQGKXXQTH6OX7M7GKZ4Z6CUJNGZN"
+                      },
+                      "val": {
+                        "map": [
+                          {
+                            "key": {
+                              "symbol": "address"
+                            },
+                            "val": {
+                              "address": "CCABDO7UZXYE4W6GVSEGSNNZTKSLFQGKXXQTH6OX7M7GKZ4Z6CUJNGZN"
+                            }
                           },
-                          "val": {
-                            "address": "CCABDO7UZXYE4W6GVSEGSNNZTKSLFQGKXXQTH6OX7M7GKZ4Z6CUJNGZN"
-                          }
-                        },
-                        {
-                          "key": {
-                            "symbol": "unit"
-                          },
-                          "val": {
-                            "i128": {
-                              "hi": 0,
-                              "lo": 1
+                          {
+                            "key": {
+                              "symbol": "unit"
+                            },
+                            "val": {
+                              "i128": {
+                                "hi": 0,
+                                "lo": 1
+                              }
                             }
                           }
-                        }
-                      ]
+                        ]
+                      }
                     },
                     {
-                      "map": [
-                        {
-                          "key": {
-                            "symbol": "address"
+                      "key": {
+                        "address": "CDLDVFKHEZ2RVB3NG4UQA4VPD3TSHV6XMHXMHP2BSGCJ2IIWVTOHGDSG"
+                      },
+                      "val": {
+                        "map": [
+                          {
+                            "key": {
+                              "symbol": "address"
+                            },
+                            "val": {
+                              "address": "CDLDVFKHEZ2RVB3NG4UQA4VPD3TSHV6XMHXMHP2BSGCJ2IIWVTOHGDSG"
+                            }
                           },
-                          "val": {
-                            "address": "CDLDVFKHEZ2RVB3NG4UQA4VPD3TSHV6XMHXMHP2BSGCJ2IIWVTOHGDSG"
-                          }
-                        },
-                        {
-                          "key": {
-                            "symbol": "unit"
-                          },
-                          "val": {
-                            "i128": {
-                              "hi": 0,
-                              "lo": 1
+                          {
+                            "key": {
+                              "symbol": "unit"
+                            },
+                            "val": {
+                              "i128": {
+                                "hi": 0,
+                                "lo": 1
+                              }
                             }
                           }
-                        }
-                      ]
+                        ]
+                      }
                     }
                   ]
                 }
@@ -1043,7 +1058,49 @@
             },
             "ext": "v0"
           },
-          1555200
+          4095
+        ]
+      ],
+      [
+        {
+          "contract_data": {
+            "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMDR4",
+            "key": {
+              "vec": [
+                {
+                  "symbol": "TotalSupply"
+                }
+              ]
+            },
+            "durability": "persistent"
+          }
+        },
+        [
+          {
+            "last_modified_ledger_seq": 0,
+            "data": {
+              "contract_data": {
+                "ext": "v0",
+                "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMDR4",
+                "key": {
+                  "vec": [
+                    {
+                      "symbol": "TotalSupply"
+                    }
+                  ]
+                },
+                "durability": "persistent",
+                "val": {
+                  "i128": {
+                    "hi": 0,
+                    "lo": 1000
+                  }
+                }
+              }
+            },
+            "ext": "v0"
+          },
+          518400
         ]
       ],
       [
@@ -3416,78 +3473,45 @@
               "map": [
                 {
                   "key": {
-                    "symbol": "components"
+                    "symbol": "addresses"
                   },
                   "val": {
                     "vec": [
                       {
-                        "map": [
-                          {
-                            "key": {
-                              "symbol": "address"
-                            },
-                            "val": {
-                              "address": "CBUSYNQKASUYFWYC3M2GUEDMX4AIVWPALDBYJPNK6554BREHTGZ2IUNF"
-                            }
-                          },
-                          {
-                            "key": {
-                              "symbol": "unit"
-                            },
-                            "val": {
-                              "i128": {
-                                "hi": 0,
-                                "lo": 1
-                              }
-                            }
-                          }
-                        ]
+                        "address": "CBUSYNQKASUYFWYC3M2GUEDMX4AIVWPALDBYJPNK6554BREHTGZ2IUNF"
                       },
                       {
-                        "map": [
-                          {
-                            "key": {
-                              "symbol": "address"
-                            },
-                            "val": {
-                              "address": "CCABDO7UZXYE4W6GVSEGSNNZTKSLFQGKXXQTH6OX7M7GKZ4Z6CUJNGZN"
-                            }
-                          },
-                          {
-                            "key": {
-                              "symbol": "unit"
-                            },
-                            "val": {
-                              "i128": {
-                                "hi": 0,
-                                "lo": 1
-                              }
-                            }
-                          }
-                        ]
+                        "address": "CCABDO7UZXYE4W6GVSEGSNNZTKSLFQGKXXQTH6OX7M7GKZ4Z6CUJNGZN"
                       },
                       {
-                        "map": [
-                          {
-                            "key": {
-                              "symbol": "address"
-                            },
-                            "val": {
-                              "address": "CDLDVFKHEZ2RVB3NG4UQA4VPD3TSHV6XMHXMHP2BSGCJ2IIWVTOHGDSG"
-                            }
-                          },
-                          {
-                            "key": {
-                              "symbol": "unit"
-                            },
-                            "val": {
-                              "i128": {
-                                "hi": 0,
-                                "lo": 1
-                              }
-                            }
-                          }
-                        ]
+                        "address": "CDLDVFKHEZ2RVB3NG4UQA4VPD3TSHV6XMHXMHP2BSGCJ2IIWVTOHGDSG"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": {
+                    "symbol": "units"
+                  },
+                  "val": {
+                    "vec": [
+                      {
+                        "i128": {
+                          "hi": 0,
+                          "lo": 1
+                        }
+                      },
+                      {
+                        "i128": {
+                          "hi": 0,
+                          "lo": 1
+                        }
+                      },
+                      {
+                        "i128": {
+                          "hi": 0,
+                          "lo": 1
+                        }
                       }
                     ]
                   }

@@ -14,7 +14,8 @@ pub struct Redeem {
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Initialize {
-    components: Vec<Component>,
+    addresses: Vec<Address>,
+    units: Vec<i128>
 }
 
 #[contracttype]
@@ -64,7 +65,7 @@ pub(crate) fn set_registry(e: &Env, registry: Address) {
     );
 }
 
-pub(crate) fn initialize(e: &Env, components: Vec<Component>) {
+pub(crate) fn initialize(e: &Env, addresses: Vec<Address>, units: Vec<i128>) {
     let topics = (Symbol::new(e, "intialize"), e.current_contract_address());
-    e.events().publish(topics, Initialize { components });
+    e.events().publish(topics, Initialize { addresses, units });
 }
