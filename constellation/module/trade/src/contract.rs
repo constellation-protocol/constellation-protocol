@@ -112,17 +112,4 @@ impl Trade {
             auth_entries,
         );
     }
-
-     #[inline(always)]
-    fn calculate_airdropped_amount(  component_previous_balance: i128, component_unit: i128, constellation_totek_supply: i128) -> i128 {
-        component_previous_balance - (component_unit * constellation_totek_supply)
-    }
-
-    #[inline(always)]
-    fn calculate_position(
-        component_total_balance: i128,
-        constellation_token_supply: i128,
-        airdropped_amount: i128) -> i128 {
-            (component_total_balance - airdropped_amount) / constellation_token_supply
-        }
 }
