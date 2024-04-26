@@ -1,5 +1,5 @@
 use crate::contract::{Trade, TradeClient};
-use soroban_sdk::{Address, Env, BytesN};
+use soroban_sdk::{Address, BytesN, Env};
 
 pub use adapter::TradeAdapterClient;
 pub use constellation_token::ConstellationTokenClient;

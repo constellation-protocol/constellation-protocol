@@ -29,14 +29,18 @@ pub trait ConstellationTokenInterface {
     fn set_registry(e: Env, registry: Address) -> Result<(), Error>;
     fn get_components(e: Env) -> Vec<Component>;
 
-    fn get_component(e: Env, component_address: Address) ->  Option<Component>;
+    fn get_component(e: Env, component_address: Address) -> Option<Component>;
 
     fn get_manager(e: Env) -> Option<Address>;
 }
 
 #[contractclient(name = "ConstellationTokenModuleInterface")]
 pub trait Module {
-    fn update_units(e: Env, token_a: (Address, i128), token_b:  (Address, i128)) -> Result<(), Error>;
+    fn update_units(
+        e: Env,
+        token_a: (Address, i128),
+        token_b: (Address, i128),
+    ) -> Result<(), Error>;
     fn add_module(e: Env, module: Address) -> Result<(), Error>;
     fn remove_module(e: Env, module: Address) -> Result<(), Error>;
     fn invoke(

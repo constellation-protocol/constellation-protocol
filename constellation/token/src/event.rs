@@ -15,7 +15,7 @@ pub struct Redeem {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Initialize {
     addresses: Vec<Address>,
-    units: Vec<i128>
+    units: Vec<i128>,
 }
 
 #[contracttype]
@@ -27,10 +27,9 @@ pub struct SetManager {
 
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct SetRegistry { 
+pub struct SetRegistry {
     registry: Address,
 }
-
 
 pub(crate) fn redeem(e: &Env, spender: Address, from: Address, amount: i128) {
     let topics = (Symbol::new(e, "redeem"),);
@@ -57,12 +56,7 @@ pub(crate) fn set_manager(e: &Env, old_manager: Address, new_manager: Address) {
 
 pub(crate) fn set_registry(e: &Env, registry: Address) {
     let topics = (Symbol::new(e, "set_registry"),);
-    e.events().publish(
-        topics,
-        SetRegistry { 
-            registry,
-        },
-    );
+    e.events().publish(topics, SetRegistry { registry });
 }
 
 pub(crate) fn initialize(e: &Env, addresses: Vec<Address>, units: Vec<i128>) {

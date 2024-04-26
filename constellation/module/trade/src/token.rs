@@ -35,3 +35,8 @@ pub(crate) fn get_manager(e: &Env, constellation_token_id: &Address) -> Option<A
     let client = constellation_token::Client::new(&e, &constellation_token_id);
     client.get_manager()
 }
+
+pub(crate) fn update_units(e: &Env,  balance_before_trade_token_in: i128, balance_before_trade_token_out: i128, token_in: &Address, token_out: &Address,constellation_token_id: &Address) {
+    let client = constellation_token::Client::new(&e, &constellation_token_id);
+    client.update_units(&(token_in.clone(), balance_before_trade_token_in), &(token_out.clone(), balance_before_trade_token_out));
+}
