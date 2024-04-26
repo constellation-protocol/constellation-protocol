@@ -1,5 +1,5 @@
 use crate::error::Error;
-use crate::token;
+use crate::token::{self, update_units};
 use crate::{
     storage::registry::{has_registry, write_registry},
     validation::{require_adapter, require_administrator, require_manager, require_registry},
@@ -8,6 +8,7 @@ use constellation_lib::traits::adapter::dex;
 use soroban_sdk::auth::InvokerContractAuthEntry;
 use soroban_sdk::vec;
 use soroban_sdk::{
+    token::TokenClient,
     contract, contractimpl, contracttype, panic_with_error, Address, Env, Symbol, Val, Vec,
 };
 #[contract]
@@ -74,6 +75,9 @@ impl Trade {
             &constellation_token_id,
         );
 
+        let balance_before_trade_token_in = TokenClient::new(&e, &token_in_id).balance(&constellation_token_id);
+        let balance_before_trade_token_out = TokenClient::new(&e, &token_out_id).balance(&constellation_token_id);
+
         Self::execute_trade(
             &e,
             &constellation_token_id,
@@ -82,8 +86,7 @@ impl Trade {
             &auth_entries,
         );
 
-        // instantiate token in and token out
-        // get balance and calcutate new units
+        update_units(&e, balance_before_trade_token_in, balance_before_trade_token_out, &token_in_id, &token_out_id, &constellation_token_id);
 
         Ok(())
     }

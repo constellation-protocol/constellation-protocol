@@ -89,11 +89,7 @@ fn test_trade() {
         test.tokens.2.balance(&test.constellation_token.address),
         amount_out
     );
-    test.constellation_token.update_units(
-        &(test.tokens.0.address.clone(), balance_before_trade_token_0),
-        &(test.tokens.2.address.clone(), balance_before_trade_token_2),
-    );
-
+   // check units 
     assert_eq!(
         test.tokens.2.balance(&test.constellation_token.address),
         4984
