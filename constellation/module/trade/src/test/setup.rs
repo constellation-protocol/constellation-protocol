@@ -42,8 +42,6 @@ impl<'a> TradeTest<'a> {
         let registry = create_registry(&env);
         let trade_module = create_trade_module(&env);
 
-        // constellation_token.initialize(decimal, components, units, name, symbol, &admin, manager);
-
         adapter.initialize(&router.address, &factory.address);
         router.initialize(&factory.address);
         registry.initialize(&admin);
