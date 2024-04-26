@@ -1,9 +1,11 @@
-use crate::storage::component::{read_component, read_components_list, remove_component, write_component};
+use crate::storage::component::{
+    read_component, read_components_list, remove_component, write_component,
+};
 use crate::storage::metadata::read_decimal;
-use soroban_sdk::{token, Address, Env};
 use crate::storage::total_supply::{read_total_supply, write_total_supply};
-use soroban_sdk::token::TokenClient;
 use crate::storage::types::Component;
+use soroban_sdk::token::TokenClient;
+use soroban_sdk::{token, Address, Env};
 
 ///  Lock - Transfers each component token to constellation token
 ///
@@ -53,14 +55,18 @@ pub fn decrease_supply(e: &Env, amount: i128) {
 
     total_supply = if total_supply > amount {
         total_supply - amount
-    } else  {
+    } else {
         0
     };
     write_total_supply(&e, total_supply);
 }
 
 #[inline(always)]
-pub fn calculate_airdropped_amount(  component_previous_balance: i128, component_unit: i128, constellation_token_supply: i128) -> i128 {
+pub fn calculate_airdropped_amount(
+    component_previous_balance: i128,
+    component_unit: i128,
+    constellation_token_supply: i128,
+) -> i128 {
     component_previous_balance - (component_unit * constellation_token_supply)
 }
 
@@ -68,40 +74,68 @@ pub fn calculate_airdropped_amount(  component_previous_balance: i128, component
 pub fn calculate_position(
     component_total_balance: i128,
     constellation_token_supply: i128,
-    airdropped_amount: i128) -> i128 {
-        (component_total_balance - airdropped_amount) / constellation_token_supply
- }
+    airdropped_amount: i128,
+) -> i128 {
+    (component_total_balance - airdropped_amount) / constellation_token_supply
+}
 
- pub fn update_position(e: &Env, (component_address, component_previous_balance): (Address, i128)) -> i128 {
-        let component_current_balance =  TokenClient::new(&e, &component_address).balance(&e.current_contract_address());
-        let constellation_token_supply = read_total_supply(&e);
+pub fn update_position(
+    e: &Env,
+    (component_address, component_previous_balance): (Address, i128),
+) -> i128 {
+    let component_current_balance =
+        TokenClient::new(&e, &component_address).balance(&e.current_contract_address());
+    let constellation_token_supply = read_total_supply(&e);
 
-      let unit = match read_component(&e, component_address.clone()) {
-         Some(mut component) => {
+    let unit = match read_component(&e, component_address.clone()) {
+        Some(mut component) => {
+            let airdropped_amount = calculate_airdropped_amount(
+                component_previous_balance,
+                component.unit,
+                constellation_token_supply,
+            );
+            let unit = calculate_position(
+                component_current_balance,
+                constellation_token_supply,
+                airdropped_amount,
+            );
 
-            let airdropped_amount = calculate_airdropped_amount(component_previous_balance, component.unit, constellation_token_supply);
-            let unit = calculate_position(component_current_balance, constellation_token_supply, airdropped_amount);
-            
-           if unit == 0 {
-              remove_component(&e, component_address.clone());
-           } else {
-              write_component(&e,  component_address.clone(), Component { unit, ..component } );
-           }
-           unit
-         }
-         None => {
-            let airdropped_amount = calculate_airdropped_amount(component_previous_balance,  0, constellation_token_supply);
-            let unit = calculate_position(component_current_balance, constellation_token_supply, airdropped_amount);
+            if unit == 0 {
+                remove_component(&e, component_address.clone());
+            } else {
+                write_component(
+                    &e,
+                    component_address.clone(),
+                    Component { unit, ..component },
+                );
+            }
+            unit
+        }
+        None => {
+            let airdropped_amount = calculate_airdropped_amount(
+                component_previous_balance,
+                0,
+                constellation_token_supply,
+            );
+            let unit = calculate_position(
+                component_current_balance,
+                constellation_token_supply,
+                airdropped_amount,
+            );
 
-           if unit > 0 {
-              write_component(&e,  component_address.clone(), Component {
-                  address: component_address, 
-                  unit,
-              } );
-           }
-           unit
-         }
-      };
+            if unit > 0 {
+                write_component(
+                    &e,
+                    component_address.clone(),
+                    Component {
+                        address: component_address,
+                        unit,
+                    },
+                );
+            }
+            unit
+        }
+    };
 
-     unit
- }
+    unit
+}

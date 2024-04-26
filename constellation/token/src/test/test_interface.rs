@@ -6,7 +6,7 @@ use crate::error::Error;
 use soroban_sdk::{
     symbol_short,
     testutils::{Address as _, AuthorizedFunction, AuthorizedInvocation},
-    vec, Address, Env, IntoVal, Symbol,String,
+    vec, Address, Env, IntoVal, String, Symbol,
 };
 pub mod token {
     soroban_sdk::contractimport!(file = "../../libs/soroban_token_contract.wasm");
@@ -29,7 +29,7 @@ pub(crate) fn initialize_token<'a>(
     let amounts = vec![&e, 1, 1, 1];
     let decimal: u32 = 6;
     let name: String = "c_token".into_val(e);
-    let symbol:String = "token_symbol".into_val(e);
+    let symbol: String = "token_symbol".into_val(e);
     let admin = Address::generate(e);
     let manager = Address::generate(e);
 

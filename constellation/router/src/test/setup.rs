@@ -2,12 +2,13 @@ extern crate std;
 
 use super::add_liquidity::add_liquidity;
 use super::clients::{
+    create_router,
     create_adapter, create_constellation_token, create_registry, create_soroswap_factory,
-    create_soroswap_router, create_token_contract, create_trade_module, pair_contract_wasm,
-    registry, ConstellationTokenClient, RegistryClient, SoroswapFactoryClient,
+    create_soroswap_router, create_token_contract, pair_contract_wasm,
+    registry, ConstellationTokenClient, RegistryClient, RouterClient, SoroswapFactoryClient,
     SoroswapRouterClient, TokenClient, TradeAdapterClient,
 };
-use crate::contract::TradeClient;
+
 use soroban_sdk::{testutils::Address as _, Address, BytesN, Env, String, Vec};
 pub type Tokens<'a> = (
     TokenClient<'a>,
@@ -22,10 +23,10 @@ pub struct TradeTest<'a> {
     pub admin: Address,
     pub adapter: TradeAdapterClient<'a>,
     pub registry: RegistryClient<'a>,
-    pub router: SoroswapRouterClient<'a>,
+    pub router: RouterClient<'a>,
+    pub s_router: SoroswapRouterClient<'a>,
     pub factory: SoroswapFactoryClient<'a>,
     pub constellation_token: ConstellationTokenClient<'a>,
-    pub trade_module: TradeClient<'a>,
     pub tokens: Tokens<'a>,
 }
 
@@ -36,19 +37,13 @@ impl<'a> TradeTest<'a> {
         let user = Address::generate(&env);
         let admin = Address::generate(&env);
         let adapter = create_adapter(&env);
-        let router = create_soroswap_router(&env);
+        let s_router = create_soroswap_router(&env);
         let factory = create_soroswap_factory(&env);
         let constellation_token = create_constellation_token(&env);
         let registry = create_registry(&env);
-        let trade_module = create_trade_module(&env);
-
+        let router = create_router(&env);
+ 
         // constellation_token.initialize(decimal, components, units, name, symbol, &admin, manager);
-
-        adapter.initialize(&router.address, &factory.address);
-        router.initialize(&factory.address);
-        registry.initialize(&admin);
-        factory.initialize(&admin, &pair_contract_wasm(&env));
-        trade_module.initialize(&registry.address);
 
         let mut tokens: Tokens = (
             create_token_contract(&env, &admin),
@@ -66,12 +61,18 @@ impl<'a> TradeTest<'a> {
         tokens.2.mint(&user, &10_000_000_000_000_000_000);
         tokens.3.mint(&user, &10_000_000_000_000_000_000);
 
+        adapter.initialize(&s_router.address, &factory.address);
+        s_router.initialize(&factory.address);
+        registry.initialize(&admin);
+        factory.initialize(&admin, &pair_contract_wasm(&env));
+        router.initialize(&factory.address, &s_router.address, &tokens.0.address);
+
         let amount_0: i128 = 4_000_000_000;
         let amount_1: i128 = 4_000_000_000;
 
         add_liquidity(
             &env,
-            &router,
+            &s_router,
             &user,
             &tokens.0.address,
             &tokens.1.address,
@@ -81,7 +82,7 @@ impl<'a> TradeTest<'a> {
 
         add_liquidity(
             &env,
-            &router,
+            &s_router,
             &user,
             &tokens.2.address,
             &tokens.3.address,
@@ -91,7 +92,7 @@ impl<'a> TradeTest<'a> {
 
         add_liquidity(
             &env,
-            &router,
+            &s_router,
             &user,
             &tokens.0.address,
             &tokens.2.address,
@@ -101,7 +102,7 @@ impl<'a> TradeTest<'a> {
 
         add_liquidity(
             &env,
-            &router,
+            &s_router,
             &user,
             &tokens.0.address,
             &tokens.3.address,
@@ -116,12 +117,12 @@ impl<'a> TradeTest<'a> {
             user,
             admin,
             adapter,
+            s_router,
             router,
             registry,
             factory,
             constellation_token,
-            tokens,
-            trade_module,
+            tokens, 
         }
     }
 }
