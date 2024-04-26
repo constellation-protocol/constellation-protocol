@@ -2,7 +2,7 @@ use super::keys::DataKey;
 use crate::error::Error;
 use soroban_sdk::{Address, Env};
 
-pub fn read_module(e: &Env, id: Address) -> Option<bool> {
+pub fn read_module(e: &Env, id: Address) -> Option<Address> {
     let key = DataKey::Module(id);
     e.storage().instance().get(&key)
 }
@@ -18,5 +18,8 @@ pub fn remove_module(e: &Env, id: Address) {
 }
 
 pub fn is_registered(e: &Env, id: Address) -> bool {
-    read_module(e, id).unwrap_or(false)
+    match read_module(e, id) {
+        Some(_) => true,
+        None => false,
+    }
 }

@@ -217,7 +217,6 @@ dependencies = [
 name = "constellation-token"
 version = "0.1.0"
 dependencies = [
- "constellation-lib",
  "soroban-sdk",
  "soroban-token-sdk",
 ]

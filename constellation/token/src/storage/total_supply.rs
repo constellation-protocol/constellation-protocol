@@ -21,9 +21,7 @@ pub fn write_total_supply(e: &Env, amount: i128) {
 
 fn _extend_ttl(e: &Env) {
     let key = DataKey::TotalSupply;
-    e.storage().persistent().extend_ttl(
-        &key,
-        INSTANCE_LIFETIME_THRESHOLD,
-        INSTANCE_BUMP_AMOUNT,
-    );
+    e.storage()
+        .persistent()
+        .extend_ttl(&key, INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
 }

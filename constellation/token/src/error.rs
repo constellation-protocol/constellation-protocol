@@ -30,8 +30,8 @@ pub enum Error {
     RequiresManager = 504,
     RequiresRegistry = 505,
     RequiresManage = 506,
-    RequiresRegisteredModule = 507,
-    UnregisteredModule = 508,
+    RequiresTokenRegisteredModule = 507,
+    ModuleNotInRegistery = 508,
 }
 
 pub fn check_zero_or_negative_amount(e: &Env, amount: i128) {

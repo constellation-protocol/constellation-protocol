@@ -1,27 +1,29 @@
 use super::event;
-use super::helpers::{lock, redeem, calculate_airdropped_amount, calculate_position,
-    decrease_supply, increase_supply
+use super::helpers::{
+    calculate_airdropped_amount, calculate_position, decrease_supply, increase_supply, lock, redeem,
 };
 use crate::admin::read_administrator;
 use crate::admin::{has_administrator, write_administrator};
-use crate::helpers::update_position;
-use crate::storage::registry::write_registry;
 use crate::allowance::*;
 use crate::balance::*;
-use crate::component::{read_components_list,remove_component, read_component,write_component, write_components};
+use crate::component::{
+    read_component, read_components_list, remove_component, write_component, write_components,
+};
 use crate::error::Error;
 use crate::error::{check_nonnegative_amount, check_zero_or_negative_amount};
+use crate::helpers::update_position;
 use crate::manager::{read_manager, write_manager};
 use crate::metadata::*;
 use crate::module::{is_registered, read_module, remove_module, write_module};
 use crate::storage::keys::{AllowanceDataKey, DataKey};
+use crate::storage::registry::write_registry;
 use crate::storage::total_supply::read_total_supply;
 use crate::storage::types::{
     AllowanceValue, Component, INSTANCE_BUMP_AMOUNT, INSTANCE_LIFETIME_THRESHOLD,
 };
 use crate::traits::{ConstellationTokenInterface, Module};
-use crate::validation::{
-    assert_registered_module, require_administrator, require_manager, require_registry,
+use crate::require::{
+    assert_registered_module, require_administrator, require_manager, assert_token_registered_module, require_registry
 };
 use soroban_sdk::auth::InvokerContractAuthEntry;
 use soroban_sdk::token::TokenClient;
@@ -113,7 +115,7 @@ impl ConstellationTokenInterface for ConstellationToken {
                 symbol,
             },
         );
-       write_components(&e, &components, &units);
+        write_components(&e, &components, &units);
         event::initialize(&e, components, units);
         Ok(())
     }
@@ -141,7 +143,7 @@ impl ConstellationTokenInterface for ConstellationToken {
         receive_balance(&e, to.clone(), amount);
 
         increase_supply(&e, amount);
-        
+
         TokenUtils::new(&e).events().mint(admin, to, amount);
 
         Ok(())
@@ -186,8 +188,8 @@ impl ConstellationTokenInterface for ConstellationToken {
             .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
 
         write_registry(&e, &registry);
- 
-       event::set_registry(&e, registry);
+
+        event::set_registry(&e, registry);
 
         Ok(())
     }
@@ -201,7 +203,7 @@ impl ConstellationTokenInterface for ConstellationToken {
     }
 
     fn get_component(e: Env, component_address: Address) -> Option<Component> {
-        read_component(&e,component_address )
+        read_component(&e, component_address)
     }
 
     fn get_manager(e: Env) -> Option<Address> {
@@ -315,12 +317,15 @@ impl token::Interface for ConstellationToken {
 
 #[contractimpl]
 impl Module for ConstellationToken {
-    fn update_units(e: Env, token_in: (Address, i128), token_out:  (Address, i128)) -> Result<(), Error> { 
-      
-       let token_in_unit = update_position(&e, token_in);
-       let token_out_unit = update_position(&e, token_out);
-       // TODO: EMIT EVENT 
-       Ok(())
+    fn update_units(
+        e: Env,
+        token_in: (Address, i128),
+        token_out: (Address, i128),
+    ) -> Result<(), Error> {
+        let token_in_unit = update_position(&e, token_in);
+        let token_out_unit = update_position(&e, token_out);
+        // TODO: EMIT EVENT
+        Ok(())
     }
     fn add_module(e: Env, module_id: Address) -> Result<(), Error> {
         let manager = require_manager(&e)?;
@@ -344,10 +349,10 @@ impl Module for ConstellationToken {
         call_data: (Symbol, Vec<Val>),
         auth_entries: Vec<InvokerContractAuthEntry>,
     ) -> Result<(), Error> {
-         module_id.require_auth();
+        module_id.require_auth();
         let registry = require_registry(&e)?;
-         assert_registered_module(&e, &module_id, &registry);
-        // // TODO: Check module is registered on the token
+        assert_registered_module(&e, &module_id, &registry);
+        assert_token_registered_module(&e, &module_id);
         let (function, args) = call_data;
         e.authorize_as_current_contract(auth_entries);
         e.invoke_contract::<Val>(&target_id, &function, args);

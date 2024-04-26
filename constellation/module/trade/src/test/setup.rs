@@ -3,9 +3,9 @@ extern crate std;
 use super::add_liquidity::add_liquidity;
 use super::clients::{
     create_adapter, create_constellation_token, create_registry, create_soroswap_factory,
-    create_soroswap_router, create_token_contract, create_trade_module, pair_contract_wasm, registry,
-    ConstellationTokenClient, RegistryClient, SoroswapFactoryClient, SoroswapRouterClient,
-    TokenClient, TradeAdapterClient,
+    create_soroswap_router, create_token_contract, create_trade_module, pair_contract_wasm,
+    registry, ConstellationTokenClient, RegistryClient, SoroswapFactoryClient,
+    SoroswapRouterClient, TokenClient, TradeAdapterClient,
 };
 use crate::contract::TradeClient;
 use soroban_sdk::{testutils::Address as _, Address, BytesN, Env, String, Vec};
@@ -42,10 +42,8 @@ impl<'a> TradeTest<'a> {
         let registry = create_registry(&env);
         let trade_module = create_trade_module(&env);
 
-        // constellation_token.initialize(decimal, components, units, name, symbol, &admin, manager);
-
         adapter.initialize(&router.address, &factory.address);
-        router.initialize(&factory.address); 
+        router.initialize(&factory.address);
         registry.initialize(&admin);
         factory.initialize(&admin, &pair_contract_wasm(&env));
         trade_module.initialize(&registry.address);
@@ -54,7 +52,7 @@ impl<'a> TradeTest<'a> {
             create_token_contract(&env, &admin),
             create_token_contract(&env, &admin),
             create_token_contract(&env, &admin),
-            create_token_contract(&env, &admin), 
+            create_token_contract(&env, &admin),
         );
 
         // if &tokens.1.address < &tokens.0.address {
@@ -62,9 +60,9 @@ impl<'a> TradeTest<'a> {
         // }
 
         tokens.0.mint(&user, &10_000_000_000_000_000_000);
-        tokens.1.mint(&user, &10_000_000_000_000_000_000); 
+        tokens.1.mint(&user, &10_000_000_000_000_000_000);
         tokens.2.mint(&user, &10_000_000_000_000_000_000);
-        tokens.3.mint(&user, &10_000_000_000_000_000_000); 
+        tokens.3.mint(&user, &10_000_000_000_000_000_000);
 
         let amount_0: i128 = 4_000_000_000;
         let amount_1: i128 = 4_000_000_000;
@@ -109,7 +107,7 @@ impl<'a> TradeTest<'a> {
             &amount_1,
         );
 
-        env.budget().reset_unlimited(); 
+        env.budget().reset_unlimited();
 
         Self {
             env,
