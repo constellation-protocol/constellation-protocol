@@ -1,6 +1,7 @@
 // use super::registry::get_adapter_id;
 use crate::error::Error;
 use crate::registry::is_registered_module;
+use crate::storage::module::is_registered;
 use crate::storage::{admin::read_administrator, manager::read_manager, registry::read_registry};
 use soroban_sdk::{contract, contractimpl, contracttype, panic_with_error, Address, Env};
 
@@ -28,13 +29,21 @@ pub fn require_manager(e: &Env) -> Result<Address, Error> {
     Ok(manage_id)
 }
 
+pub fn assert_token_registered_module(e: &Env, module_id: &Address) -> Result<(), Error> { 
+ 
+    if is_registered(e, module_id.clone()) == false { 
+        return Err(Error::RequiresTokenRegisteredModule);
+    }
+    Ok(())
+}
+
 pub fn assert_registered_module(
     e: &Env,
     module_id: &Address,
     registry_id: &Address,
 ) -> Result<(), Error> {
     if is_registered_module(e, module_id, registry_id) == false {
-        return Err(Error::UnregisteredModule);
+        return Err(Error::ModuleNotInRegistery);
     };
     Ok(())
 }

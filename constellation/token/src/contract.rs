@@ -22,8 +22,8 @@ use crate::storage::types::{
     AllowanceValue, Component, INSTANCE_BUMP_AMOUNT, INSTANCE_LIFETIME_THRESHOLD,
 };
 use crate::traits::{ConstellationTokenInterface, Module};
-use crate::validation::{
-    assert_registered_module, require_administrator, require_manager, require_registry,
+use crate::require::{
+    assert_registered_module, require_administrator, require_manager, assert_token_registered_module, require_registry
 };
 use soroban_sdk::auth::InvokerContractAuthEntry;
 use soroban_sdk::token::TokenClient;
@@ -352,7 +352,7 @@ impl Module for ConstellationToken {
         module_id.require_auth();
         let registry = require_registry(&e)?;
         assert_registered_module(&e, &module_id, &registry);
-        // // TODO: Check module is registered on the token
+        assert_token_registered_module(&e, &module_id);
         let (function, args) = call_data;
         e.authorize_as_current_contract(auth_entries);
         e.invoke_contract::<Val>(&target_id, &function, args);
