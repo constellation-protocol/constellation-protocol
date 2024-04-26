@@ -5,7 +5,7 @@ use crate::helper::{
     get_base_token_amount_in, get_required_amount_token_in, refund_unspent,
     swap_tokens_for_exact_tokens,
 };
-use crate::require::{require_exchange_router, require_xml};
+use crate::require::{require_exchange_router, require_xlm};
 use crate::storage::{
     has_factory, read_exchange_router, read_factory, read_xlm, write_exchange_router,
     write_factory, write_xlm, xlm,
@@ -80,7 +80,7 @@ impl Router {
     ///
     /// # Arguments
     /// - `e` - The runtime environment.
-    /// - `constellation_token_address` - Address of constellation token to mint
+    /// - `amount_in` - Address of constellation token to mint
     /// - `amount` - Amount to mint
     ///
     /// Caller must possess balances of component tokens of the specified constellation token
@@ -108,7 +108,7 @@ impl Router {
             &amount_in,
         );
 
-        let xlm_id = require_xml(&e);
+        let xlm_id = require_xlm(&e);
 
         let components = ctoken::get_components(&e, &constellation_token_id);
 
@@ -154,6 +154,31 @@ impl Router {
         Ok(refund)
     }
 
+
+    pub fn redeem_into(e: Env, to: Address, amount: i128, constellation_token: Address, redeem_token: Address, deadline: u64) -> Result<(), Error> {
+         to.require_auth();
+
+         if amount <= 0 {
+            return Err(Error::ZeroOrNegativeAmount);
+         }
+
+         let router_id = &require_exchange_router(&e);
+         
+         let xlm_id = require_xlm(&e);
+         
+        ctoken::redeem(&e, &to, &e.current_contract_address(), amount, &constellation_token);
+
+        let components = ctoken::get_components(&e, &constellation_token);
+
+        for c in components.iter() {
+             let balance = token::Client::new(&e, &c.address).balance(&e.current_contract_address());
+             soroswap_router::swap_exact_tokens_for_tokens(&e, router_id, balance, 0, &c.address,&xlm_id , &to, deadline);
+        }
+
+        event::redeem_into(&e, to,redeem_token, amount, constellation_token);
+        Ok(())
+    }
+
     /// Burns constellation token amount and releases component tokens to the specified `from` address
     /// Returns error if already amount is 0 or negative
     ///
@@ -176,7 +201,7 @@ impl Router {
             return Err(Error::ZeroOrNegativeAmount);
         }
 
-        ctoken::redeem(&e, from, amount, constellation_token_address);
+        ctoken::redeem(&e, &from, &from, amount, &constellation_token_address);
         Ok(())
     }
 

@@ -392,7 +392,7 @@ fn test_mint() {
         &10000000u64
     );
 
-    // assert_eq!(refund, 10); 
+    assert_eq!(refund, 10); 
 
     assert_eq!(test.constellation_token.balance(&test.user), 10);
  

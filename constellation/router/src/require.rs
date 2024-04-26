@@ -12,7 +12,7 @@ pub fn require_exchange_router(e: &Env) -> Address {
     }
 }
 
-pub fn require_xml(e: &Env) -> Address {
+pub fn require_xlm(e: &Env) -> Address {
     match read_xlm(e) {
         Some(xlm) => xlm,
         None => panic_with_error!(&e, Error::RequiresXlmID),
