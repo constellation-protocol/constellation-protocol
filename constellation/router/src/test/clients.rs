@@ -1,12 +1,12 @@
 use soroban_sdk::{Address, BytesN, Env};
 
+pub use crate::contract::RouterClient;
 pub use adapter::TradeAdapterClient;
 pub use constellation_token::ConstellationTokenClient;
 pub use factory::SoroswapFactoryClient;
 pub use registry::RegistryClient;
 pub use router::SoroswapRouterClient;
 pub use token::TokenClient;
-pub use crate::contract::RouterClient;
 
 mod constellation_token {
     use soroban_sdk::auth::InvokerContractAuthEntry;
@@ -51,7 +51,7 @@ pub fn pair_contract_wasm(e: &Env) -> BytesN<32> {
     soroban_sdk::contractimport!(file = "../../libs/soroswap_pair.wasm");
     e.deployer().upload_contract_wasm(WASM)
 }
- 
+
 pub fn create_soroswap_router<'a>(e: &Env) -> SoroswapRouterClient<'a> {
     SoroswapRouterClient::new(e, &e.register_contract_wasm(None, router::WASM))
 }

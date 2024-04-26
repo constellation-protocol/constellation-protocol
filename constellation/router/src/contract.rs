@@ -116,7 +116,14 @@ impl Router {
             get_required_amount_token_in(&e, &token_in, amount, &components)?;
 
         let amount_in = get_base_token_amount_in(
-            &e, &router_id, amount_in, 0, &token_in, &xlm_id, &e.current_contract_address(), deadline,
+            &e,
+            &router_id,
+            amount_in,
+            0,
+            &token_in,
+            &xlm_id,
+            &e.current_contract_address(),
+            deadline,
         )?;
 
         if total_token_in_amount > amount_in {
@@ -154,28 +161,47 @@ impl Router {
         Ok(refund)
     }
 
+    pub fn redeem_into(
+        e: Env,
+        to: Address,
+        amount: i128,
+        constellation_token: Address,
+        redeem_token: Address,
+        deadline: u64,
+    ) -> Result<(), Error> {
+        to.require_auth();
 
-    pub fn redeem_into(e: Env, to: Address, amount: i128, constellation_token: Address, redeem_token: Address, deadline: u64) -> Result<(), Error> {
-         to.require_auth();
-
-         if amount <= 0 {
+        if amount <= 0 {
             return Err(Error::ZeroOrNegativeAmount);
-         }
+        }
 
-         let router_id = &require_exchange_router(&e);
-         
-         let xlm_id = require_xlm(&e);
-         
-        ctoken::redeem(&e, &to, &e.current_contract_address(), amount, &constellation_token);
+        let router_id = &require_exchange_router(&e);
+
+        ctoken::redeem(
+            &e,
+            &to,
+            &e.current_contract_address(),
+            amount,
+            &constellation_token,
+        );
 
         let components = ctoken::get_components(&e, &constellation_token);
 
         for c in components.iter() {
-             let balance = token::Client::new(&e, &c.address).balance(&e.current_contract_address());
-             soroswap_router::swap_exact_tokens_for_tokens(&e, router_id, balance, 0, &c.address,&xlm_id , &to, deadline);
+            let balance = token::Client::new(&e, &c.address).balance(&e.current_contract_address());
+            soroswap_router::swap_exact_tokens_for_tokens(
+                &e,
+                router_id,
+                balance,
+                0,
+                &c.address,
+                &redeem_token,
+                &to,
+                deadline,
+            );
         }
 
-        event::redeem_into(&e, to,redeem_token, amount, constellation_token);
+        event::redeem_into(&e, to, redeem_token, constellation_token, amount);
         Ok(())
     }
 

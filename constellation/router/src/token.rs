@@ -13,7 +13,13 @@ pub(crate) fn mint(e: &Env, to: &Address, amount: i128, constellation_token_addr
     ctoken.mint(to, &amount);
 }
 
-pub(crate) fn redeem(e: &Env, from: &Address, to: &Address, amount: i128, constellation_token_address: &Address) {
+pub(crate) fn redeem(
+    e: &Env,
+    from: &Address,
+    to: &Address,
+    amount: i128,
+    constellation_token_address: &Address,
+) {
     let ctoken = constellation_token::Client::new(&e, constellation_token_address);
     ctoken.burn_from(&e.current_contract_address(), from, &amount);
     ctoken.redeem(to, &amount);

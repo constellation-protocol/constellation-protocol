@@ -51,5 +51,5 @@ pub(crate) fn create(
         &salt,
     );
 
-    constellation_token_address 
+    constellation_token_address
 }

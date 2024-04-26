@@ -2,9 +2,8 @@ extern crate std;
 
 use super::add_liquidity::add_liquidity;
 use super::clients::{
-    create_router,
-    create_adapter, create_constellation_token, create_registry, create_soroswap_factory,
-    create_soroswap_router, create_token_contract, pair_contract_wasm,
+    create_adapter, create_constellation_token, create_registry, create_router,
+    create_soroswap_factory, create_soroswap_router, create_token_contract, pair_contract_wasm,
     registry, ConstellationTokenClient, RegistryClient, RouterClient, SoroswapFactoryClient,
     SoroswapRouterClient, TokenClient, TradeAdapterClient,
 };
@@ -28,6 +27,7 @@ pub struct TradeTest<'a> {
     pub factory: SoroswapFactoryClient<'a>,
     pub constellation_token: ConstellationTokenClient<'a>,
     pub tokens: Tokens<'a>,
+    pub deadline: u64,
 }
 
 impl<'a> TradeTest<'a> {
@@ -42,7 +42,7 @@ impl<'a> TradeTest<'a> {
         let constellation_token = create_constellation_token(&env);
         let registry = create_registry(&env);
         let router = create_router(&env);
- 
+
         // constellation_token.initialize(decimal, components, units, name, symbol, &admin, manager);
 
         let mut tokens: Tokens = (
@@ -122,7 +122,8 @@ impl<'a> TradeTest<'a> {
             registry,
             factory,
             constellation_token,
-            tokens, 
+            tokens,
+            deadline: 10000000u64,
         }
     }
 }

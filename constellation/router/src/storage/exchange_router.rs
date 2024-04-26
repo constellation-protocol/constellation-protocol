@@ -10,7 +10,9 @@ pub(crate) fn extend_ttl(e: &Env) {
 }
 
 pub(crate) fn write_exchange_router(e: &Env, factory: &Address) {
-    e.storage().instance().set(&DataKey::ExchangeRouter, factory);
+    e.storage()
+        .instance()
+        .set(&DataKey::ExchangeRouter, factory);
     extend_ttl(e);
 }
 
