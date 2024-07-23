@@ -43,6 +43,8 @@ pub trait Module {
     ) -> Result<(), Error>;
     fn add_module(e: Env, module: Address) -> Result<(), Error>;
     fn remove_module(e: Env, module: Address) -> Result<(), Error>;
+
+    fn is_registered_module(e: Env, module: Address) -> bool;
     fn invoke(
         e: Env,
         caller_module_id: Address,

@@ -332,14 +332,18 @@ impl Module for ConstellationToken {
         manager.require_auth();
         let registry = require_registry(&e)?;
         assert_registered_module(&e, &module_id, &registry);
-        write_module(&e, module_id);
+        write_module(&e, &module_id);
         Ok(())
     }
     fn remove_module(e: Env, module_id: Address) -> Result<(), Error> {
         let manager = require_manager(&e)?;
         manager.require_auth();
-        remove_module(&e, module_id);
+        remove_module(&e, &module_id);
         Ok(())
+    }
+
+    fn is_registered_module(e: Env, module_id: Address) -> bool {
+        is_registered(&e, &module_id)
     }
 
     fn invoke(
