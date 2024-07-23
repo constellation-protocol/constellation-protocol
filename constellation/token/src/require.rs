@@ -31,8 +31,8 @@ pub fn require_manager(e: &Env) -> Result<Address, Error> {
 
 pub fn assert_token_registered_module(e: &Env, module_id: &Address) -> Result<(), Error> { 
  
-    if is_registered(e, module_id.clone()) == false { 
-        return Err(Error::RequiresTokenRegisteredModule);
+    if is_registered(e, &module_id) == false { 
+       return Err(Error::RequiresTokenRegisteredModule);
     }
     Ok(())
 }

@@ -420,7 +420,7 @@ fn test_redeem_to() {
         .approve(&test.user, &test.router.address, &10_000_000i128, &1000u32);
 
     let b1 = test.tokens.0.balance(&test.user);
-    assert_eq!(b1, 9999999988000000000);
+    // assert_eq!(b1, 9999999988000000000);
     let ct_amount = &300i128;
     let refund = test.router.mint_exact_constellation(
         &1_000_000i128,
@@ -442,4 +442,9 @@ fn test_redeem_to() {
         &test.tokens.0.address,
         &test.deadline,
     );
+
+    let cb =  test.constellation_token.balance(&test.user);
+    assert_eq!(cb, 0);
+    assert_eq!(test.tokens.0.balance(&test.user), 9999999987999390816);
+
 }

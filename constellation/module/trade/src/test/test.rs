@@ -85,6 +85,7 @@ fn test_trade() {
         &deadline,
         &expiration_ledger,
     );
+
     assert_eq!(
         test.tokens.2.balance(&test.constellation_token.address),
         amount_out
