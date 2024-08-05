@@ -15,6 +15,10 @@ use crate::helpers::update_position;
 use crate::manager::{read_manager, write_manager};
 use crate::metadata::*;
 use crate::module::{is_registered, read_module, remove_module, write_module};
+use crate::require::{
+    assert_registered_module, assert_token_registered_module, require_administrator,
+    require_manager, require_registry,
+};
 use crate::storage::keys::{AllowanceDataKey, DataKey};
 use crate::storage::registry::write_registry;
 use crate::storage::total_supply::read_total_supply;
@@ -22,9 +26,6 @@ use crate::storage::types::{
     AllowanceValue, Component, INSTANCE_BUMP_AMOUNT, INSTANCE_LIFETIME_THRESHOLD,
 };
 use crate::traits::{ConstellationTokenInterface, Module};
-use crate::require::{
-    assert_registered_module, require_administrator, require_manager, assert_token_registered_module, require_registry
-};
 use soroban_sdk::auth::InvokerContractAuthEntry;
 use soroban_sdk::token::TokenClient;
 use soroban_sdk::{

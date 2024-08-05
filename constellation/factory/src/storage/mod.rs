@@ -1,6 +1,8 @@
 use soroban_sdk::contracttype;
 
 pub(crate) mod admin;
+pub(crate) mod constellation_token_hash;
+pub(crate) mod deployments_count;
 pub(crate) mod max_components;
 pub(crate) mod token_list;
 pub(crate) const DAY_IN_LEDGERS: u32 = 17280;
@@ -13,4 +15,6 @@ pub enum DataKey {
     Admin,
     MaxComponents,
     TokenList,
+    DeploymentCount,
+    ConstellationTokenHash,
 }

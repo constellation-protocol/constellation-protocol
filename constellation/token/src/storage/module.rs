@@ -4,7 +4,7 @@ use soroban_sdk::{Address, Env};
 
 pub fn read_module(e: &Env, id: &Address) -> Option<Address> {
     let key = DataKey::Module(id.clone());
-   e.storage().instance().get(&key)
+    e.storage().instance().get(&key)
 }
 
 pub fn write_module(e: &Env, id: &Address) {
