@@ -90,7 +90,7 @@ fn test_trade() {
         test.tokens.2.balance(&test.constellation_token.address),
         amount_out
     );
-   // check units 
+    // check units
     assert_eq!(
         test.tokens.2.balance(&test.constellation_token.address),
         4984

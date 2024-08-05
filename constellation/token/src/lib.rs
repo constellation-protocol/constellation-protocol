@@ -4,8 +4,8 @@ pub mod error;
 mod event;
 mod helpers;
 mod registry;
-mod storage;
 mod require;
+mod storage;
 
 #[cfg(test)]
 mod test;

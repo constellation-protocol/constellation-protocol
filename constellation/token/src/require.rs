@@ -29,10 +29,9 @@ pub fn require_manager(e: &Env) -> Result<Address, Error> {
     Ok(manage_id)
 }
 
-pub fn assert_token_registered_module(e: &Env, module_id: &Address) -> Result<(), Error> { 
- 
-    if is_registered(e, &module_id) == false { 
-       return Err(Error::RequiresTokenRegisteredModule);
+pub fn assert_token_registered_module(e: &Env, module_id: &Address) -> Result<(), Error> {
+    if is_registered(e, &module_id) == false {
+        return Err(Error::RequiresTokenRegisteredModule);
     }
     Ok(())
 }

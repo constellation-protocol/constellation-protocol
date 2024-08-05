@@ -8,9 +8,17 @@ use constellation_lib::traits::adapter::dex;
 use soroban_sdk::auth::InvokerContractAuthEntry;
 use soroban_sdk::vec;
 use soroban_sdk::{
+    contract,
+    contractimpl,
+    contracttype,
+    panic_with_error,
     // auth::{ContractContext, InvokerContractAuthEntry, SubContractInvocation},
     token::TokenClient,
-    contract, contractimpl, contracttype, panic_with_error, Address, Env, Symbol, Val, Vec,
+    Address,
+    Env,
+    Symbol,
+    Val,
+    Vec,
 };
 #[contract]
 pub struct Trade {}
@@ -76,8 +84,10 @@ impl Trade {
             &constellation_token_id,
         );
 
-        let balance_before_trade_token_in = TokenClient::new(&e, &token_in_id).balance(&constellation_token_id);
-        let balance_before_trade_token_out = TokenClient::new(&e, &token_out_id).balance(&constellation_token_id);
+        let balance_before_trade_token_in =
+            TokenClient::new(&e, &token_in_id).balance(&constellation_token_id);
+        let balance_before_trade_token_out =
+            TokenClient::new(&e, &token_out_id).balance(&constellation_token_id);
 
         Self::execute_trade(
             &e,
@@ -87,7 +97,14 @@ impl Trade {
             &auth_entries,
         );
 
-        update_units(&e, balance_before_trade_token_in, balance_before_trade_token_out, &token_in_id, &token_out_id, &constellation_token_id);
+        update_units(
+            &e,
+            balance_before_trade_token_in,
+            balance_before_trade_token_out,
+            &token_in_id,
+            &token_out_id,
+            &constellation_token_id,
+        );
 
         Ok(())
     }
@@ -117,5 +134,3 @@ impl Trade {
         );
     }
 }
-
-

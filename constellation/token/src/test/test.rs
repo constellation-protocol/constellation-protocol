@@ -1,9 +1,8 @@
-
 extern crate std;
 
+use super::test_interface::initialize_token;
 use crate::contract::ConstellationTokenClient;
-use crate::error::Error;  
-use super::test_interface::initialize_token; 
+use crate::error::Error;
 use soroban_sdk::{
     symbol_short,
     testutils::{Address as _, AuthorizedFunction, AuthorizedInvocation},
@@ -226,11 +225,10 @@ fn test_initialize_successful() {
         &manager,
     );
 
-   assert_eq!(ct.get_admin().unwrap(), admin);
-   assert_eq!(ct.get_manager().unwrap(), manager);
-   assert_eq!(ct.get_components().len(), 3);
+    assert_eq!(ct.get_admin().unwrap(), admin);
+    assert_eq!(ct.get_manager().unwrap(), manager);
+    assert_eq!(ct.get_components().len(), 3);
 }
-
 
 #[test]
 fn test_set_manager_panics_with_authorization_failed() {

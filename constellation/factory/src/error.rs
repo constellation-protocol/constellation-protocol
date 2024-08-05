@@ -11,4 +11,5 @@ pub enum Error {
     ExceedsMaxComponents = 401,
     AlreadyInitialized = 500,
     RequiresAdministrator = 501,
+    ReqiuresConstellationWasmTokenHash = 502,
 }

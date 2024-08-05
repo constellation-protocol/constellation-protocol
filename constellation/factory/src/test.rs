@@ -58,7 +58,7 @@ pub fn create_constellation_token_fails_with_exceeds_max_components() {
     let wasm_hash = e.deployer().upload_contract_wasm(constellation_token::WASM);
 
     let factory = create_factory(&e);
-    factory.initialize(&user);
+    factory.initialize(&user, &wasm_hash);
     factory.set_max_components(&2u32);
     let result = factory.try_create(
         &6u32,
@@ -69,8 +69,6 @@ pub fn create_constellation_token_fails_with_exceeds_max_components() {
         &components,
         &amounts,
         &factory.address,
-        &wasm_hash,
-        &wasm_hash,
     );
 
     assert_eq!(result, Err(Ok(Error::ExceedsMaxComponents)));
@@ -94,6 +92,7 @@ pub fn create_constellation_token_succeeds() {
     let wasm_hash = e.deployer().upload_contract_wasm(constellation_token::WASM);
 
     let factory = create_factory(&e);
+    factory.initialize(&user1, &wasm_hash);
     let result = factory.create(
         &6u32,
         &"USDC".into_val(&e),
@@ -102,9 +101,7 @@ pub fn create_constellation_token_succeeds() {
         &user,
         &components,
         &amounts,
-        &factory.address,
-        &wasm_hash,
-        &wasm_hash,
+        &factory.address, 
     );
 
     let constellation_tokens = factory.get_token_list();
@@ -129,7 +126,8 @@ pub fn set_max_components_succeeds() {
     let user = Address::generate(&e);
 
     let factory = create_factory(&e);
-    factory.initialize(&user);
+    let wasm_hash = e.deployer().upload_contract_wasm(constellation_token::WASM);
+    factory.initialize(&user, &wasm_hash);
     let result = factory.try_set_max_components(&2u32);
 
     assert_eq!(result, Ok(Ok(())));
@@ -141,8 +139,9 @@ pub fn initialize_fails_with_already_initialized() {
     e.mock_all_auths();
     let user = Address::generate(&e);
     let factory = create_factory(&e);
-    factory.initialize(&user);
-    let result = factory.try_initialize(&user);
+    let wasm_hash = e.deployer().upload_contract_wasm(constellation_token::WASM);
+    factory.initialize(&user, &wasm_hash);
+    let result = factory.try_initialize(&user, &wasm_hash);
     assert_eq!(result, Err(Ok(Error::AlreadyInitialized)));
 }
 
@@ -152,6 +151,7 @@ pub fn initialize_succeeds() {
     e.mock_all_auths();
     let user = Address::generate(&e);
     let factory = create_factory(&e);
-    let result = factory.try_initialize(&user);
+    let wasm_hash = e.deployer().upload_contract_wasm(constellation_token::WASM);
+    let result = factory.try_initialize(&user, &wasm_hash);
     assert_eq!(result, Ok(Ok(())));
 }
