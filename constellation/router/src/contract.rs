@@ -254,8 +254,6 @@ impl Router {
         manager: Address,
         components: Vec<Address>,
         amounts: Vec<i128>,
-        wasm_hash: BytesN<32>,
-        salt: BytesN<32>,
     ) -> Result<Address, Error> {
         let constellation_token_adddress = match read_factory(&e) {
             Some(_factory) => factory::create(
@@ -268,8 +266,6 @@ impl Router {
                 components,
                 amounts,
                 _factory,
-                wasm_hash,
-                salt,
             ),
 
             None => return Err(Error::RequiresFactory),

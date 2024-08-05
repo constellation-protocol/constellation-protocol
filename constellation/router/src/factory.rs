@@ -34,8 +34,6 @@ pub(crate) fn create(
     components: Vec<Address>,
     amounts: Vec<i128>,
     factory_address: Address,
-    wasm_hash: BytesN<32>,
-    salt: BytesN<32>,
 ) -> Address {
     let factory = constellation_factory::Client::new(e, &factory_address);
     let constellation_token_address: Address = factory.create(
@@ -47,8 +45,6 @@ pub(crate) fn create(
         &components,
         &amounts,
         &factory_address,
-        &wasm_hash,
-        &salt,
     );
 
     constellation_token_address

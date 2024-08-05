@@ -1,7 +1,6 @@
 use super::clients::{
-    ConstellationTokenClient,
     create_constellation_token, create_factory, create_router, create_soroswap_router,
-    create_token_contract,
+    create_token_contract, ConstellationTokenClient,
 };
 use crate::factory;
 use crate::token::constellation_token;
@@ -53,7 +52,7 @@ fn mint_test_should_fail_with_zero_or_negative_amount() {
     e.mock_all_auths();
     let mut user = Address::generate(&e);
 
-    let (ct,_,_)= initialize_token(&e, create_constellation_token(&e));
+    let (ct, _, _) = initialize_token(&e, create_constellation_token(&e));
     let router = create_router(&e);
     let result = router.try_mint(&user, &ct.address, &0i128);
 
@@ -254,8 +253,7 @@ fn create_token_fails_with_requires_factory() {
     let name = "c_token".into_val(&e);
     let symbol = "token_symbol".into_val(&e);
     let manager = Address::generate(&e);
-    let ct = create_constellation_token(&e);
-    let wasm_hash = e.deployer().upload_contract_wasm(constellation_token::WASM);
+    let ct = create_constellation_token(&e); 
     let router = create_router(&e);
     let factory = create_factory(&e);
     let result = router.try_create_token(
@@ -264,9 +262,7 @@ fn create_token_fails_with_requires_factory() {
         &symbol,
         &manager,
         &components,
-        &amounts,
-        &wasm_hash,
-        &wasm_hash,
+        &amounts, 
     );
 
     assert_eq!(result, Err(Ok(Error::RequiresFactory)));
@@ -296,6 +292,7 @@ fn create_token_succeeds() {
     let wasm_hash = e.deployer().upload_contract_wasm(constellation_token::WASM);
     let router = create_router(&e);
     let factory = create_factory(&e);
+    factory.initialize(&user1, &wasm_hash);
     let soroswap_router = create_soroswap_router(&e);
     router.initialize(
         &factory.address,
@@ -309,9 +306,7 @@ fn create_token_succeeds() {
         &symbol,
         &manager,
         &components,
-        &amounts,
-        &wasm_hash,
-        &wasm_hash,
+        &amounts, 
     );
     let tokens = factory.get_token_list();
     assert_eq!(result, tokens.get(0).unwrap());
@@ -443,8 +438,7 @@ fn test_redeem_to() {
         &test.deadline,
     );
 
-    let cb =  test.constellation_token.balance(&test.user);
+    let cb = test.constellation_token.balance(&test.user);
     assert_eq!(cb, 0);
     assert_eq!(test.tokens.0.balance(&test.user), 9999999987999390816);
-
 }
