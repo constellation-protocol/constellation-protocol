@@ -101,7 +101,7 @@ pub fn create_constellation_token_succeeds() {
         &user,
         &components,
         &amounts,
-        &factory.address, 
+        &factory.address,
     );
 
     let constellation_tokens = factory.get_token_list();

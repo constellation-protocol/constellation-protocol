@@ -6,19 +6,19 @@ use crate::helper::{
     swap_tokens_for_exact_tokens,
 };
 use crate::require::{require_exchange_router, require_xlm};
+use crate::soroswap_router;
 use crate::storage::{
     has_factory, read_exchange_router, read_factory, read_xlm, write_exchange_router,
     write_factory, write_xlm, xlm,
 };
 use crate::token as ctoken;
 use crate::token::constellation_token::Component;
+use constellation_lib::traits::adapter::dex;
 use soroban_sdk::auth::SubContractInvocation;
 use soroban_sdk::{
     contract, contracterror, contractimpl, contracttype, log, panic_with_error, symbol_short,
     token, vec, Address, BytesN, ConversionError, Env, InvokeError, String, Symbol, Vec,
 };
-
-use crate::soroswap_router;
 
 #[contract]
 pub struct Router;
@@ -80,8 +80,8 @@ impl Router {
     ///
     /// # Arguments
     /// - `e` - The runtime environment.
-    /// - `amount_in` - Address of constellation token to mint
-    /// - `amount` - Amount to mint
+    /// - `amount_in` -  Amount of input token
+    /// - `amount` - constellation Amount to mint
     ///
     /// Caller must possess balances of component tokens of the specified constellation token
     /// equal to or greater than the unit amount of the component token (of the constellation token) multiplied by
@@ -97,9 +97,10 @@ impl Router {
         to: Address,
         deadline: u64,
     ) -> Result<i128, Error> {
-        to.require_auth();
+       to.require_auth();
 
-        let router_id = require_exchange_router(&e);
+
+     let router_id = require_exchange_router(&e);
 
         token::Client::new(&e, &token_in).transfer_from(
             &e.current_contract_address(),
@@ -108,23 +109,30 @@ impl Router {
             &amount_in,
         );
 
-        let xlm_id = require_xlm(&e);
+        // token::Client::new(&e, &token_in).transfer(
+        //     &e.current_contract_address(),
+        //     &constellation_token_id,
+        //     // &e.current_contract_address(),
+        //     &amount_in,
+        // );
+
+       // let xlm_id = require_xlm(&e);
 
         let components = ctoken::get_components(&e, &constellation_token_id);
 
         let (total_token_in_amount, token_amounts_in) =
             get_required_amount_token_in(&e, &token_in, amount, &components)?;
 
-        let amount_in = get_base_token_amount_in(
-            &e,
-            &router_id,
-            amount_in,
-            0,
-            &token_in,
-            &xlm_id,
-            &e.current_contract_address(),
-            deadline,
-        )?;
+        // let amount_in = get_base_token_amount_in(
+        //     &e,
+        //     &router_id,
+        //     amount_in,
+        //     0,
+        //     &token_in,
+        //     &xlm_id,
+        //     &e.current_contract_address(),
+        //     deadline,
+        // )?;
 
         if total_token_in_amount > amount_in {
             return Err(Error::InsufficientInputAmount);
@@ -135,29 +143,32 @@ impl Router {
             &router_id,
             &token_amounts_in,
             i128::MAX,
-            &xlm_id,
-            &to,
+            &token_in,
+            // &xlm_id,
+          //  &to,
+            &e.current_contract_address(),
+          // &constellation_token_id,
+           &constellation_token_id,
             deadline,
             &components,
         )?;
 
-        ctoken::mint(&e, &to, amount, &constellation_token_id);
+        //  ctoken::mint(&e, &to, amount, &constellation_token_id);
 
-        let amount_unspent = amount_in - total_spent;
+        // let amount_unspent = amount_in - total_spent;
 
-        let refund = refund_unspent(
-            &e,
-            &router_id,
-            amount_unspent,
-            0,
-            &xlm_id,
-            &token_in,
-            &to,
-            deadline,
-        )?;
-
+        // let refund = refund_unspent(
+        //     &e,
+        //     &router_id,
+        //     amount_unspent,
+        //     0,
+        //     &xlm_id,
+        //     &token_in,
+        //     &to,
+        //     deadline,
+        // )?;
+        let refund = 1222;
         event::mint_exact_constellation(&e, to, amount, refund);
-
         Ok(refund)
     }
 

@@ -44,7 +44,7 @@ impl Trade {
         expiration_ledger: u32,
     ) -> Result<(), Error> {
         let manager = require_manager(&e, &constellation_token_id)?;
-        manager.require_auth();
+       manager.require_auth();
 
         let mut args: Vec<Val> = vec![&e];
 

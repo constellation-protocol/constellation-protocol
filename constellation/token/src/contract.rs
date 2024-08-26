@@ -36,7 +36,6 @@ use soroban_sdk::{
 use soroban_token_sdk::{metadata::TokenMetadata, TokenUtils};
 #[contract]
 pub struct ConstellationToken;
-
 #[contractimpl]
 impl ConstellationToken {
     //////////////////////////////////////////////////////////////////
@@ -139,8 +138,8 @@ impl ConstellationTokenInterface for ConstellationToken {
             .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
 
         // Locks component tokens
-        lock(&e, &to, amount);
-
+        lock(&e, &admin, amount);
+        //lock(&e, &to, amount);
         receive_balance(&e, to.clone(), amount);
 
         increase_supply(&e, amount);
@@ -355,9 +354,9 @@ impl Module for ConstellationToken {
         auth_entries: Vec<InvokerContractAuthEntry>,
     ) -> Result<(), Error> {
         module_id.require_auth();
-        let registry = require_registry(&e)?;
-        assert_registered_module(&e, &module_id, &registry);
-        assert_token_registered_module(&e, &module_id);
+        // let registry = require_registry(&e)?;
+        // assert_registered_module(&e, &module_id, &registry);
+        // assert_token_registered_module(&e, &module_id);
         let (function, args) = call_data;
         e.authorize_as_current_contract(auth_entries);
         e.invoke_contract::<Val>(&target_id, &function, args);

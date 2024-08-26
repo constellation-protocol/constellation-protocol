@@ -1,11 +1,21 @@
 use soroban_sdk::{panic_with_error, Address, Env};
 
-use crate::{error::Error, storage::factory::read_factory};
+use crate::{
+    error::Error,
+    storage::{factory::read_factory, router::read_router},
+};
 
 pub fn require_factory(e: &Env) -> Address {
     match read_factory(e) {
         Some(factory_id) => factory_id,
         None => panic_with_error!(&e, Error::RequiresFactory),
+    }
+}
+
+pub fn require_router(e: &Env) -> Address {
+    match read_router(e) {
+        Some(router_id) => router_id,
+        None => panic_with_error!(&e, Error::RequiresRouter),
     }
 }
 
