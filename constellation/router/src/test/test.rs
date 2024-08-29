@@ -15,9 +15,11 @@ use soroban_sdk::{
     symbol_short,
     testutils::{Address as _, AuthorizedFunction, AuthorizedInvocation},
     vec, Address, BytesN, Env, InvokeError, String, Val, Vec,
-    
 };
 extern crate std;
+use crate::auth::*;
+use crate::helper::*;
+use crate::token::Component;
 
 pub(crate) fn initialize_token<'a>(
     e: &Env,
@@ -315,13 +317,82 @@ pub(crate) fn initialize_token<'a>(
 //     assert_eq!(result, tokens.get(0).unwrap());
 // }
 
+// #[test]
+// fn test_mint() {
+//     let test = TradeTest::setup();
+//     test.env.mock_all_auths_allowing_non_root_auth();
+
+//     // units
+//     let units = vec![&test.env, 1000, 1000];
+//     // components
+//     let components: Vec<Address> = vec![
+//         &test.env,
+//         test.tokens.1.address.clone(),
+//         test.tokens.2.address.clone(),
+//     ];
+//     let name: String = "c_token".into_val(&test.env);
+//     let symbol: String = "token_symbol".into_val(&test.env);
+//     let manager = Address::generate(&test.env);
+
+//     test.constellation_token.initialize(
+//         &6u32,
+//         &components,
+//         &units,
+//         &name,
+//         &symbol,
+//         &test.router.address,
+//         &manager,
+//     );
+
+//     test.tokens.1.approve(
+//         &test.user,
+//         &test.constellation_token.address,
+//         &10_000_000i128,
+//         &1000u32,
+//     );
+
+//     test.tokens.2.approve(
+//         &test.user,
+//         &test.constellation_token.address,
+//         &10_000_000i128,
+//         &1000u32,
+//     );
+
+//     test.tokens.0.approve(
+//         &test.user,
+//         &test.router.address,
+//         &10000_000_000i128,
+//         &1000u32,
+//     );
+
+//     test.tokens.0.approve(
+//         &test.router.address,
+//         &test.s_router.address,
+//         &700000_000_000i128,
+//         &1000u32,
+//     );
+
+//     // let refund = test.router.mint_exact_constellation(
+//     //     &1_000_000i128,
+//     //     &10i128,
+//     //     &test.tokens.0.address,
+//     //     &test.constellation_token.address,
+//     //     &test.user,
+//     //     &10000000u64,
+//     // );
+//     std::dbg!(test.env.auths());
+//     // // assert_eq!(refund, 10);
+
+//     // assert_eq!(test.constellation_token.balance(&test.user), 10);
+// }
+
 #[test]
 fn test_mint() {
     let test = TradeTest::setup();
-   // test.env.mock_all_auths_allowing_non_root_auth();
-   test.env.mock_all_auths();
+    // test.env.mock_all_auths_allowing_non_root_auth();
+
     // units
-    let units = vec![&test.env, 1000, 1000];
+    let units = vec![&test.env, 1, 1];
     // components
     let components: Vec<Address> = vec![
         &test.env,
@@ -355,26 +426,75 @@ fn test_mint() {
         &10_000_000i128,
         &1000u32,
     );
-    
 
-    test.tokens
-        .0
-        .approve(&test.user, &test.router.address, &10000_000_000i128, &1000u32);
+    test.tokens.0.approve(
+        &test.user,
+        &test.router.address,
+        &10000_000_000i128,
+        &1000u32,
+    );
 
-    test.tokens
-    .0
-    .approve(&test.router.address, &test.s_router.address, &700000_000_000i128, &1000u32);
+    test.tokens.0.approve(
+        &test.router.address,
+        &test.s_router.address,
+        &700000_000_000i128,
+        &1000u32,
+    );
+
+    let amount_in = 1000;
+
+    let path = &vec![
+        &test.env,
+        test.tokens.0.address.clone(),
+        test.tokens.1.address.clone(),
+    ];
+
+    let res = test.s_router.router_get_amounts_out(&amount_in, path);
+
+    let amount_out = res.get(1).unwrap();
+
+    let deadline: u64 = test.env.ledger().timestamp() + 1000;
+
+    let pair = test
+        .s_router
+        .router_pair_for(&test.tokens.1.address, &test.tokens.0.address);
+
+    let call_data = get_swap_call_data(
+        &test.env,
+        test.tokens.1.address.clone(),
+        test.tokens.0.address.clone(),
+        amount_in,
+        amount_out,
+        test.router.address.clone(),
+        deadline,
+    );
+
+    let auth_entries = create_sub_auth(
+        &test.env,
+        amount_in,
+        test.tokens.1.address.clone(),
+        test.tokens.0.address.clone(),
+        test.router.address.clone(),
+        pair.clone(),
+    );
+
+    assert_eq!(test.constellation_token.balance(&test.user), 0);
+
+    let mint_amount = 1;
 
     let refund = test.router.mint_exact_constellation(
-        &1_000_000i128,
-        &10i128,
+        &mint_amount,
+        &amount_in,
         &test.tokens.0.address,
-        &test.constellation_token.address,
         &test.user,
-        &10000000u64,
+        &test.constellation_token.address,
+        &deadline,
     );
+
+    assert_eq!(test.constellation_token.balance(&test.user), 1);
+    assert_eq!(refund, 0);
+
     std::dbg!(test.env.auths());
-    // // assert_eq!(refund, 10);
 
     // assert_eq!(test.constellation_token.balance(&test.user), 10);
 }

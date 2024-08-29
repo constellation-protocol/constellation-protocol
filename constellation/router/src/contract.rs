@@ -16,8 +16,9 @@ use crate::token::constellation_token::Component;
 use constellation_lib::traits::adapter::dex;
 use soroban_sdk::auth::SubContractInvocation;
 use soroban_sdk::{
-    contract, contracterror, contractimpl, contracttype, log, panic_with_error, symbol_short,
-    token, vec, Address, BytesN, ConversionError, Env, InvokeError, String, Symbol, Vec,
+    auth::InvokerContractAuthEntry, contract, contracterror, contractimpl, contracttype, log,
+    panic_with_error, symbol_short, token, vec, xdr, Address, BytesN, ConversionError, Env,
+    InvokeError, String, Symbol, Val, Vec,
 };
 
 #[contract]
@@ -80,27 +81,29 @@ impl Router {
     ///
     /// # Arguments
     /// - `e` - The runtime environment.
-    /// - `amount_in` -  Amount of input token
-    /// - `amount` - constellation Amount to mint
-    ///
+    /// - `mint_amount` -  Amount of  constellation tokens to mint
+    /// - `amount_in` - amount of input token
+    /// - `token_in` - Address of input token
+    /// - `to` - Address to receive constellation token
+    /// - `constellation_token_id` Constellation token address 
+    /// - `deadline` swap deadline
+    /// 
     /// Caller must possess balances of component tokens of the specified constellation token
     /// equal to or greater than the unit amount of the component token (of the constellation token) multiplied by
     /// the amount of constellation token to mint - see the lock function called in the mint function of the constellatio token
     ///
-    /// Caller must also approve constellation token to spend each of the component tokens of the constellation token
     pub fn mint_exact_constellation(
         e: Env,
+        mint_amount: i128,
         amount_in: i128,
-        amount: i128,
         token_in: Address,
-        constellation_token_id: Address,
         to: Address,
+        constellation_token_id: Address,
         deadline: u64,
     ) -> Result<i128, Error> {
-       to.require_auth();
+        to.require_auth();
 
-
-     let router_id = require_exchange_router(&e);
+        let router_id = require_exchange_router(&e);
 
         token::Client::new(&e, &token_in).transfer_from(
             &e.current_contract_address(),
@@ -109,30 +112,10 @@ impl Router {
             &amount_in,
         );
 
-        // token::Client::new(&e, &token_in).transfer(
-        //     &e.current_contract_address(),
-        //     &constellation_token_id,
-        //     // &e.current_contract_address(),
-        //     &amount_in,
-        // );
-
-       // let xlm_id = require_xlm(&e);
-
         let components = ctoken::get_components(&e, &constellation_token_id);
 
         let (total_token_in_amount, token_amounts_in) =
-            get_required_amount_token_in(&e, &token_in, amount, &components)?;
-
-        // let amount_in = get_base_token_amount_in(
-        //     &e,
-        //     &router_id,
-        //     amount_in,
-        //     0,
-        //     &token_in,
-        //     &xlm_id,
-        //     &e.current_contract_address(),
-        //     deadline,
-        // )?;
+            get_required_amount_token_in(&e, &token_in, mint_amount, &components)?;
 
         if total_token_in_amount > amount_in {
             return Err(Error::InsufficientInputAmount);
@@ -140,35 +123,23 @@ impl Router {
 
         let mut total_spent = swap_tokens_for_exact_tokens(
             &e,
+            &mint_amount,
+            &token_in,
+            &e.current_contract_address(),
             &router_id,
             &token_amounts_in,
-            i128::MAX,
-            &token_in,
-            // &xlm_id,
-          //  &to,
-            &e.current_contract_address(),
-          // &constellation_token_id,
-           &constellation_token_id,
-            deadline,
             &components,
+            &constellation_token_id,
+            deadline,
         )?;
 
-        //  ctoken::mint(&e, &to, amount, &constellation_token_id);
+        ctoken::mint(&e, &to, mint_amount, &constellation_token_id);
 
-        // let amount_unspent = amount_in - total_spent;
+        let refund = amount_in - total_spent;
 
-        // let refund = refund_unspent(
-        //     &e,
-        //     &router_id,
-        //     amount_unspent,
-        //     0,
-        //     &xlm_id,
-        //     &token_in,
-        //     &to,
-        //     deadline,
-        // )?;
-        let refund = 1222;
-        event::mint_exact_constellation(&e, to, amount, refund);
+        let refund = refund_unspent(&e, refund, &token_in, &to, deadline)?;
+
+        event::mint_exact_constellation(&e, to, mint_amount, refund);
         Ok(refund)
     }
 
@@ -287,5 +258,20 @@ impl Router {
     /// Returns the address of factory contract
     pub fn get_factory_address(e: Env) -> Option<Address> {
         read_factory(&e)
+    }
+
+    pub fn invoke(
+        e: Env,
+        module_id: Address,
+        target_id: Address,
+        call_data: (Symbol, Vec<Val>),
+        auth_entries: Vec<InvokerContractAuthEntry>,
+    ) -> Result<(), Error> {
+        //  module_id.require_auth();
+
+        let (function, args) = call_data;
+        e.authorize_as_current_contract(auth_entries);
+        e.invoke_contract::<Val>(&target_id, &function, args);
+        Ok(())
     }
 }

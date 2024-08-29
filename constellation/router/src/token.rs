@@ -1,4 +1,4 @@
-use soroban_sdk::{auth::InvokerContractAuthEntry, Address,Symbol, Val, Env, Vec};
+use soroban_sdk::{auth::InvokerContractAuthEntry, Address, Env, Symbol, Val, Vec};
 
 pub mod constellation_token {
     use soroban_sdk::auth::InvokerContractAuthEntry;
@@ -45,4 +45,3 @@ pub(crate) fn invoke(
         auth_entries,
     );
 }
-

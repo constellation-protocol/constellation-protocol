@@ -5,8 +5,7 @@ extern crate std;
 #[test]
 fn test_trade() {
     let test = TradeTest::setup();
-   // test.env.mock_all_auths();
-   test.env.mock_all_auths_allowing_non_root_auth();
+    test.env.mock_all_auths();
     // units
     let units = vec![&test.env, 1000, 1000];
     // components
@@ -54,7 +53,7 @@ fn test_trade() {
         .set_registry(&test.registry.address);
     test.constellation_token
         .add_module(&test.trade_module.address);
-  
+
     assert_eq!(test.constellation_token.balance(&test.user), 10);
     let balance_before_trade_token_0 = test.tokens.0.balance(&test.constellation_token.address);
     let balance_before_trade_token_1 = test.tokens.1.balance(&test.constellation_token.address);
@@ -70,7 +69,7 @@ fn test_trade() {
     ];
     let amount_in = 5000i128;
     let res = test.router.router_get_amounts_out(&amount_in, path);
-    let amount_out = res.get(1).unwrap();
+    let mut amount_out = res.get(1).unwrap();
     assert_eq!(balance_before_trade_token_2, 0);
 
     let c = test.constellation_token.get_components();
@@ -89,6 +88,11 @@ fn test_trade() {
     );
 
     std::dbg!(test.env.auths());
+
+    //   assert_eq!(
+    //     test.tokens.2.balance(&test.constellation_token.address),
+    //     amount_out
+    // );
 
     // assert_eq!(
     //     test.tokens.2.balance(&test.constellation_token.address),

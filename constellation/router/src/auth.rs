@@ -122,14 +122,15 @@ pub fn create_sub_auth(
     amount_in: i128,
     token_in: Address,
     token_out: Address,
-    to: Address,
+    from: Address,
+    pair: Address,
 ) -> Vec<InvokerContractAuthEntry> {
-    let router_id = require_exchange_router(e);
-    let pair = router_pair_for(e, &router_id, &token_in.clone(), &token_out.clone());
+    //let router_id = require_exchange_router(e);
+    // let pair = router_pair_for(e, &router_id, &token_in.clone(), &token_out.clone());
 
     // transfer arguments - used in soroswap router
     let mut args: Vec<Val> = vec![e];
-    args.push_back(to.into_val(e));
+    args.push_back(from.into_val(e));
     args.push_back(pair.into_val(e));
     args.push_back(amount_in.into_val(e));
 
