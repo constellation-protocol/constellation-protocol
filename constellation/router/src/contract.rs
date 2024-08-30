@@ -2,23 +2,24 @@ use crate::error::{self, Error};
 use crate::event;
 use crate::factory;
 use crate::helper::{
-    get_base_token_amount_in, get_required_amount_token_in, refund_unspent,
-    swap_tokens_for_exact_tokens,
+    get_base_token_amount_in, get_required_amount_token_in as _get_required_amount_token_in,
+    refund_unspent, swap_exact_tokens_for_tokens, swap_tokens_for_exact_tokens,
 };
-use crate::require::{require_exchange_router, require_xlm};
+use crate::require::require_exchange_router;
+use crate::soroswap_router;
 use crate::storage::{
-    has_factory, read_exchange_router, read_factory, read_xlm, write_exchange_router,
-    write_factory, write_xlm, xlm,
+    has_factory, read_exchange_router, read_factory, write_exchange_router,
+    write_factory,
 };
 use crate::token as ctoken;
 use crate::token::constellation_token::Component;
+use constellation_lib::traits::adapter::dex;
 use soroban_sdk::auth::SubContractInvocation;
 use soroban_sdk::{
-    contract, contracterror, contractimpl, contracttype, log, panic_with_error, symbol_short,
-    token, vec, Address, BytesN, ConversionError, Env, InvokeError, String, Symbol, Vec,
+    auth::InvokerContractAuthEntry, contract, contracterror, contractimpl, contracttype, log,
+    panic_with_error, symbol_short, token, vec, xdr, Address, BytesN, ConversionError, Env,
+    InvokeError, String, Symbol, Val, Vec,
 };
-
-use crate::soroswap_router;
 
 #[contract]
 pub struct Router;
@@ -34,14 +35,12 @@ impl Router {
         e: Env,
         factory: Address,
         soroswap_router: Address,
-        xlm: Address,
     ) -> Result<(), Error> {
         if has_factory(&e) {
             return Err(Error::AlreadyInitalized);
         }
         write_factory(&e, &factory);
         write_exchange_router(&e, &soroswap_router);
-        write_xlm(&e, &xlm);
         event::initialize(&e, factory);
         Ok(())
     }
@@ -80,21 +79,24 @@ impl Router {
     ///
     /// # Arguments
     /// - `e` - The runtime environment.
-    /// - `amount_in` - Address of constellation token to mint
-    /// - `amount` - Amount to mint
+    /// - `mint_amount` -  Amount of  constellation tokens to mint
+    /// - `amount_in` - amount of input token
+    /// - `token_in` - Address of input token
+    /// - `to` - Address to receive constellation token
+    /// - `constellation_token_id` Constellation token address
+    /// - `deadline` swap deadline
     ///
     /// Caller must possess balances of component tokens of the specified constellation token
     /// equal to or greater than the unit amount of the component token (of the constellation token) multiplied by
     /// the amount of constellation token to mint - see the lock function called in the mint function of the constellatio token
     ///
-    /// Caller must also approve constellation token to spend each of the component tokens of the constellation token
     pub fn mint_exact_constellation(
         e: Env,
+        mint_amount: i128,
         amount_in: i128,
-        amount: i128,
         token_in: Address,
-        constellation_token_id: Address,
         to: Address,
+        constellation_token_id: Address,
         deadline: u64,
     ) -> Result<i128, Error> {
         to.require_auth();
@@ -108,23 +110,10 @@ impl Router {
             &amount_in,
         );
 
-        let xlm_id = require_xlm(&e);
-
         let components = ctoken::get_components(&e, &constellation_token_id);
 
         let (total_token_in_amount, token_amounts_in) =
-            get_required_amount_token_in(&e, &token_in, amount, &components)?;
-
-        let amount_in = get_base_token_amount_in(
-            &e,
-            &router_id,
-            amount_in,
-            0,
-            &token_in,
-            &xlm_id,
-            &e.current_contract_address(),
-            deadline,
-        )?;
+            _get_required_amount_token_in(&e, &token_in, mint_amount, &components)?;
 
         if total_token_in_amount > amount_in {
             return Err(Error::InsufficientInputAmount);
@@ -132,32 +121,23 @@ impl Router {
 
         let mut total_spent = swap_tokens_for_exact_tokens(
             &e,
+            &mint_amount,
+            &token_in,
+            &e.current_contract_address(),
             &router_id,
             &token_amounts_in,
-            i128::MAX,
-            &xlm_id,
-            &to,
-            deadline,
             &components,
-        )?;
-
-        ctoken::mint(&e, &to, amount, &constellation_token_id);
-
-        let amount_unspent = amount_in - total_spent;
-
-        let refund = refund_unspent(
-            &e,
-            &router_id,
-            amount_unspent,
-            0,
-            &xlm_id,
-            &token_in,
-            &to,
+            &constellation_token_id,
             deadline,
         )?;
 
-        event::mint_exact_constellation(&e, to, amount, refund);
+        ctoken::mint(&e, &to, mint_amount, &constellation_token_id);
 
+        let refund = amount_in - total_spent;
+
+        refund_unspent(&e, refund, &token_in, &to, deadline);
+
+        event::mint_exact_constellation(&e, to, mint_amount, refund);
         Ok(refund)
     }
 
@@ -186,12 +166,13 @@ impl Router {
         );
 
         let components = ctoken::get_components(&e, &constellation_token);
-
+ 
         for c in components.iter() {
             let balance = token::Client::new(&e, &c.address).balance(&e.current_contract_address());
+
             soroswap_router::swap_exact_tokens_for_tokens(
                 &e,
-                router_id,
+                &router_id,
                 balance,
                 0,
                 &c.address,
@@ -276,5 +257,29 @@ impl Router {
     /// Returns the address of factory contract
     pub fn get_factory_address(e: Env) -> Option<Address> {
         read_factory(&e)
+    }
+
+    pub fn get_required_amount_token_in(
+        e: Env,
+        token_in: Address,
+        mint_amount: i128,
+        components: Vec<Component>,
+    ) -> Result<(i128, Vec<i128>), Error> {
+        _get_required_amount_token_in(&e, &token_in, mint_amount, &components)
+    }
+
+    pub fn invoke(
+        e: Env,
+        module_id: Address,
+        target_id: Address,
+        call_data: (Symbol, Vec<Val>),
+        auth_entries: Vec<InvokerContractAuthEntry>,
+    ) -> Result<(), Error> {
+        //  module_id.require_auth();
+
+        let (function, args) = call_data;
+        e.authorize_as_current_contract(auth_entries);
+        e.invoke_contract::<Val>(&target_id, &function, args);
+        Ok(())
     }
 }

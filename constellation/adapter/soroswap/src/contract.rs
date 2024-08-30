@@ -1,5 +1,6 @@
 use crate::error::Error;
-use crate::require::{require_factory, require_pair};
+use crate::require::{require_factory, require_pair, require_router}; //, require_pair};
+use crate::router::router_pair_for;
 use crate::storage::{factory, router};
 use constellation_lib::traits::adapter::dex::IExchange;
 use constellation_lib::traits::adapter::{self, dex};
@@ -70,7 +71,9 @@ impl dex::Interface for SoroswapAdapter {
     ) -> Vec<InvokerContractAuthEntry> {
         let factory = require_factory(e);
 
-        let pair = require_pair(e, factory.clone(), token_in.clone(), token_out.clone());
+        let router_id = require_router(e);
+        let pair = router_pair_for(e, &router_id, &token_in.clone(), &token_out.clone());
+        // let pair = require_pair(e, factory.clone(), token_in.clone(), token_out.clone());
 
         // transfer arguments - used in soroswap router
         let mut args: Vec<Val> = vec![e];

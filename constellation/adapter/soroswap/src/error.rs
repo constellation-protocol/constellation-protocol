@@ -6,4 +6,5 @@ use soroban_sdk::{contracterror, contractimpl};
 pub enum Error {
     AlreadyInitalized = 502,
     RequiresFactory = 550,
+    RequiresRouter = 551,
 }

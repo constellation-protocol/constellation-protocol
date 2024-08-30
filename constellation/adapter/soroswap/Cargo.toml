@@ -13,11 +13,11 @@ doctest = false
 anyhow = "1.0.81"
 constellation-lib = { path = "../../lib"}
 soroban-sdk.workspace = true
-soroswap-library = "0.3.0"
+soroswap-library = {version = "1.0.21", default-features = false}
 
 [dev-dependencies]
-soroban-sdk = { version = "20.3.1", features = ["testutils"] }
-soroban-env-common = { version = "20.2.1", features = ["testutils"]}
+soroban-sdk = { version = "21.6.0", features = ["testutils"] }
+soroban-env-common = { version = "21.2.1", features = ["testutils"]}
 
 
 [profile.release]

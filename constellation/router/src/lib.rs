@@ -1,4 +1,5 @@
 #![no_std]
+mod auth;
 pub mod contract;
 mod error;
 mod event;

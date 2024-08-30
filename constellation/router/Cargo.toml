@@ -12,10 +12,11 @@ doctest = false
 soroban-sdk.workspace = true
 constellation-token = { path = "../token"} 
 constellation-module-trade = { path = "../module/trade"} 
+constellation-lib = { path = "../lib"}
 
 [dev-dependencies]
-soroban-sdk = { version = "20.3.1", features = ["testutils"] }
-soroban-env-common = { version = "20.2.1", features = ["testutils"]}
+soroban-sdk = { version = "21.6.0", features = ["testutils"] }
+soroban-env-common = { version = "21.2.1", features = ["testutils"]}
 
 [profile.release]
 opt-level = "z"

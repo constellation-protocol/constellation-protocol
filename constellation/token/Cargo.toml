@@ -9,13 +9,14 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
-soroban-sdk = { version = "20.3.1", features = ["alloc"]}
-soroban-token-sdk = { version = "20.3.1" }
-# constellation-lib = {path = "../lib" }
+soroban-sdk = { version = "21.6.0", features = ["alloc"]}
+soroban-token-sdk = { version = "21.6.0" }
 
-[dev-dependencies]
-soroban-sdk = { version = "20.3.1", features = ["testutils", "alloc"] }
-soroban-token-sdk = { version = "20.3.1" }
+
+[dev-dependencies] 
+soroban-token-sdk = { version = "21.6.0" }
+soroban-sdk = { version = "21.6.0", features = ["testutils", "alloc"] }
+soroban-env-common = { version = "21.2.1", features = ["testutils"]}
 
 [profile.release]
 opt-level = "z"

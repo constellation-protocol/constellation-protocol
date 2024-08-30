@@ -7,6 +7,16 @@ mod router {
     pub type SoroswapRouterClient<'a> = Client<'a>;
 }
 
+pub fn router_pair_for(
+    e: &Env,
+    router_id: &Address,
+    token_a: &Address,
+    token_b: &Address,
+) -> Address {
+    let router = router::Client::new(e, router_id);
+    router.router_pair_for(&token_a, &token_b)
+}
+
 pub fn router_get_amounts_in(
     e: &Env,
     amount_out: i128,
@@ -15,6 +25,16 @@ pub fn router_get_amounts_in(
 ) -> Vec<i128> {
     let router = router::Client::new(e, router_id);
     router.router_get_amounts_in(&amount_out, path)
+}
+
+pub fn router_get_amounts_out(
+    e: &Env,
+    amount_in: i128,
+    router_id: &Address,
+    path: &Vec<Address>,
+) -> Vec<i128> {
+    let router = router::Client::new(e, router_id);
+    router.router_get_amounts_out(&amount_in, path)
 }
 
 pub fn swap_exact_tokens_for_tokens(
