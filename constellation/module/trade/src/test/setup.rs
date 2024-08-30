@@ -33,6 +33,7 @@ impl<'a> TradeTest<'a> {
     pub fn setup() -> TradeTest<'a> {
         let env = Env::default();
         env.mock_all_auths();
+        env.budget().reset_unlimited();
         let user = Address::generate(&env);
         let admin = Address::generate(&env);
         let adapter = create_adapter(&env);

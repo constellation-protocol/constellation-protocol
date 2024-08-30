@@ -1,5 +1,6 @@
 use super::setup::TradeTest;
 use soroban_sdk::{testutils::Address as _, vec, Address, BytesN, Env, IntoVal, String, Vec};
+extern crate std;
 
 #[test]
 fn test_trade() {
@@ -23,7 +24,8 @@ fn test_trade() {
         &units,
         &name,
         &symbol,
-        &test.admin,
+        &test.user,
+       // &test.admin,
         &manager,
     );
     test.tokens.0.approve(
@@ -68,7 +70,7 @@ fn test_trade() {
     ];
     let amount_in = 5000i128;
     let res = test.router.router_get_amounts_out(&amount_in, path);
-    let amount_out = res.get(1).unwrap();
+    let mut amount_out = res.get(1).unwrap();
     assert_eq!(balance_before_trade_token_2, 0);
 
     let c = test.constellation_token.get_components();
@@ -84,6 +86,13 @@ fn test_trade() {
         &amount_out,
         &deadline,
         &expiration_ledger,
+    );
+
+    std::dbg!(test.env.auths());
+
+      assert_eq!(
+        test.tokens.2.balance(&test.constellation_token.address),
+        amount_out
     );
 
     assert_eq!(

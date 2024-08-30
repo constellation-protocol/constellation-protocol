@@ -3,17 +3,22 @@ use soroban_sdk::{Address, BytesN, Env};
 pub use crate::contract::RouterClient;
 pub use adapter::TradeAdapterClient;
 pub use constellation_token::ConstellationTokenClient;
-pub use factory::SoroswapFactoryClient;
+pub use pair::PairClient;
 pub use registry::RegistryClient;
 pub use router::SoroswapRouterClient;
+pub use s_factory::SoroswapFactoryClient;
 pub use token::TokenClient;
 
-mod constellation_token {
+pub mod constellation_token {
     use soroban_sdk::auth::InvokerContractAuthEntry;
     soroban_sdk::contractimport!(
         file = "../../target/wasm32-unknown-unknown/release/constellation_token.wasm"
     );
     pub type ConstellationTokenClient<'a> = Client<'a>;
+}
+
+pub fn upload_constellation_token(e: &Env) -> BytesN<32> {
+    e.deployer().upload_contract_wasm(constellation_token::WASM)
 }
 
 pub mod adapter {
@@ -26,6 +31,7 @@ pub mod adapter {
 }
 
 pub mod registry {
+    use soroban_sdk::auth::InvokerContractAuthEntry;
     soroban_sdk::contractimport!(
         file = "../../target/wasm32-unknown-unknown/release/constellation_registry.wasm"
     );
@@ -37,7 +43,7 @@ mod router {
     pub type SoroswapRouterClient<'a> = Client<'a>;
 }
 
-mod factory {
+mod s_factory {
     soroban_sdk::contractimport!(file = "../../libs/soroswap_factory.wasm");
     pub type SoroswapFactoryClient<'a> = Client<'a>;
 }
@@ -47,9 +53,18 @@ pub mod token {
     pub type TokenClient<'a> = Client<'a>;
 }
 
+pub mod pair {
+    soroban_sdk::contractimport!(file = "../../libs/soroswap_pair.wasm");
+    pub type PairClient<'a> = Client<'a>;
+}
+
 pub fn pair_contract_wasm(e: &Env) -> BytesN<32> {
     soroban_sdk::contractimport!(file = "../../libs/soroswap_pair.wasm");
     e.deployer().upload_contract_wasm(WASM)
+}
+
+pub fn create_soroswap_pair_contract<'a>(e: &Env) -> PairClient<'a> {
+    PairClient::new(e, &e.register_contract_wasm(None, pair::WASM))
 }
 
 pub fn create_soroswap_router<'a>(e: &Env) -> SoroswapRouterClient<'a> {
@@ -57,7 +72,7 @@ pub fn create_soroswap_router<'a>(e: &Env) -> SoroswapRouterClient<'a> {
 }
 
 pub fn create_soroswap_factory<'a>(e: &Env) -> SoroswapFactoryClient<'a> {
-    SoroswapFactoryClient::new(e, &e.register_contract_wasm(None, factory::WASM))
+    SoroswapFactoryClient::new(e, &e.register_contract_wasm(None, s_factory::WASM))
 }
 
 pub fn create_constellation_token<'a>(e: &Env) -> ConstellationTokenClient<'a> {

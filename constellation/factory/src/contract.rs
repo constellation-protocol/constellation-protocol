@@ -20,7 +20,11 @@ impl Factory {
     /// # Arguments
     /// - `e` - The runtime environment.
     /// - `admin` - Address of contract administrator
-    pub fn initialize(e: Env, admin: Address, constellation_token_wasm_hash: BytesN<32>) -> Result<(), Error> {
+    pub fn initialize(
+        e: Env,
+        admin: Address,
+        constellation_token_wasm_hash: BytesN<32>,
+    ) -> Result<(), Error> {
         if has_administrator(&e) {
             return Err(Error::AlreadyInitialized);
         }
@@ -131,11 +135,8 @@ impl Factory {
         read_max_components(&e)
     }
 
-    fn store_next_deployment_count(
-        e: &Env,
-        deployment_count: u64, 
-    )  {
-        let next_deployment_count = deployment_count +  1;
+    fn store_next_deployment_count(e: &Env, deployment_count: u64) {
+        let next_deployment_count = deployment_count + 1;
         write_deployment_count(e, next_deployment_count);
     }
 
@@ -148,7 +149,7 @@ impl Factory {
         salt.append(&wasm_hash.clone().to_xdr(e));
         salt.append(&next_deployment.to_xdr(e));
 
-        Ok(e.crypto().sha256(&salt))
+        Ok(e.crypto().sha256(&salt).into())
     }
 
     fn get_or_set_deployment_count(e: &Env) -> u64 {

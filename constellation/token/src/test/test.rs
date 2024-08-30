@@ -235,14 +235,11 @@ fn test_set_manager_panics_with_authorization_failed() {
     let e = Env::default();
     e.mock_all_auths();
     let new_manager = Address::generate(&e);
-    let token1 = create_token_contract(&e, &Address::generate(&e));
-    let token2 = create_token_contract(&e, &Address::generate(&e));
-    let token3 = create_token_contract(&e, &Address::generate(&e));
+ 
 
-    let (ct, admin, manager) = initialize_token(
+    let (ct, admin, manager,_) = initialize_token(
         &e,
         create_constellation_token(&e),
-        (token1.address, token2.address, token3.address),
     );
     ct.set_manager(&new_manager);
     assert_eq!(
@@ -269,14 +266,13 @@ fn mint_reverts_with_zero_or_negative_amount_not_allowed() {
     let mint_to = Address::generate(&e);
     let new_manager = Address::generate(&e);
 
-    let token1 = create_token_contract(&e, &Address::generate(&e));
-    let token2 = create_token_contract(&e, &Address::generate(&e));
-    let token3 = create_token_contract(&e, &Address::generate(&e));
+    // let token1 = create_token_contract(&e, &Address::generate(&e));
+    // let token2 = create_token_contract(&e, &Address::generate(&e));
+    // let token3 = create_token_contract(&e, &Address::generate(&e));
 
-    let (ct, _, _) = initialize_token(
+    let (ct, _, _, _) = initialize_token(
         &e,
-        create_constellation_token(&e),
-        (token1.address, token2.address, token3.address),
+        create_constellation_token(&e), 
     );
 
     let restult = ct.try_mint(&mint_to, &i128::from(0));

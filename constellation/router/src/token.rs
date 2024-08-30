@@ -1,4 +1,4 @@
-use soroban_sdk::{Address, Env, Vec};
+use soroban_sdk::{auth::InvokerContractAuthEntry, Address, Env, Symbol, Val, Vec};
 
 pub mod constellation_token {
     use soroban_sdk::auth::InvokerContractAuthEntry;
@@ -9,7 +9,8 @@ pub mod constellation_token {
 pub use constellation_token::Component;
 
 pub(crate) fn mint(e: &Env, to: &Address, amount: i128, constellation_token_address: &Address) {
-    let ctoken = constellation_token::Client::new(&e, constellation_token_address);
+    let ctoken: constellation_token::Client<'_> =
+        constellation_token::Client::new(&e, constellation_token_address);
     ctoken.mint(to, &amount);
 }
 
@@ -28,4 +29,20 @@ pub(crate) fn redeem(
 pub(crate) fn get_components(e: &Env, constellation_token_address: &Address) -> Vec<Component> {
     let ctoken = constellation_token::Client::new(&e, constellation_token_address);
     ctoken.get_components()
+}
+
+pub(crate) fn invoke(
+    e: &Env,
+    constellation_token_id: &Address,
+    target_contract_id: &Address,
+    call_data: &(Symbol, Vec<Val>),
+    auth_entries: &Vec<InvokerContractAuthEntry>,
+) {
+    let client = constellation_token::Client::new(&e, &constellation_token_id);
+    client.invoke(
+        &e.current_contract_address(),
+        target_contract_id,
+        call_data,
+        auth_entries,
+    );
 }
