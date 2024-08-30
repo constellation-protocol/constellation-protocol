@@ -24,7 +24,8 @@ fn test_trade() {
         &units,
         &name,
         &symbol,
-        &test.admin,
+        &test.user,
+       // &test.admin,
         &manager,
     );
     test.tokens.0.approve(
@@ -89,41 +90,41 @@ fn test_trade() {
 
     std::dbg!(test.env.auths());
 
-    //   assert_eq!(
-    //     test.tokens.2.balance(&test.constellation_token.address),
-    //     amount_out
-    // );
+      assert_eq!(
+        test.tokens.2.balance(&test.constellation_token.address),
+        amount_out
+    );
 
-    // assert_eq!(
-    //     test.tokens.2.balance(&test.constellation_token.address),
-    //     amount_out
-    // );
-    // // check units
-    // assert_eq!(
-    //     test.tokens.2.balance(&test.constellation_token.address),
-    //     4984
-    // );
-    // let c = test.constellation_token.get_components();
-    // assert_eq!(c.len(), 3);
-    // assert_eq!(
-    //     test.constellation_token
-    //         .get_component(&test.tokens.1.address)
-    //         .unwrap()
-    //         .unit,
-    //     1000
-    // );
-    // assert_eq!(
-    //     test.constellation_token
-    //         .get_component(&test.tokens.0.address)
-    //         .unwrap()
-    //         .unit,
-    //     500
-    // );
-    // assert_eq!(
-    //     test.constellation_token
-    //         .get_component(&test.tokens.2.address)
-    //         .unwrap()
-    //         .unit,
-    //     498
-    // );
+    assert_eq!(
+        test.tokens.2.balance(&test.constellation_token.address),
+        amount_out
+    );
+    // check units
+    assert_eq!(
+        test.tokens.2.balance(&test.constellation_token.address),
+        4984
+    );
+    let c = test.constellation_token.get_components();
+    assert_eq!(c.len(), 3);
+    assert_eq!(
+        test.constellation_token
+            .get_component(&test.tokens.1.address)
+            .unwrap()
+            .unit,
+        1000
+    );
+    assert_eq!(
+        test.constellation_token
+            .get_component(&test.tokens.0.address)
+            .unwrap()
+            .unit,
+        500
+    );
+    assert_eq!(
+        test.constellation_token
+            .get_component(&test.tokens.2.address)
+            .unwrap()
+            .unit,
+        498
+    );
 }

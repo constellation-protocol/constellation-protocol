@@ -1,6 +1,6 @@
 {
   "generators": {
-    "address": 9,
+    "address": 8,
     "nonce": 0
   },
   "auth": [
@@ -340,18 +340,6 @@
                         },
                         "val": {
                           "address": "CDXKQTPLDDF4RBMJCCTGV2XQ44DCJOY7XZZKPEDJFKQTECSTYHBOI42O"
-                        }
-                      },
-                      {
-                        "key": {
-                          "vec": [
-                            {
-                              "symbol": "XLM"
-                            }
-                          ]
-                        },
-                        "val": {
-                          "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAATYON"
                         }
                       }
                     ]
@@ -1792,9 +1780,6 @@
                 },
                 {
                   "address": "CC6YSLPYSKOZZFQSYO3UWY6VG5ZFKBXYOVDLAO7CVS26QZAFFR6AWO5K"
-                },
-                {
-                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAATYON"
                 }
               ]
             }

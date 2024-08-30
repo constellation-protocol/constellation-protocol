@@ -1,8 +1,7 @@
 use crate::error::Error;
 use crate::require::require_exchange_router;
 use crate::soroswap_router;
-use crate::soroswap_router::router_get_amounts_in;
-use crate::soroswap_router::router_pair_for;
+use crate::soroswap_router::{router_get_amounts_in, router_get_amounts_out, router_pair_for};
 use crate::token::Component;
 use crate::{auth::*, token::invoke};
 use soroban_sdk::xdr;
@@ -44,6 +43,53 @@ pub fn get_required_amount_token_in(
     Ok((total_token_in_amount, token_amounts_in))
 }
 
+pub fn swap_exact_tokens_for_tokens(
+    e: &Env,
+    router_id: &Address,
+    token_out: &Address,
+    components: &Vec<Component>,
+    to: &Address,
+    deadline: u64,
+) {
+    for c in components.iter() {
+        let token_client = token::Client::new(&e, &c.address);
+        let amount_in = token_client.balance(&e.current_contract_address());
+        token_client.approve(&e.current_contract_address(), router_id, &amount_in, &1000);
+        let pair = router_pair_for(e, &router_id, &c.address.clone(), &token_out.clone());
+
+        let results = router_get_amounts_out(
+            e,
+            amount_in,
+            router_id,
+            &vec![e, c.address.clone(), token_out.clone()],
+        );
+
+        let amount_out = results.get(1).unwrap();
+
+        let (function, args) = get_swap_exact_tokens_for_tokens_call_data(
+            e,
+            c.address.clone(),
+            token_out.clone(),
+            amount_in,
+            amount_out,
+            to.clone(),
+            deadline,
+        );
+
+        let auth_entries = create_sub_auth(
+            e,
+            amount_in,
+            c.address.clone(),
+            token_out.clone(),
+            to.clone(),
+            pair.clone(),
+        );
+
+        e.authorize_as_current_contract(auth_entries);
+        e.invoke_contract(router_id, &function, args)
+    }
+}
+
 pub fn swap_tokens_for_exact_tokens(
     e: &Env,
     mint_amount: &i128,
@@ -63,7 +109,7 @@ pub fn swap_tokens_for_exact_tokens(
         let amount_out = c.unit * mint_amount;
         match token_amounts_in.get(i as u32) {
             Some(amount_in) => {
-                let (function, args) = get_swap_call_data(
+                let (function, args) = get_swap_tokens_for_exact_tokens_call_data(
                     e,
                     token_in.clone(),
                     c.address.clone(),
@@ -129,13 +175,6 @@ pub fn get_base_token_amount_in(
     Ok(amount_in)
 }
 
-pub fn refund_unspent(
-    e: &Env,
-    refund: i128,
-    token_in: &Address,
-    to: &Address,
-    deadline: u64,
-) -> Result<i128, Error> {
+pub fn refund_unspent(e: &Env, refund: i128, token_in: &Address, to: &Address, deadline: u64) {
     token::Client::new(&e, &token_in).transfer(&e.current_contract_address(), &to, &refund);
-    Ok(refund)
 }

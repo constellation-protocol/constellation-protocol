@@ -27,6 +27,16 @@ pub fn router_get_amounts_in(
     router.router_get_amounts_in(&amount_out, path)
 }
 
+pub fn router_get_amounts_out(
+    e: &Env,
+    amount_in: i128,
+    router_id: &Address,
+    path: &Vec<Address>,
+) -> Vec<i128> {
+    let router = router::Client::new(e, router_id);
+    router.router_get_amounts_out(&amount_in, path)
+}
+
 pub fn swap_exact_tokens_for_tokens(
     e: &Env,
     router_id: &Address,

@@ -60,10 +60,11 @@ impl<'a> TradeTest<'a> {
             create_token_contract(&env, &admin),
         );
 
-        tokens.0.mint(&user, &10_000_000_000_000_000_000);
-        tokens.1.mint(&user, &10_000_000_000_000_000_000);
-        tokens.2.mint(&user, &10_000_000_000_000_000_000);
-        tokens.3.mint(&user, &10_000_000_000_000_000_000);
+        let mint_amount = 900_000_000_000_0000000;
+        tokens.0.mint(&user, &mint_amount);
+        tokens.1.mint(&user, &mint_amount);
+        tokens.2.mint(&user, &mint_amount);
+        tokens.3.mint(&user, &mint_amount);
 
         let pair_wasm = pair_contract_wasm(&env);
         s_factory.initialize(&admin, &pair_wasm);
@@ -74,10 +75,10 @@ impl<'a> TradeTest<'a> {
 
         factory.initialize(&admin, &constellation_token_bytes);
 
-        router.initialize(&factory.address, &s_router.address, &tokens.0.address);
+        router.initialize(&factory.address, &s_router.address);
 
-        let amount_0: i128 = 4_000_000_000;
-        let amount_1: i128 = 4_000_000_000;
+        let amount_0: i128 = 10_000_000_000_0000000;
+        let amount_1: i128 = 10_000_000_000_0000000;
 
         add_liquidity(
             &env,

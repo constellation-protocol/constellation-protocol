@@ -9,7 +9,8 @@ pub mod constellation_token {
 pub use constellation_token::Component;
 
 pub(crate) fn mint(e: &Env, to: &Address, amount: i128, constellation_token_address: &Address) {
-    let ctoken = constellation_token::Client::new(&e, constellation_token_address);
+    let ctoken: constellation_token::Client<'_> =
+        constellation_token::Client::new(&e, constellation_token_address);
     ctoken.mint(to, &amount);
 }
 

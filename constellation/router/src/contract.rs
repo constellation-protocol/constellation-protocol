@@ -2,14 +2,14 @@ use crate::error::{self, Error};
 use crate::event;
 use crate::factory;
 use crate::helper::{
-    get_base_token_amount_in, get_required_amount_token_in, refund_unspent,
-    swap_tokens_for_exact_tokens,
+    get_base_token_amount_in, get_required_amount_token_in as _get_required_amount_token_in,
+    refund_unspent, swap_exact_tokens_for_tokens, swap_tokens_for_exact_tokens,
 };
-use crate::require::{require_exchange_router, require_xlm};
+use crate::require::require_exchange_router;
 use crate::soroswap_router;
 use crate::storage::{
-    has_factory, read_exchange_router, read_factory, read_xlm, write_exchange_router,
-    write_factory, write_xlm, xlm,
+    has_factory, read_exchange_router, read_factory, write_exchange_router,
+    write_factory,
 };
 use crate::token as ctoken;
 use crate::token::constellation_token::Component;
@@ -35,14 +35,12 @@ impl Router {
         e: Env,
         factory: Address,
         soroswap_router: Address,
-        xlm: Address,
     ) -> Result<(), Error> {
         if has_factory(&e) {
             return Err(Error::AlreadyInitalized);
         }
         write_factory(&e, &factory);
         write_exchange_router(&e, &soroswap_router);
-        write_xlm(&e, &xlm);
         event::initialize(&e, factory);
         Ok(())
     }
@@ -85,9 +83,9 @@ impl Router {
     /// - `amount_in` - amount of input token
     /// - `token_in` - Address of input token
     /// - `to` - Address to receive constellation token
-    /// - `constellation_token_id` Constellation token address 
+    /// - `constellation_token_id` Constellation token address
     /// - `deadline` swap deadline
-    /// 
+    ///
     /// Caller must possess balances of component tokens of the specified constellation token
     /// equal to or greater than the unit amount of the component token (of the constellation token) multiplied by
     /// the amount of constellation token to mint - see the lock function called in the mint function of the constellatio token
@@ -115,7 +113,7 @@ impl Router {
         let components = ctoken::get_components(&e, &constellation_token_id);
 
         let (total_token_in_amount, token_amounts_in) =
-            get_required_amount_token_in(&e, &token_in, mint_amount, &components)?;
+            _get_required_amount_token_in(&e, &token_in, mint_amount, &components)?;
 
         if total_token_in_amount > amount_in {
             return Err(Error::InsufficientInputAmount);
@@ -137,7 +135,7 @@ impl Router {
 
         let refund = amount_in - total_spent;
 
-        let refund = refund_unspent(&e, refund, &token_in, &to, deadline)?;
+        refund_unspent(&e, refund, &token_in, &to, deadline);
 
         event::mint_exact_constellation(&e, to, mint_amount, refund);
         Ok(refund)
@@ -168,12 +166,13 @@ impl Router {
         );
 
         let components = ctoken::get_components(&e, &constellation_token);
-
+ 
         for c in components.iter() {
             let balance = token::Client::new(&e, &c.address).balance(&e.current_contract_address());
+
             soroswap_router::swap_exact_tokens_for_tokens(
                 &e,
-                router_id,
+                &router_id,
                 balance,
                 0,
                 &c.address,
@@ -258,6 +257,15 @@ impl Router {
     /// Returns the address of factory contract
     pub fn get_factory_address(e: Env) -> Option<Address> {
         read_factory(&e)
+    }
+
+    pub fn get_required_amount_token_in(
+        e: Env,
+        token_in: Address,
+        mint_amount: i128,
+        components: Vec<Component>,
+    ) -> Result<(i128, Vec<i128>), Error> {
+        _get_required_amount_token_in(&e, &token_in, mint_amount, &components)
     }
 
     pub fn invoke(
