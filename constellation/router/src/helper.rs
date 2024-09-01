@@ -149,32 +149,6 @@ pub fn swap_tokens_for_exact_tokens(
     Ok(total_spent)
 }
 
-pub fn get_base_token_amount_in(
-    e: &Env,
-    router_id: &Address,
-    amount_in: i128,
-    amount_out_min: i128,
-    token_in: &Address,
-    token_out: &Address,
-    to: &Address,
-    deadline: u64,
-) -> Result<i128, Error> {
-    let amount_in = match token_in != token_out {
-        true => soroswap_router::swap_exact_tokens_for_tokens(
-            &e,
-            router_id,
-            amount_in,
-            amount_out_min,
-            token_in,
-            token_out,
-            &to.clone(),
-            deadline,
-        )?,
-        false => amount_in,
-    };
-    Ok(amount_in)
-}
-
 pub fn refund_unspent(e: &Env, refund: i128, token_in: &Address, to: &Address, deadline: u64) {
     token::Client::new(&e, &token_in).transfer(&e.current_contract_address(), &to, &refund);
 }

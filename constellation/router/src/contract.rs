@@ -2,7 +2,7 @@ use crate::error::{self, Error};
 use crate::event;
 use crate::factory;
 use crate::helper::{
-    get_base_token_amount_in, get_required_amount_token_in as _get_required_amount_token_in,
+     get_required_amount_token_in as _get_required_amount_token_in,
     refund_unspent, swap_exact_tokens_for_tokens, swap_tokens_for_exact_tokens,
 };
 use crate::require::require_exchange_router;
