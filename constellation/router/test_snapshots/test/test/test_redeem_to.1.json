@@ -719,7 +719,7 @@
           "function": {
             "contract_fn": {
               "contract_address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAARQG5",
-              "function_name": "mint_exact_constellation",
+              "function_name": "mint_exact_token",
               "args": [
                 {
                   "i128": {
@@ -13780,7 +13780,7 @@
                 "bytes": "0000000000000000000000000000000000000000000000000000000000000008"
               },
               {
-                "symbol": "mint_exact_constellation"
+                "symbol": "mint_exact_token"
               }
             ],
             "data": {
@@ -16521,7 +16521,7 @@
                 "symbol": "fn_return"
               },
               {
-                "symbol": "mint_exact_constellation"
+                "symbol": "mint_exact_token"
               }
             ],
             "data": {

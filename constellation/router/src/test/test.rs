@@ -190,7 +190,7 @@ fn create_token_succeeds() {
 fn test_mint() {
     let test = TradeTest::setup();
     // test.env.mock_all_auths_allowing_non_root_auth();
-
+    
     // units
     let units = vec![&test.env, 1, 1];
     // components
@@ -263,7 +263,7 @@ fn test_mint() {
 
     let mint_amount = 1;
 
-    let refund = test.router.mint_exact_constellation(
+    let refund = test.router.mint_exact_tokens(
         &mint_amount,
         &amount_in,
         &test.tokens.0.address,
@@ -367,7 +367,7 @@ fn test_redeem_to() {
 
     assert_eq!(test.constellation_token.balance(&test.user), 0);
 
-    let refund = test.router.mint_exact_constellation(
+    let refund = test.router.mint_exact_tokens(
         &mint_amount,
         &amount_in,
         &test.tokens.0.address,

@@ -90,7 +90,7 @@ impl Router {
     /// equal to or greater than the unit amount of the component token (of the constellation token) multiplied by
     /// the amount of constellation token to mint - see the lock function called in the mint function of the constellatio token
     ///
-    pub fn mint_exact_constellation(
+    pub fn mint_exact_tokens(
         e: Env,
         mint_amount: i128,
         amount_in: i128,
