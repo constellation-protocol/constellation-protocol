@@ -118,6 +118,8 @@ impl Router {
         if total_token_in_amount > amount_in {
             return Err(Error::InsufficientInputAmount);
         }
+       
+        token::Client::new(&e, &token_in).approve(&e.current_contract_address(),&router_id, &amount_in,  &(e.ledger().sequence() + 1000u32));
 
         let mut total_spent = swap_tokens_for_exact_tokens(
             &e,
@@ -168,12 +170,11 @@ impl Router {
         let components = ctoken::get_components(&e, &constellation_token);
  
         for c in components.iter() {
-            let balance = token::Client::new(&e, &c.address).balance(&e.current_contract_address());
-
+            let amount_in = c.unit *  amount;
             soroswap_router::swap_exact_tokens_for_tokens(
                 &e,
                 &router_id,
-                balance,
+                amount_in,
                 0,
                 &c.address,
                 &redeem_token,

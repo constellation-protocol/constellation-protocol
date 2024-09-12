@@ -54,7 +54,9 @@ pub fn swap_exact_tokens_for_tokens(
     for c in components.iter() {
         let token_client = token::Client::new(&e, &c.address);
         let amount_in = token_client.balance(&e.current_contract_address());
-        token_client.approve(&e.current_contract_address(), router_id, &amount_in, &1000);
+        token_client.approve(&e.current_contract_address(), router_id, &amount_in,  
+        
+        &(e.ledger().sequence() + 1000u32));
         let pair = router_pair_for(e, &router_id, &c.address.clone(), &token_out.clone());
 
         let results = router_get_amounts_out(
@@ -137,7 +139,7 @@ pub fn swap_tokens_for_exact_tokens(
                 };
 
                 // approve the constellation token to transfer the routers token
-                token_client.approve(&to, &constellation_token_id, &amount_out, &1000u32);
+                token_client.approve(&to, &constellation_token_id, &amount_out,  &(e.ledger().sequence() + 1000u32));
 
                 total_spent += amount_in_spent;
             }

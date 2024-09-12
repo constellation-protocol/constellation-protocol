@@ -213,33 +213,13 @@ fn test_mint() {
         &manager,
     );
 
-    test.tokens.1.approve(
-        &test.user,
-        &test.constellation_token.address,
-        &10_000_000i128,
-        &1000u32,
-    );
-
-    test.tokens.2.approve(
-        &test.user,
-        &test.constellation_token.address,
-        &10_000_000i128,
-        &1000u32,
-    );
-
     test.tokens.0.approve(
         &test.user,
         &test.router.address,
         &10000_000_000i128,
         &1000u32,
     );
-
-    test.tokens.0.approve(
-        &test.router.address,
-        &test.s_router.address,
-        &700000_000_000i128,
-        &1000u32,
-    );
+ 
 
     let amount_in = 1000;
 
