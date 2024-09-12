@@ -2,7 +2,7 @@ use crate::error::{self, Error};
 use crate::event;
 use crate::factory;
 use crate::helper::{
-    get_base_token_amount_in, get_required_amount_token_in as _get_required_amount_token_in,
+     get_required_amount_token_in as _get_required_amount_token_in,
     refund_unspent, swap_exact_tokens_for_tokens, swap_tokens_for_exact_tokens,
 };
 use crate::require::require_exchange_router;
@@ -90,7 +90,7 @@ impl Router {
     /// equal to or greater than the unit amount of the component token (of the constellation token) multiplied by
     /// the amount of constellation token to mint - see the lock function called in the mint function of the constellatio token
     ///
-    pub fn mint_exact_constellation(
+    pub fn mint_exact_tokens(
         e: Env,
         mint_amount: i128,
         amount_in: i128,
@@ -118,6 +118,8 @@ impl Router {
         if total_token_in_amount > amount_in {
             return Err(Error::InsufficientInputAmount);
         }
+       
+        token::Client::new(&e, &token_in).approve(&e.current_contract_address(),&router_id, &amount_in,  &(e.ledger().sequence() + 1000u32));
 
         let mut total_spent = swap_tokens_for_exact_tokens(
             &e,
@@ -168,12 +170,11 @@ impl Router {
         let components = ctoken::get_components(&e, &constellation_token);
  
         for c in components.iter() {
-            let balance = token::Client::new(&e, &c.address).balance(&e.current_contract_address());
-
+            let amount_in = c.unit *  amount;
             soroswap_router::swap_exact_tokens_for_tokens(
                 &e,
                 &router_id,
-                balance,
+                amount_in,
                 0,
                 &c.address,
                 &redeem_token,
