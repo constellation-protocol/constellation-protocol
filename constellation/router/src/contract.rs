@@ -102,7 +102,7 @@ impl Router {
         to.require_auth();
 
         let router_id = require_exchange_router(&e);
-
+        // transfers token in to the router
         token::Client::new(&e, &token_in).transfer_from(
             &e.current_contract_address(),
             &to,
@@ -120,7 +120,8 @@ impl Router {
         }
        
         token::Client::new(&e, &token_in).approve(&e.current_contract_address(),&router_id, &amount_in,  &(e.ledger().sequence() + 1000u32));
-
+        
+        // swaps token_in for the component tokens
         let mut total_spent = swap_tokens_for_exact_tokens(
             &e,
             &mint_amount,
@@ -132,7 +133,8 @@ impl Router {
             &constellation_token_id,
             deadline,
         )?;
-
+        
+        // mints the constellation token
         ctoken::mint(&e, &to, mint_amount, &constellation_token_id);
 
         let refund = amount_in - total_spent;
